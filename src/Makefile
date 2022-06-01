@@ -8,4 +8,4 @@ rebuild: clean all
 
 COMMON =  logger.c util.c
 proxy:
-	$(COMPILER) $(CFLAGS) -o proxy proxy.c tcpServerUtil.c tcpCg
+	$(COMPILER) $(CFLAGS) -o proxy proxy.c tcpServerUtil.c tcpClientUtil.c $(COMMON)
