@@ -60,3 +60,6 @@ dkms.conf
 
 # Visual Studio Code
 .vscode/*
+
+## Executables
+proxy
