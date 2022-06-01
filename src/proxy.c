@@ -59,7 +59,7 @@ int main(int argc , char *argv[])
 	fd_set readfds;
 
 	// Agregamos un buffer de escritura asociado a cada socket, para no bloquear por escritura
-	struct buffer bufferWrite[5][2];
+	struct buffer bufferWrite[MAX_SOCKETS][2];
 	memset(bufferWrite, 0, sizeof bufferWrite);
 
 	// y tambien los flags para writes
@@ -173,11 +173,13 @@ int main(int argc , char *argv[])
 					{
 						log(INFO, "Creando sock para comunicarme con origin");
 						client_socket[i][0] = new_socket;
+						// TODO: this is currently a blocking operation
 						if((client_socket[i][1] = tcpClientSocket(ORIGIN, ORIGIN_PORT)) < 0) 
 						{
 							log(ERROR, "cannot open socket");
 							close(new_socket);
 							client_socket[i][0] = 0;
+							client_socket[i][1] = 0;
 						}
 						log(DEBUG, "Adding to list of sockets as %d\n" , i);
 						break;
@@ -221,6 +223,7 @@ int main(int argc , char *argv[])
 						client_socket[i][1-j] = 0;
 
 						FD_CLR(sd, &writefds);
+						FD_CLR(client_socket[i][1-j], &writefds);
 						// Limpiamos el buffer asociado, para que no lo "herede" otra sesión
 						clear(&bufferWrite[i][j]);
 						clear(&bufferWrite[i][1-j]);
