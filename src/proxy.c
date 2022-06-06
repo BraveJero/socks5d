@@ -12,23 +12,18 @@
 #include "logger.h"
 #include "tcpServerUtil.h"
 #include "tcpClientUtil.h"
+#include "clients.h"
 
 #define max(n1,n2)     ((n1)>(n2) ? (n1) : (n2))
 
 #define TRUE   1
 #define FALSE  0
 #define PORT_IPv4 8888
-#define MAX_SOCKETS 30
+#define MAX_SOCKETS 3
 #define BUFFSIZE 1024
 #define MAX_PENDING_CONNECTIONS   3    // un valor bajo, para realizar pruebas
 #define ORIGIN_PORT "9999"
 #define ORIGIN "localhost"
-
-struct buffer {
-	char * buffer;
-	size_t len;     // longitud del buffer
-	size_t from;    // desde donde falta escribir
-};
 
 /**
   Se encarga de escribir la respuesta faltante en forma no bloqueante
@@ -39,6 +34,7 @@ void handleWrite(int socket, struct buffer * buffer, fd_set * writefds);
   */
 void clear( struct buffer * buffer);
 
+static client *clients[MAX_SOCKETS];
 
 int main(int argc , char *argv[])
 {
@@ -50,8 +46,8 @@ int main(int argc , char *argv[])
 	int max_sd;
 	struct sockaddr_in address;
 
-	struct sockaddr_storage clntAddr; // Client address
-	socklen_t clntAddrLen = sizeof(clntAddr);
+	memset(clients, 0, sizeof(clients));
+
 
 	char buffer[BUFFSIZE + 1];  //data buffer of 1K
 
@@ -111,6 +107,7 @@ int main(int argc , char *argv[])
 	{
 		//clear the socket set
 		FD_ZERO(&readfds);
+		max_sd = master_socket[0];
 
 		//add masters sockets to set
 		for (int sdMaster=0; sdMaster < master_socket_size; sdMaster++)
@@ -119,25 +116,14 @@ int main(int argc , char *argv[])
 		// add child sockets to set
 		for(i =0; i < max_clients; i++) 
 		{
+			if(clients[i] == NULL) continue;
+			log(DEBUG, "------> client[%d]->socks = {%d, %d} (@%lx)", i, clients[i]->socks[0], clients[i]->socks[1], (size_t) clients[i]);
 			for(j = 0; j < 2; j++)
 			{
-			// socket descriptor
-			sd = client_socket[i][j];
-
-			// if valid socket descriptor then add to read list
-			if(sd > 0)
-				FD_SET( sd , &readfds);
-			}
-		}
-
-		max_sd = master_socket[0];
-		for(i =0; i < max_clients; i++) 
-		{
-			for(j = 0; j < 2; j++)
-			{	
-				sd = client_socket[i][j];
-				if(sd > max_sd) 
-					max_sd = sd;
+				// socket descriptor
+				sd = clients[i]->socks[j];
+				FD_SET(sd , &readfds);
+				if(sd > max_sd) max_sd = sd;
 			}
 		}
 
@@ -159,6 +145,7 @@ int main(int argc , char *argv[])
 			int mSock = master_socket[sdMaster];
 			if (FD_ISSET(mSock, &readfds)) 
 			{
+				log(DEBUG, "Master socket is ready");
 				if ((new_socket = acceptTCPConnection(mSock)) < 0)
 				{
 					log(ERROR, "Accept error on master socket %d", mSock);
@@ -169,18 +156,22 @@ int main(int argc , char *argv[])
 				for (i = 0; i < max_clients; i++) 
 				{
 					// if position is empty
-					if( client_socket[i][0] == 0 )
+					if( clients[i] == NULL )
 					{
-						log(INFO, "Creando sock para comunicarme con origin");
-						client_socket[i][0] = new_socket;
+						client *new_client = malloc(sizeof(client));
+						log(DEBUG, "New client at %lx", (size_t)new_client);
+						new_client->socks[0] = new_socket;
 						// TODO: this is currently a blocking operation
-						if((client_socket[i][1] = tcpClientSocket(ORIGIN, ORIGIN_PORT)) < 0) 
+						log(INFO, "Creando sock para comunicarme con origin");
+						if((new_client->socks[1] = tcpClientSocket(ORIGIN, ORIGIN_PORT)) < 0) 
 						{
 							log(ERROR, "cannot open socket");
 							close(new_socket);
-							client_socket[i][0] = 0;
-							client_socket[i][1] = 0;
 						}
+						log(INFO, "Sock a origin: %d", new_client->socks[1]);
+						buffer_init(&new_client->bufs[0], 2048, new_client->client_buf_raw);
+						buffer_init(&new_client->bufs[1], 2048, new_client->origin_buf_raw);
+						clients[i] = new_client;
 						log(DEBUG, "Adding to list of sockets as %d\n" , i);
 						break;
 					}
@@ -188,14 +179,17 @@ int main(int argc , char *argv[])
 			}
 		}
 
+
 		for(i =0; i < max_clients; i++) 
 		{
+			if(clients[i] == NULL) continue;
+
 			for(j = 0; j < 2; j++)
 			{	
-				sd = client_socket[i][j];
+				sd = clients[i]->socks[j];
 
 				if (FD_ISSET(sd, &writefds)) {
-					handleWrite(sd, &bufferWrite[i][j], &writefds);
+					handleWrite(sd, clients[i]->bufs + j, &writefds);
 				}
 			}
 		}
@@ -203,54 +197,46 @@ int main(int argc , char *argv[])
 		//else its some IO operation on some other socket :)
 		for (i = 0; i < max_clients; i++) 
 		{
+			if(clients[i] == NULL) continue;
 			for(j = 0; j < 2; j++)
 			{
-				sd = client_socket[i][j];
-
+				sd = clients[i]->socks[j];
 				if (FD_ISSET( sd , &readfds)) 
 				{
+					log(DEBUG, "Sock %d is ready for read", sd);
+
 					//Check if it was for closing , and also read the incoming message
-					if ((valread = read( sd , buffer, BUFFSIZE)) <= 0)
+					size_t size;
+					uint8_t *write = buffer_write_ptr(clients[i]->bufs + (1-j), &size);
+					log(DEBUG, "Write pointer at %lx, size: %lu", (size_t)write, size);
+					if ((valread = read( sd , buffer, size)) <= 0)
 					{
+						log(DEBUG, "RELEASING SPACE FOR CLIENT %d", i);
 						//Somebody disconnected , get his details and print
 						getpeername(sd , (struct sockaddr*)&address , (socklen_t*)&addrlen);
 						log(INFO, "Host disconnected , ip %s , port %d \n" , inet_ntoa(address.sin_addr) , ntohs(address.sin_port));
 
 						//Close the socket and mark as 0 in list for reuse
-						close( sd );
-						close( client_socket[i][1-j]);
-						client_socket[i][j] = 0;
-						client_socket[i][1-j] = 0;
-
-						FD_CLR(sd, &writefds);
-						FD_CLR(client_socket[i][1-j], &writefds);
-						// Limpiamos el buffer asociado, para que no lo "herede" otra sesión
-						clear(&bufferWrite[i][j]);
-						clear(&bufferWrite[i][1-j]);
+						close( clients[i]->socks[0] );
+						close( clients[i]->socks[1] );
+						FD_CLR( clients[i]->socks[0], &writefds);
+						FD_CLR( clients[i]->socks[1], &writefds);
+						free(clients[i]);
+						clients[i] = NULL;
 					}
 					else {
 						log(DEBUG, "Received %zu bytes from socket %d\n", valread, sd);
-						// activamos el socket para escritura y almacenamos en el buffer de salida
-						FD_SET(client_socket[i][1-j], &writefds);
-
-						// Tal vez ya habia datos en el buffer
-						// TODO: validar realloc != NULL
-						bufferWrite[i][1-j].buffer = realloc(bufferWrite[i][1-j].buffer, bufferWrite[i][1-j].len + valread);
-						memcpy(bufferWrite[i][1-j].buffer + bufferWrite[i][1-j].len, buffer, valread);
-						bufferWrite[i][1-j].len += valread;
+						FD_SET(clients[i]->socks[1-j], &writefds);
+						memcpy(write, buffer, valread);						
+						buffer_write_adv(clients[i]->bufs + (1-j), valread);
 					}
 				}
 			}
 		}
+		log(DEBUG, "Restarting select cycle...");
 	}
 
 	return 0;
-}
-
-void clear( struct buffer * buffer) {
-	free(buffer->buffer);
-	buffer->buffer = NULL;
-	buffer->from = buffer->len = 0;
 }
 
 // Hay algo para escribir?
@@ -258,11 +244,12 @@ void clear( struct buffer * buffer) {
 // escribir, tal vez no sea suficiente. Por ejemplo podría tener 100 bytes libres en el buffer de
 // salida, pero le pido que mande 1000 bytes.Por lo que tenemos que hacer un send no bloqueante,
 // verificando la cantidad de bytes que pudo consumir TCP.
-void handleWrite(int socket, struct buffer * buffer, fd_set * writefds) {
-	size_t bytesToSend = buffer->len - buffer->from;
-	if (bytesToSend > 0) {  // Puede estar listo para enviar, pero no tenemos nada para enviar
-		log(INFO, "Trying to send %zu bytes to socket %d\n", bytesToSend, socket);
-		size_t bytesSent = send(socket, buffer->buffer + buffer->from,bytesToSend,  MSG_DONTWAIT); 
+void handleWrite(int socket, buffer *b, fd_set * writefds) {
+	if (buffer_can_read(b)) {  // Puede estar listo para enviar, pero no tenemos nada para enviar
+		size_t size;
+		uint8_t *read = buffer_read_ptr(b, &size);
+		log(INFO, "Trying to send bytes to socket %d\n", socket);
+		size_t bytesSent = send(socket, read, size, MSG_DONTWAIT); 
 		log(INFO, "Sent %zu bytes\n", bytesSent);
 
 		if ( bytesSent < 0) {
@@ -270,18 +257,11 @@ void handleWrite(int socket, struct buffer * buffer, fd_set * writefds) {
 			// TODO: manejar el error
 			log(FATAL, "Error sending to socket %d", socket);
 		} else {
-			size_t bytesLeft = bytesSent - bytesToSend;
-
-			// Si se pudieron mandar todos los bytes limpiamos el buffer y sacamos el fd para el select
-			if ( bytesLeft == 0) {
-				clear(buffer);
+			buffer_read_adv(b, bytesSent);
+			if(!buffer_can_read(b)) {
 				FD_CLR(socket, writefds);
-			} else {
-				buffer->from += bytesSent;
 			}
 		}
 	}
 }
 
-
-// client[0][0] tiene para mandarme ---> tengo que leer y mandarle a client[0][1]
