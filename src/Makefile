@@ -1,6 +1,6 @@
 .PHONY=clean all
 COMPILER=gcc
-CFLAGS = -Wall -fsanitize=address -g
+CFLAGS = -Wall -fsanitize=address -g -lpthread
 INC= -I../include
 all: proxy
 clean:	
@@ -9,4 +9,4 @@ rebuild: clean all
 
 COMMON =  logger.c util.c
 proxy:
-	$(COMPILER) $(CFLAGS) $(INC) -o proxy proxy.c tcpServerUtil.c tcpClientUtil.c buffer.c $(COMMON)
+	$(COMPILER) $(CFLAGS) $(INC) -o proxy proxy.c clients.c tcpServerUtil.c selector.c tcpClientUtil.c buffer.c $(COMMON)
