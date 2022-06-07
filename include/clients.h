@@ -5,21 +5,33 @@
 #include <stdint.h>
 #include "selector.h"
 
-typedef struct client client;
+#define MAX_SOCKETS 3
+#define BUFFSIZE 2048
 
+typedef struct client client;
 struct client {
-    fd_selector selector;
-    // 0 for client, 1 for origin
-    int socks[2];
-    uint8_t client_buf_raw[2048], origin_buf_raw[2048];
-    // 0 for client, 1 for origin
-    buffer bufs[2];
+    int client_sock, origin_sock;
+    uint8_t client_buf_raw[BUFFSIZE], origin_buf_raw[BUFFSIZE];
+    buffer client_buf, origin_buf;
+    
+    // Posición en el arreglo de clientes. Sirve para hacer clean-up
+    size_t index;
 };
 
-void handle_master_read(void *data);
+// Maneja conexiones de nuevos clients
+void master_read_handler(struct selector_key *key);
 
-void handle_read(void *data);
+// Lee lo que el cliente ha enviado
+void client_read_handler(struct selector_key *key);
 
-void handle_write(void *data);
+// Envía al cliente lo que el origen envío
+void client_write_handler(struct selector_key *key);
+
+// Lee lo que el origen ha enviado
+void origin_read_handler(struct selector_key *key);
+
+// Envía al origen lo que el cliente ha enviado
+void origin_write_handler(struct selector_key *key);
+
 
 #endif
