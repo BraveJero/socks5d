@@ -16,9 +16,8 @@ printFamily(struct addrinfo *aip)
 		return "unix";
 	case AF_UNSPEC:
 		return "unspecified";
-	default:
-		return "unknown";
 	}
+	return "unknown";
 }
 
 const char *
@@ -33,9 +32,8 @@ printType(struct addrinfo *aip)
 		return "seqpacket";
 	case SOCK_RAW:
 		return "raw";
-	default:
-		return "unknown ";
-	}
+	}	
+	return "unknown ";
 }
 
 const char *
@@ -50,9 +48,8 @@ printProtocol(struct addrinfo *aip)
 		return "UDP";
 	case IPPROTO_RAW:
 		return "raw";
-	default:
-		return "unknown ";
 	}
+	return "unkown";
 }
 
 void
