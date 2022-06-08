@@ -28,7 +28,7 @@ int setupTCPServerSocket(const char *service) {
 	struct addrinfo *servAddr; 			// List of server addresses
 	int rtnVal = getaddrinfo(NULL, service, &addrCriteria, &servAddr);
 	if (rtnVal != 0) {
-		log(FATAL, "getaddrinfo() failed %s", gai_strerror(rtnVal));
+		logger(FATAL, "getaddrinfo() failed %s", gai_strerror(rtnVal));
 		return -1;
 	}
 
@@ -41,7 +41,7 @@ int setupTCPServerSocket(const char *service) {
 		// Create a TCP socket
 		servSock = socket(addr->ai_family, addr->ai_socktype, addr->ai_protocol);
 		if (servSock < 0) {
-			log(DEBUG, "Cant't create socket on %s : %s ", printAddressPort(addr, addrBuffer), strerror(errno));  
+			logger(DEBUG, "Cant't create socket on %s : %s ", printAddressPort(addr, addrBuffer), strerror(errno));  
 			continue;       // Socket creation failed; try next address
 		}
 
@@ -52,10 +52,10 @@ int setupTCPServerSocket(const char *service) {
 			socklen_t addrSize = sizeof(localAddr);
 			if (getsockname(servSock, (struct sockaddr *) &localAddr, &addrSize) >= 0) {
 				printSocketAddress((struct sockaddr *) &localAddr, addrBuffer);
-				log(INFO, "Binding to %s", addrBuffer);
+				logger(INFO, "Binding to %s", addrBuffer);
 			}
 		} else {
-			log(DEBUG, "Cant't bind %s", strerror(errno));  
+			logger(DEBUG, "Cant't bind %s", strerror(errno));  
 			close(servSock);  // Close and try with the next one
 			servSock = -1;
 		}
@@ -74,13 +74,13 @@ int acceptTCPConnection(int servSock) {
 	// Wait for a client to connect
 	int clntSock = accept(servSock, (struct sockaddr *) &clntAddr, &clntAddrLen);
 	if (clntSock < 0) {
-		log(ERROR, "accept() failed");
+		logger(ERROR, "accept() failed");
 		return -1;
 	}
 
 	// clntSock is connected to a client!
 	printSocketAddress((struct sockaddr *) &clntAddr, addrBuffer);
-	log(INFO, "Handling client %s", addrBuffer);
+	logger(INFO, "Handling client %s", addrBuffer);
 
 	return clntSock;
 }
@@ -90,7 +90,7 @@ int handleTCPEchoClient(int clntSocket) {
 	// Receive message from client
 	ssize_t numBytesRcvd = recv(clntSocket, buffer, BUFSIZE, 0);
 	if (numBytesRcvd < 0) {
-		log(ERROR, "recv() failed");
+		logger(ERROR, "recv() failed");
 		return -1;   // TODO definir codigos de error
 	}
 
@@ -99,18 +99,18 @@ int handleTCPEchoClient(int clntSocket) {
 		// Echo message back to client
 		ssize_t numBytesSent = send(clntSocket, buffer, numBytesRcvd, 0);
 		if (numBytesSent < 0) {
-			log(ERROR, "send() failed");
+			logger(ERROR, "send() failed");
 			return -1;   // TODO definir codigos de error
 		}
 		else if (numBytesSent != numBytesRcvd) {
-			log(ERROR, "send() sent unexpected number of bytes ");
+			logger(ERROR, "send() sent unexpected number of bytes ");
 			return -1;   // TODO definir codigos de error
 		}
 
 		// See if there is more data to receive
 		numBytesRcvd = recv(clntSocket, buffer, BUFSIZE, 0);
 		if (numBytesRcvd < 0) {
-			log(ERROR, "recv() failed");
+			logger(ERROR, "recv() failed");
 			return -1;   // TODO definir codigos de error
 		}
 	}
