@@ -33,8 +33,7 @@ int main(int argc, char *argv[])
 	int master_socket[2]; // IPv4 e IPv6 (si estan habilitados)
 	int master_socket_size = 0;
 	struct sockaddr_in address;
-
-	memset(clients, 0, sizeof(clients));
+	close(STDIN_FILENO);
 
 	fd_selector selector = NULL;
 
@@ -42,16 +41,17 @@ int main(int argc, char *argv[])
 
 	// socket para IPv4 y para IPv6 (si estan disponibles)
 	///////////////////////////////////////////////////////////// IPv4
-	if ((master_socket[master_socket_size] = socket(AF_INET, SOCK_STREAM, 0)) == 0)
+	
+	if ((master_socket[master_socket_size] = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 	{
-		log(ERROR, "socket IPv4 failed");
+		logger(ERROR, "socket IPv4 failed");
 	}
 	else
 	{
 		// set master socket to allow multiple connections , this is just a good habit, it will work without this
 		if (setsockopt(master_socket[master_socket_size], SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt)) < 0)
 		{
-			log(ERROR, "set IPv4 socket options failed");
+			logger(ERROR, "set IPv4 socket options failed");
 		}
 
 		// type of socket created
@@ -62,19 +62,19 @@ int main(int argc, char *argv[])
 		// bind the socket to localhost port 8888
 		if (bind(master_socket[master_socket_size], (struct sockaddr *)&address, sizeof(address)) < 0)
 		{
-			log(ERROR, "bind for IPv4 failed");
+			logger(ERROR, "bind for IPv4 failed");
 			close(master_socket[master_socket_size]);
 		}
 		else
 		{
 			if (listen(master_socket[0], MAX_PENDING_CONNECTIONS) < 0)
 			{
-				log(ERROR, "listen on IPv4 socket failes");
+				logger(ERROR, "listen on IPv4 socket failes");
 				close(master_socket[master_socket_size]);
 			}
 			else
 			{
-				log(DEBUG, "Waiting for TCP IPv4 connections on socket %d\n", master_socket[master_socket_size]);
+				logger(DEBUG, "Waiting for TCP IPv4 connections on socket %d\n", master_socket[master_socket_size]);
 				master_socket_size++;
 			}
 		}
@@ -89,13 +89,13 @@ int main(int argc, char *argv[])
 	};
 	if (0 != selector_init(&conf))
 	{
-		log(ERROR, "selector_init() failed");
+		logger(ERROR, "selector_init() failed");
 	}
 
 	selector = selector_new(1024);
 	if (selector == NULL)
 	{
-		log(ERROR, "selector_new() failed");
+		logger(ERROR, "selector_new() failed");
 	}
 
 	struct fd_handler master_handler = {
@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
 		selector_status ss = selector_select(selector);
 		if (ss != SELECTOR_SUCCESS)
 		{
-			log(ERROR, "selector_select() failed. Aborting execution");
+			logger(ERROR, "selector_select() failed. Aborting execution");
 			exit(1);
 		}
 	}
