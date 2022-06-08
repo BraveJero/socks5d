@@ -6,6 +6,6 @@
 #include <sys/socket.h>
 
 // Create and connect a new TCP client socket
-int tcpClientSocket(const char *server, const char *service);
+struct addrinfo *tcpClientSocket(const char *server, const char *service);
 
 #endif 
