@@ -1,10 +1,11 @@
 #ifndef CLIENTS_H
 #define CLIENTS_H
 
-#include <buffer.h>
+#include "buffer.h"
 #include <stdint.h>
 #include <netdb.h>
 #include "selector.h"
+#include "stm.h"
 
 #define MAX_SOCKETS 3
 #define BUFFSIZE 2048
@@ -18,17 +19,22 @@ struct client {
     uint8_t client_buf_raw[BUFFSIZE], origin_buf_raw[BUFFSIZE];
     buffer client_buf, origin_buf;
 
-    // handlers
-    fd_handler client_handler, origin_handler;
+    // Resolución de nombres
+    struct addrinfo *resolution, *curr_add;
 
-    //
-    struct addrinfo *resolution, *current;
-    
-    // Posición en el arreglo de clientes. Sirve para hacer clean-up
-    size_t index;
+    // Máquina de estados
+    struct state_machine *stm;
 };
 
 // Maneja conexiones de nuevos clients
 void master_read_handler(struct selector_key *key);
+
+enum socks5_states {
+    CONNECTING,
+    PROXY,
+    DONE,
+    FAILED,
+};
+
 
 #endif
