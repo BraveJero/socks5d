@@ -5,8 +5,7 @@ clean:
 	- rm -f *.o proxy
 
 COMMON = logger.o util.o
-SERVER_SOURCES = proxy.o clients.o tcpServerUtil.o selector.o tcpClientUtil.o buffer.o
+SERVER_SOURCES = proxy.o clients.o tcpServerUtil.o selector.o tcpClientUtil.o buffer.o stm.o
 
 proxy: $(COMMON) $(SERVER_SOURCES)
 	$(CC) $(CFLAGS) -o proxy $(SERVER_SOURCES) $(COMMON)
-	
