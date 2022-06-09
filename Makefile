@@ -19,7 +19,8 @@ c: $(BUILD_DIR)/$(TARGET)
 clean:
 	rm -rf $(BUILD_DIR)
 
-rebuild: clean c
+rebuild: clean
+	$(MAKE) all
 
 $(BUILD_DIR)/$(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $^
