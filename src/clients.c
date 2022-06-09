@@ -109,24 +109,24 @@ void master_read_handler(struct selector_key *key) {
 
 client *create_client(int sock) {
     client *new_client = malloc(sizeof(client));
-        if(new_client == NULL) {
-            logger(DEBUG, "malloc() failed. New connection refused");
-            close(sock);
-        }
-        new_client->client_sock = sock;
-        new_client->origin_sock = -1;
-        new_client->curr_add = new_client->resolution = tcpClientSocket("127.0.0.1", "9999");   
+    if(new_client == NULL) {
+        logger(DEBUG, "malloc() failed. New connection refused");
+        close(sock);
+    }
+    new_client->client_sock = sock;
+    new_client->origin_sock = -1;
+    new_client->curr_add = new_client->resolution = tcpClientSocket("127.0.0.1", "9999");   
 
-        new_client->stm = malloc(sizeof(struct state_machine));
-        new_client->stm->states = state_actions;
-        new_client->stm->initial = CONNECTING;
-        new_client->stm->max_state = FAILED;
+    new_client->stm = malloc(sizeof(struct state_machine));
+    new_client->stm->states = state_actions;
+    new_client->stm->initial = CONNECTING;
+    new_client->stm->max_state = FAILED;
 
-        stm_init(new_client->stm);
+    stm_init(new_client->stm);
 
-        buffer_init(&(new_client->client_buf), BUFFSIZE, new_client->client_buf_raw);
-        buffer_init(&(new_client->origin_buf), BUFFSIZE, new_client->origin_buf_raw);
-        return new_client;
+    buffer_init(&(new_client->client_buf), BUFFSIZE, new_client->client_buf_raw);
+    buffer_init(&(new_client->origin_buf), BUFFSIZE, new_client->origin_buf_raw);
+    return new_client;
 }
 
 
