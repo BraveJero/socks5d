@@ -1,6 +1,10 @@
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
+#include <pthread.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
 
 #include "clients.h"
 #include "logger.h"
@@ -33,21 +37,36 @@ static ssize_t write_to_sock(int sd, buffer *b);
 static void client_destroy(client *c);
 
 // Hace el connect no bloqueante a la proxima direccion
-unsigned try_connect(client *c, fd_selector s);
+unsigned try_connect(struct selector_key *key);
 
 // Verifica si la conexion no bloqueante se establecio correctamente
 unsigned origin_check_connection(struct selector_key *key);
+
+// Crea el socket
+void create_connection(const unsigned state, struct selector_key *key);
+
+// Se le avisa que la resolucion de nombres fallo
+unsigned handle_finished_resolution(struct selector_key *key);
+
+// Resuelve nombres de forma asincronica
+static void *thread_name_resolution(void *data);
 
 unsigned handle_proxy_read(struct selector_key *key);
 
 unsigned handle_proxy_write(struct selector_key *key);
 
-
 // Definicion de las acciones de cada estado
 static const struct state_definition state_actions[] = {
     {
-        .state = CONNECTING,
+        .state = RESOLVING,
         .on_arrival = NULL,
+        .on_departure = NULL,
+        .on_read_ready = NULL,
+        .on_write_ready = NULL,
+        .on_block_ready = handle_finished_resolution,
+    }, {
+        .state = CONNECTING,
+        .on_arrival = create_connection,
         .on_departure = NULL,
         .on_read_ready = NULL,
         .on_write_ready = origin_check_connection,
@@ -102,8 +121,16 @@ void master_read_handler(struct selector_key *key) {
         // catch error
     }
 
-    // Ahora le da arranque a la maquina de estados
-    try_connect(new_client, key->s);
+    selector_register(key->s, new_client->client_sock, &socks5_handler, OP_NOOP, new_client);
+    struct selector_key *dup_key = malloc(sizeof(*key));
+    
+    dup_key->data = new_client;
+    dup_key->fd = new_client->client_sock;
+    dup_key->s = key->s;
+
+    pthread_t tid;
+    pthread_create(&tid, NULL, thread_name_resolution, dup_key);
+
     return;
 }
 
@@ -115,12 +142,14 @@ client *create_client(int sock) {
     }
     new_client->client_sock = sock;
     new_client->origin_sock = -1;
-    new_client->curr_add = new_client->resolution = tcpClientSocket("127.0.0.1", "9999");   
 
     new_client->stm = malloc(sizeof(struct state_machine));
     new_client->stm->states = state_actions;
-    new_client->stm->initial = CONNECTING;
+    new_client->stm->initial = RESOLVING;
     new_client->stm->max_state = FAILED;
+
+    new_client->dest_fqdn = "pampero.itba.edu.ar";
+    new_client->dest_port = 61441;
 
     stm_init(new_client->stm);
 
@@ -129,6 +158,11 @@ client *create_client(int sock) {
     return new_client;
 }
 
+unsigned handle_finished_resolution(struct selector_key *key) {
+    client *c = ATTACHMENT(key);
+    if(c->resolution == NULL) return FAILED;
+    else return CONNECTING;
+}
 
 static void socksv5_done(struct selector_key* key);
 
@@ -170,18 +204,63 @@ socksv5_block(struct selector_key *key) {
     }
 }
 
+static void *thread_name_resolution(void *data) {
+    struct selector_key *key = (struct selector_key*) data;
+    client *c = ATTACHMENT(key);
 
-unsigned try_connect(client *c, fd_selector s) {
-    if(c->curr_add == NULL) return FAILED;
-    int sock = socket(c->curr_add->ai_family, c->curr_add->ai_socktype, c->curr_add->ai_protocol);
+    pthread_detach(pthread_self());
+    c->resolution = NULL;
+    struct addrinfo hints = {
+        .ai_family = AF_UNSPEC,
+        .ai_socktype = SOCK_STREAM,
+        .ai_flags = AI_PASSIVE,
+        .ai_protocol = 0,
+        .ai_canonname = NULL,
+        .ai_addr = NULL,
+        .ai_next = NULL,
+    };
+    
+    char port_buf[7];
+    snprintf(port_buf, sizeof(port_buf), "%d", ntohs(c->dest_port));
+
+    logger(INFO, "ntohs(): %s", port_buf);
+
+    int err = getaddrinfo(c->dest_fqdn, "61441", &hints, &(c->resolution));
+    if(err != 0) {
+        logger(ERROR, gai_strerror(err));
+    }
+
+    selector_notify_block(key->s, key->fd);
+    free(data);
+    return NULL;
+}
+
+void create_connection(const unsigned state, struct selector_key *key) {
+    client *c = ATTACHMENT(key);
+    c->curr_addr = c->resolution;
+    c->origin_sock = socket(c->curr_addr->ai_family, c->curr_addr->ai_socktype, c->curr_addr->ai_protocol);
+    if(c->origin_sock < 0) {
+        logger(ERROR, "Error in socket()");
+        perror("socket()");
+    }
+    selector_fd_set_nio(c->origin_sock);
+    selector_fd_set_nio(c->client_sock);
+    try_connect(key);
+}
+
+unsigned try_connect(struct selector_key *key) {
+    client *c = ATTACHMENT(key);
+    if(c->curr_addr == NULL) return FAILED;
+    int sock = c->origin_sock;
     if (sock >= 0) {
         errno = 0;
-        selector_fd_set_nio(sock);
+        char adrr_buf[1024];
+        logger(DEBUG, "%s", printAddressPort(c->curr_addr, adrr_buf));
         // Establish the connection to the server
-        if ( connect(sock, c->curr_add->ai_addr, c->curr_add->ai_addrlen) != 0) {
+        if ( connect(sock, c->curr_addr->ai_addr, c->curr_addr->ai_addrlen) != 0) {
             if(errno == EINPROGRESS) {
                 c->origin_sock = sock;
-                selector_status ss = selector_register(s, c->origin_sock, &socks5_handler, OP_WRITE, c);
+                selector_status ss = selector_register(key->s, c->origin_sock, &socks5_handler, OP_WRITE, c);
                 logger(ERROR, selector_error(ss));
                 
                 logger(INFO, "Connection to origin in progress");
@@ -197,7 +276,7 @@ unsigned try_connect(client *c, fd_selector s) {
 
 unsigned origin_check_connection(struct selector_key *key) {
     client *c = ATTACHMENT(key);
-    int error;
+    int error = 0;
     socklen_t len = sizeof(error);
     getsockopt(c->origin_sock, SOL_SOCKET, SO_ERROR, &error, &len);
     if(error == 0) {
@@ -207,10 +286,10 @@ unsigned origin_check_connection(struct selector_key *key) {
         selector_register(key->s, c->client_sock, &socks5_handler, OP_READ, c);
         return PROXY;
     } else {
-        c->curr_add = c->curr_add->ai_next;
-        close(c->origin_sock);
+        logger(ERROR, "Error: %d %s", error, strerror(error));
+        c->curr_addr = c->curr_addr->ai_next;
         selector_set_interest(key->s, c->origin_sock, OP_NOOP);
-        return try_connect(c, key->s);
+        return try_connect(key);
     }
 }
 

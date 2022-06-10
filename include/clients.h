@@ -19,8 +19,12 @@ struct client {
     uint8_t client_buf_raw[BUFFSIZE], origin_buf_raw[BUFFSIZE];
     buffer client_buf, origin_buf;
 
+    // Nombres para hacer la resolucion
+    char * dest_fqdn;
+    int dest_port;
+
     // Resolución de nombres
-    struct addrinfo *resolution, *curr_add;
+    struct addrinfo *resolution, *curr_addr;
 
     // Máquina de estados
     struct state_machine *stm;
@@ -30,6 +34,7 @@ struct client {
 void master_read_handler(struct selector_key *key);
 
 enum socks5_states {
+    RESOLVING,
     CONNECTING,
     PROXY,
     DONE,
