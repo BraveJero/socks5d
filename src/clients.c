@@ -9,32 +9,23 @@
 #include "clients.h"
 #include "logger.h"
 #include "buffer.h"
+#include "selector.h"
+#include "stm.h"
 #include "tcpClientUtil.h"
 #include "util.h"
 #include "tcpServerUtil.h"
 
-#define ATTACHMENT(x) ((client *) x->data)
 #define N(x) (sizeof(x)/sizeof((x)[0]))
+#define hasFlag(x, f) (bool)((x) & (f))
+#define checkEOF(count) (count == 0 || (count < 0 && errno != EAGAIN))
 
 static uint8_t buf[BUFFSIZE];
 
 // Crea el cliente con el correspondiente sock
 client *create_client(int socks);
 
-/*
- * Lee bytes de sd y los deja en el buffer
- * Retorna la cantidad de bytes que leyó y dejó en el buffer
-*/
-static ssize_t read_from_sock(int sd, buffer *b);
-
-/*
- * Lee bytes del buffer y los envía por sd
- * Retorna la cantidad de bytes que envió
-*/
-static ssize_t write_to_sock(int sd, buffer *b);
-
 // Cierra todos los sockets y libera la memoria.
-static void client_destroy(client *c);
+static void client_destroy(unsigned state, struct selector_key *key);
 
 // Hace el connect no bloqueante a la proxima direccion
 unsigned try_connect(struct selector_key *key);
@@ -78,13 +69,13 @@ static const struct state_definition state_actions[] = {
         .on_write_ready = handle_proxy_write,
     }, {
         .state = DONE,
-        .on_arrival = NULL,
+        .on_arrival = client_destroy,
         .on_departure = NULL,
         .on_read_ready = NULL,
         .on_write_ready = NULL,
     }, {
         .state = FAILED,
-        .on_arrival = NULL,
+        .on_arrival = client_destroy,
         .on_departure = NULL,
         .on_read_ready = NULL,
         .on_write_ready = NULL,
@@ -97,14 +88,66 @@ static const struct state_definition state_actions[] = {
 static void socksv5_read   (struct selector_key *key);
 static void socksv5_write  (struct selector_key *key);
 static void socksv5_block  (struct selector_key *key);
-static void socksv5_close  (struct selector_key *key);
 static const struct fd_handler socks5_handler = {
     .handle_read   = socksv5_read,
     .handle_write  = socksv5_write,
-    .handle_close  = socksv5_close,
     .handle_block  = socksv5_block,
 };
 
+static unsigned closeClient(client *client, enum socket_ends level, fd_selector selector)
+{
+	level &= client->active_ends;
+	if (hasFlag(level, CLIENT_READ))
+	{
+        selector_remove_interest(selector, client->client_sock, OP_READ);
+		shutdown(client->client_sock, SHUT_RD);
+	}
+	if (hasFlag(level, ORIGIN_WRITE))
+	{
+        selector_remove_interest(selector, client->origin_sock, OP_WRITE);
+		shutdown(client->origin_sock, SHUT_WR);
+	}
+	if (hasFlag(level, CLIENT_WRITE))
+	{
+        selector_remove_interest(selector, client->client_sock, OP_WRITE);
+		shutdown(client->client_sock, SHUT_WR);
+	}
+	if (hasFlag(level, ORIGIN_READ))
+	{
+        selector_remove_interest(selector, client->origin_sock, OP_READ);
+		shutdown(client->origin_sock, SHUT_RD);
+	}
+	client->active_ends &= ~level;
+
+	// Client-server is closed both ways
+	if (hasFlag(level, CLIENT) && !hasFlag(client->active_ends, CLIENT))
+	{
+		selector_unregister_fd(selector, client->client_sock);
+		if (client->client_sock > 0)
+			close(client->client_sock);
+	}
+	if (hasFlag(level, ORIGIN) && !hasFlag(client->active_ends, ORIGIN))
+	{
+		selector_unregister_fd(selector, client->origin_sock);
+		if (client->origin_sock > 0)
+			close(client->origin_sock);
+	}
+
+	if (hasFlag(level, CLIENT_WRITE))
+	{
+		return closeClient(client, CLIENT_READ | ORIGIN, selector);
+	}
+
+	if (hasFlag(level, ORIGIN_WRITE))
+	{
+		return closeClient(client, ORIGIN_READ, selector);
+	}
+
+	// Free client structures
+	if (!client->active_ends)
+		return DONE;
+	return stm_state(client->stm);
+}
 
 // If master has activity, it must be due to incoming connections
 void master_read_handler(struct selector_key *key) {
@@ -148,8 +191,10 @@ client *create_client(int sock) {
     new_client->stm->initial = RESOLVING;
     new_client->stm->max_state = FAILED;
 
-    new_client->dest_fqdn = "pampero.itba.edu.ar";
-    new_client->dest_port = 61441;
+    new_client->dest_fqdn = "localhost";
+	new_client->dest_port = 61441;
+
+	new_client->active_ends = CLIENT;
 
     stm_init(new_client->stm);
 
@@ -164,44 +209,27 @@ unsigned handle_finished_resolution(struct selector_key *key) {
     else return CONNECTING;
 }
 
-static void socksv5_done(struct selector_key* key);
+// static void socksv5_done(struct selector_key *key)
+// {
+// 	closeClient(ATTACHMENT(key), CLIENT | ORIGIN, key->s);
+// }
 
 static void
 socksv5_read(struct selector_key *key) {
     struct state_machine *stm   = ATTACHMENT(key)->stm;
-    const enum socks5_states st = stm_handler_read(stm, key);
-
-    if(FAILED == st || DONE == st) {
-        socksv5_done(key);
-    }
+    stm_handler_read(stm, key);
 }
 
 static void
 socksv5_write(struct selector_key *key) {
     struct state_machine *stm   = ATTACHMENT(key)->stm;
-    const enum socks5_states st = stm_handler_write(stm, key);
-
-    if(FAILED == st || DONE == st) {
-        socksv5_done(key);
-    }
-}
-
-static void
-socksv5_close(struct selector_key *key) {
-    client *c = ATTACHMENT(key);
-    if(c != NULL) {
-        client_destroy(c);
-    }
+    stm_handler_write(stm, key);
 }
 
 static void
 socksv5_block(struct selector_key *key) {
     struct state_machine *stm   = ATTACHMENT(key)->stm;
-    const enum socks5_states st = stm_handler_block(stm, key);
-
-    if(FAILED == st || DONE == st) {
-        socksv5_done(key);
-    }
+    stm_handler_block(stm, key);
 }
 
 static void *thread_name_resolution(void *data) {
@@ -260,8 +288,8 @@ unsigned try_connect(struct selector_key *key) {
         if ( connect(sock, c->curr_addr->ai_addr, c->curr_addr->ai_addrlen) != 0) {
             if(errno == EINPROGRESS) {
                 c->origin_sock = sock;
-                selector_status ss = selector_register(key->s, c->origin_sock, &socks5_handler, OP_WRITE, c);
-                logger(ERROR, selector_error(ss));
+                selector_register(key->s, c->origin_sock, &socks5_handler, OP_WRITE, c);
+                // logger(ERROR, selector_error(ss));
                 
                 logger(INFO, "Connection to origin in progress");
                 return CONNECTING;
@@ -282,65 +310,74 @@ unsigned origin_check_connection(struct selector_key *key) {
     if(error == 0) {
         logger(INFO, "Connection to origin succesful");
 
-        selector_set_interest(key->s, c->origin_sock, OP_READ);
-        selector_register(key->s, c->client_sock, &socks5_handler, OP_READ, c);
+		c->active_ends |= ORIGIN;
+        selector_set_interest(key->s, c->origin_sock, OP_READ | OP_WRITE);
+        selector_set_interest(key->s, c->client_sock, OP_READ | OP_WRITE);
         return PROXY;
     } else {
         logger(ERROR, "Error: %d %s", error, strerror(error));
         c->curr_addr = c->curr_addr->ai_next;
-        selector_set_interest(key->s, c->origin_sock, OP_NOOP);
+        selector_remove_interest(key->s, c->origin_sock, OP_READ | OP_WRITE);
         return try_connect(key);
     }
 }
 
 unsigned handle_proxy_read(struct selector_key *key) {
     ssize_t bytes_read = -1;
-    client *c = ATTACHMENT(key);
+	client *c = ATTACHMENT(key);
+	
     if(c->client_sock == key->fd) { // Leer del socket cliente y almacenar en el buffer del origen
         bytes_read = read_from_sock(c->client_sock, &(c->origin_buf));
-        if(bytes_read == 0) return DONE;
-
-        if(selector_set_interest(key->s, c->origin_sock, OP_WRITE | OP_READ) != SELECTOR_SUCCESS) {
-            return FAILED;
-        }
+		if (checkEOF(bytes_read))
+			return closeClient(c, CLIENT_READ, key->s);
     } else if(c->origin_sock == key->fd) { // Leer en el socket del origen y guardar en el buffer del usuario
         bytes_read = read_from_sock(c->origin_sock, &(c->client_buf));
-        if(bytes_read == 0) return DONE;
-
-        if(selector_set_interest(key->s, c->client_sock, OP_WRITE | OP_READ) != SELECTOR_SUCCESS) {
-            return FAILED;
-        }
-    }
-    if(bytes_read < 0) return FAILED;
-    return PROXY;
+		if (checkEOF(bytes_read))
+			return closeClient(c, ORIGIN_READ, key->s);
+	}
+	
+    return stm_state(c->stm);
 }
 
 unsigned handle_proxy_write(struct selector_key *key) {
     ssize_t bytes_left = -1;
-    client *c = ATTACHMENT(key);
-    if(c->client_sock == key->fd) { // Envio al socket lo que haya en el buffer
-        bytes_left = write_to_sock(c->client_sock, &(c->client_buf));
-        if(bytes_left == 0){
-            if(selector_set_interest(key->s, c->client_sock, OP_READ) != SELECTOR_SUCCESS) {
-                return FAILED;
-            }
-        }
-    } else if(c->origin_sock == key->fd) { // Leer en el socket del origen y guardar en el buffer del usuario
-        bytes_left = write_to_sock(c->origin_sock, &(c->origin_buf));
-        if(bytes_left == 0){
-            if(selector_set_interest(key->s, c->origin_sock, OP_READ) != SELECTOR_SUCCESS) {
-                return FAILED;
-            }
-        }
+	client *c = ATTACHMENT(key);
+
+	if (c->client_sock == key->fd)
+	{ // Envio al socket lo que haya en el buffer
+		if (!buffer_can_read(&c->client_buf))
+			goto skip;
+		
+		bytes_left = write_to_sock(c->client_sock, &(c->client_buf));
+		if (bytes_left != 0 && checkEOF(bytes_left))
+			return closeClient(c, CLIENT_WRITE, key->s);
+        // if(bytes_left == 0){
+        //     if(selector_set_interest(key->s, c->client_sock, OP_READ) != SELECTOR_SUCCESS) {
+        //         return FAILED;
+        //     }
+        // }
+	}
+	else if (c->origin_sock == key->fd)
+	{ // Leer en el socket del origen y guardar en el buffer del usuario
+		if (!buffer_can_read(&c->origin_buf))
+			goto skip;
+		bytes_left = write_to_sock(c->origin_sock, &(c->origin_buf));
+		if (bytes_left != 0 && checkEOF(bytes_left))
+			return closeClient(c, ORIGIN_WRITE, key->s);
+        // if(bytes_left == 0){
+        //     if(selector_set_interest(key->s, c->origin_sock, OP_READ) != SELECTOR_SUCCESS) {
+        //         return FAILED;
+        //     }
+        // }
     } else {
         return FAILED;
     }
 
-    if(bytes_left < 0) return FAILED;
-    return PROXY;
+	skip:
+    return stm_state(c->stm);
 }
 
-static ssize_t read_from_sock(int sd, buffer *b) {
+ssize_t read_from_sock(int sd, buffer *b) {
     size_t size;
     uint8_t *write_ptr = buffer_write_ptr(b, &size);
     size = (size > BUFFSIZE? BUFFSIZE : size);
@@ -354,7 +391,7 @@ static ssize_t read_from_sock(int sd, buffer *b) {
 }
 
 
-static ssize_t write_to_sock(int sd, buffer *b) {
+ssize_t write_to_sock(int sd, buffer *b) {
     size_t size;
     uint8_t *read_ptr = buffer_read_ptr(b, &size);
     ssize_t bytes_sent = send(sd, read_ptr, size, MSG_DONTWAIT);
@@ -364,27 +401,16 @@ static ssize_t write_to_sock(int sd, buffer *b) {
     return size - bytes_sent;
 }
 
-static void client_destroy(client *c) {
-    /*
+static void client_destroy(unsigned state, struct selector_key *key) {
+	/*
      * TODO: problemita, si tenes mas de un sock para este cliente (o sea el par 
      * {cliente, origen} esta seteado en algo que no es {-1, -1}) se llama por duplicado
      * al unregister, que llama al socksv5_close que llama a la funcion que hacer frees 
      * y el sanitizer tira error porque esa memoria ya fue liberada.
     */
-    // freeaddrinfo(c->resolution);
-    // free(c->stm);
-    // free(c);
-}
-
-static void
-socksv5_done(struct selector_key* key) {
-    int fds[2] = {ATTACHMENT(key)->client_sock, ATTACHMENT(key)->origin_sock};
-    for(unsigned i = 0; i < N(fds); i++) {
-        if(fds[i] != -1) {
-            if(SELECTOR_SUCCESS != selector_unregister_fd(key->s, fds[i])) {
-                abort();
-            }
-            close(fds[i]);
-        }
-    }
+    client *c = ATTACHMENT(key);
+	
+    freeaddrinfo(c->resolution);
+    free(c->stm);
+    free(c);
 }

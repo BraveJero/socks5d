@@ -10,6 +10,16 @@
 #define MAX_SOCKETS 3
 #define BUFFSIZE 2048
 
+enum socket_ends
+{
+	CLIENT_WRITE = 1,
+	CLIENT_READ = 2,
+	CLIENT = CLIENT_READ | CLIENT_WRITE,
+	ORIGIN_WRITE = 4,
+	ORIGIN_READ = 8,
+	ORIGIN = ORIGIN_READ | ORIGIN_WRITE,
+};
+
 typedef struct client client;
 struct client {
     // Sockets to handle communication between client and socket
@@ -17,8 +27,11 @@ struct client {
 
     // buffers to store and send
     uint8_t client_buf_raw[BUFFSIZE], origin_buf_raw[BUFFSIZE];
-    buffer client_buf, origin_buf;
+	buffer client_buf, origin_buf;
 
+	// status of socket ends
+	enum socket_ends active_ends;
+	
     // Nombres para hacer la resolucion
     char * dest_fqdn;
     int dest_port;
@@ -32,14 +45,28 @@ struct client {
 
 // Maneja conexiones de nuevos clients
 void master_read_handler(struct selector_key *key);
+/*
+ * Lee bytes de sd y los deja en el buffer
+ * Retorna la cantidad de bytes que leyó y dejó en el buffer
+*/
+ssize_t read_from_sock(int sd, buffer *b);
 
-enum socks5_states {
-    RESOLVING,
-    CONNECTING,
-    PROXY,
-    DONE,
-    FAILED,
+/*
+ * Lee bytes del buffer y los envía por sd
+ * Retorna la cantidad de bytes que envió
+*/
+ssize_t write_to_sock(int sd, buffer *b);
+
+enum socks5_states
+{
+	AUTH_METHOD,
+	RESOLVING,
+	CONNECTING,
+	PROXY,
+	DONE,
+	FAILED,
 };
 
+#define ATTACHMENT(x) ((client *) x->data)
 
 #endif
