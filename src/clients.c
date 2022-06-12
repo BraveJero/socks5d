@@ -14,6 +14,7 @@
 #include "tcpClientUtil.h"
 #include "util.h"
 #include "tcpServerUtil.h"
+#include "handshake.h"
 
 #define N(x) (sizeof(x)/sizeof((x)[0]))
 #define hasFlag(x, f) (bool)((x) & (f))
@@ -48,6 +49,11 @@ unsigned handle_proxy_write(struct selector_key *key);
 
 // Definicion de las acciones de cada estado
 static const struct state_definition state_actions[] = {
+    {
+        .state = AUTH_METHOD,
+        .on_read_ready = read_auth_method,
+        .on_write_ready = handle_proxy_write,
+    },
     {
         .state = RESOLVING,
         .on_arrival = NULL,
