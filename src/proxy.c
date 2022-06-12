@@ -16,9 +16,8 @@
 #include "tcpServerUtil.h"
 #include "tcpClientUtil.h"
 #include "clients.h"
+#include "args.h"
 
-#define SOCKS5_PORT 1080
-#define MONITOR_PORT 9090
 #define MAX_PENDING_CONNECTIONS 30
 
 static bool done = false;
@@ -27,15 +26,17 @@ int main(int argc, char *argv[])
 {
 	close(STDIN_FILENO);
 	int master[2], monitor[2], master_size = 0, monitor_size = 0;
-	uint16_t socks5_port = SOCKS5_PORT, monitor_port = MONITOR_PORT;
+
+	struct socks5args args;
+	parse_args(argc, argv, &args);
 
 	for(int i = 0; i < 2; i++) {
-		if((master[master_size] = setUpMasterSocket(socks5_port, i)) >= 0) {
-			master_size++;
-		}
-
-		if((monitor[monitor_size] = setUpMasterSocket(monitor_port, i)) >= 0) {
-			monitor_size++;
+		if((master[master_size] = setUpMasterSocket(args.socks_port, i)) 
+		   && (monitor[monitor_size] = setUpMasterSocket(args.mng_port, i)) >= 0) {
+			monitor_size++; master_size++;
+		} else {
+			logger(ERROR, "Unable to open socket. Aborting");
+			exit(1);
 		}
 	}
 
