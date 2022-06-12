@@ -21,17 +21,26 @@
 #define MAX_PENDING_CONNECTIONS 30
 
 static bool done = false;
+static void sigterm(int sig) {
+	done = true;
+}
 
 int main(int argc, char *argv[])
 {
 	close(STDIN_FILENO);
+
+	if(signal(SIGTERM, sigterm) == SIG_ERR) {
+		logger(ERROR, "Cannot handle SIGTERM (%s). Aborting", strerror(errno));
+		exit(1);
+	}
+
 	int master[2], monitor[2], master_size = 0, monitor_size = 0;
 
 	struct socks5args args;
 	parse_args(argc, argv, &args);
 
 	for(int i = 0; i < 2; i++) {
-		if((master[master_size] = setUpMasterSocket(args.socks_port, i)) 
+		if((master[master_size] = setUpMasterSocket(args.socks_port, i)) >= 0 
 		   && (monitor[monitor_size] = setUpMasterSocket(args.mng_port, i)) >= 0) {
 			monitor_size++; master_size++;
 		} else {
@@ -76,16 +85,24 @@ int main(int argc, char *argv[])
 
 	for (int i = 0; i < master_size; i++)
 	{
-		listen(master[i], MAX_PENDING_CONNECTIONS);
-		selector_fd_set_nio(master[i]);
-		selector_register(selector, master[i], &master_handler, OP_READ, NULL);
+		if(listen(master[i], MAX_PENDING_CONNECTIONS) < 0) {
+			logger(ERROR, "Error listening on sock %d: %s", master[i], strerror(errno));
+		} else {
+			logger(INFO, "Waiting for TCP connections on socket %d", master[i]);
+			selector_fd_set_nio(master[i]);
+			selector_register(selector, master[i], &master_handler, OP_READ, NULL);
+		}
 	}
 
 	for (int i = 0; i < monitor_size; i++)
 	{
-		listen(monitor[i], MAX_PENDING_CONNECTIONS);
-		selector_fd_set_nio(monitor[i]);
-		selector_register(selector, monitor[i], &monitor_handler, OP_READ, NULL);
+		if(listen(monitor[i], MAX_PENDING_CONNECTIONS) < 0) {
+			logger(ERROR, "Error listening on sock %d: %s", monitor[i], strerror(errno));
+		} else {
+			logger(INFO, "Waiting for TCP connections on socket %d", monitor[i]);
+			selector_fd_set_nio(monitor[i]);
+			selector_register(selector, monitor[i], &monitor_handler, OP_READ, NULL);
+		}
 	}
 
 	while (!done)
@@ -98,7 +115,11 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	selector_destroy(selector);
+	logger(INFO, "SIGTERM received. Terminating...");
+
+	if(selector != NULL)
+		selector_destroy(selector);
+		
 	selector_close();
 
 	return 0;
