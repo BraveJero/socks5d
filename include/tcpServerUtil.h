@@ -5,8 +5,7 @@
 #include <sys/socket.h>
 
 
-// Create, bind, and listen a new TCP server socket
-int setupTCPServerSocket(const char *service);
+int setUpMasterSocket(uint16_t port, bool ipv6);
 
 // Accept a new TCP connection on a server socket
 int acceptTCPConnection(int servSock);
