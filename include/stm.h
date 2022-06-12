@@ -21,6 +21,7 @@
  * de selector.c.
  */
 
+#include "selector.h"
 struct state_machine {
     /** declaración de cual es el estado inicial */
     unsigned                      initial;
@@ -34,7 +35,7 @@ struct state_machine {
     const struct state_definition *current;
 };
 
-extern struct selector_key *key;
+struct selector_key;
 
 /**
  * definición de un estado de la máquina de estados
