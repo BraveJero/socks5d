@@ -44,8 +44,7 @@ int setUpMasterSocket(uint16_t port, bool ipv6) {
 	char *protocol = ipv6? "IPv6" : "IPv4";
 	if ((sock = socket(ipv6? AF_INET6 : AF_INET, SOCK_STREAM, 0)) < 0)
 	{
-		perror("socket()");
-		logger(ERROR, "socket IPv4 failed");
+		logger(ERROR, "socket for %s failed: %s", protocol, strerror(errno));
 		return -1;
 	}
 	// set master socket to allow multiple connections , this is just a good habit, it will work without this
@@ -65,7 +64,6 @@ int setUpMasterSocket(uint16_t port, bool ipv6) {
 	}
 
 	if(ipv6) {
-		logger(INFO, "Setting ipv6 address");
 		memset(&addr6, 0, sizeof(addr6));
 		addr6.sin6_family = AF_INET6;
 		addr6.sin6_addr = in6addr_any;
@@ -73,7 +71,6 @@ int setUpMasterSocket(uint16_t port, bool ipv6) {
 		addr = (struct sockaddr *) &addr6;
 		len = sizeof(addr6);
 	} else {
-		logger(INFO, "Setting ipv4 address");
 		memset(&addr4, 0, sizeof(addr4));
 		addr4.sin_family =AF_INET;
 		addr4.sin_addr.s_addr = INADDR_ANY;
@@ -88,7 +85,5 @@ int setUpMasterSocket(uint16_t port, bool ipv6) {
 		close(sock);
 		return -1;
 	}
-
-	logger(INFO, "Waiting for TCP %s connections on socket %d", protocol, sock);
 	return sock;
 }
