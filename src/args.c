@@ -78,7 +78,7 @@ parse_args(const int argc, char **argv, struct socks5args *args) {
     args->mng_addr   = "127.0.0.1";
     args->mng_port   = 8080;
 
-    args->disectors_enabled = true;
+    args->dissectors_enabled = true;
 
     args->doh.host = "localhost";
     args->doh.ip   = "127.0.0.1";
@@ -115,7 +115,7 @@ parse_args(const int argc, char **argv, struct socks5args *args) {
                 args->mng_addr = optarg;
                 break;
             case 'N':
-                args->disectors_enabled = false;
+                args->dissectors_enabled = false;
                 break;
             case 'p':
                 args->socks_port = port(optarg);
