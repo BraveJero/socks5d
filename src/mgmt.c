@@ -5,6 +5,7 @@
 #include "selector.h"
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "state.h"
 
 #define ATTACHMENT(key) ((mgmt_client *) key->data);
@@ -18,21 +19,27 @@ static const char *error_status = "-ERR";
 static const char *line_delimiter = "\r\n";
 static const char *multiline_delimiter = ".";
 
-static const char *hello_message = "mgmt server ready. Authenticate using PASS to access all functionalities";
-static const char *invalid_cmd_message = "Invalid command for this stage";
-static const char *invalid_arg_message = "Invalid arguments for command";
-static const char *correct_password_message = "Welcome!";
-static const char *incorrect_password_message = "Incorrect password - try again";
-static const char *quit_message = "Quitting...";
+static const char *hello_format = "%s mgmt server ready. Authenticate using PASS to access all functionalities%s";
+static const char *invalid_cmd_format = "%s Invalid command for this stage %s";
+static const char *invalid_arg_format = "%s Invalid arguments for command%s";
+static const char *correct_password_format = "%s Welcome!%s";
+static const char *incorrect_password_format = "%s Incorrect password - try again%s";
+static const char *quit_format = "%s Quitting...%s";
+static const char *stats_format = "%s Showing stats...%sB%lu%sH%lu%sC%lu%s%s%s";
+static const char *buffsize_format = "%s %s%d%s%s%s";
+static const char *set_buffsize_format = "%s Buffsize updated %s";
+static const char *set_buffsize_error_format = "%s Error updating buffsize %s";
+static const char *dissector_status_format = "%s %s%s%s%s%s";
+static const char *set_dissector_status_format = "%s Dissector status updated %s";
+static const char *set_dissector_status_error_format = "%s Error updating dissector status %s";
 
-static const char *stats_format = "%s Showing stats...%sBytes transferred: %lu%sHistorical connections: %lu%sCurrent connections: %lu%s%s%s";
+static const char *capa_message = "+OK \r\nUSER\r\nPASS\r\nUSERS\r\nSTATS\r\nBUFFSIZE\r\nSET-BUFFSIZE\r\nDISSECTOR-STATUS\r\nSET-DISSECTOR-STATUS\r\n.\r\n";
 
 static void handle_mgmt_read(struct selector_key *key);
 static void handle_mgmt_write(struct selector_key *key);
 static void handle_mgmt_close(struct selector_key *key);
 static mgmt_client *create_mgmt_client(int sock);
 static ssize_t write_response(buffer *b, const char *response);
-
 
 static const struct fd_handler mgmt_handler = {
     .handle_read   = handle_mgmt_read,
@@ -56,7 +63,7 @@ void mgmt_master_read_handler (struct selector_key *key) {
     }
 
     size_t size;
-    snprintf(response_buf, MGMT_BUFFSIZE, "%s %s%s", success_status, hello_message, line_delimiter);
+    snprintf(response_buf, MGMT_BUFFSIZE, hello_format, success_status, line_delimiter);
     uint8_t *write_ptr = buffer_write_ptr(&(new_client->write_buf), &size);
     size_t len = strlen(response_buf);
 
@@ -118,20 +125,24 @@ bool processMgmtClient(mgmt_client *c)
 			return false;
 		}
 		case MGMT_INVALID_CMD: {
-			snprintf(response_buf, MGMT_BUFFSIZE, "%s %s%s", error_status, invalid_cmd_message, line_delimiter);
+			snprintf(response_buf, MGMT_BUFFSIZE, invalid_cmd_format, error_status, line_delimiter);
             break;
 		}
 		case MGMT_INVALID_ARGS: {
-            snprintf(response_buf, MGMT_BUFFSIZE, "%s %s%s", error_status, invalid_arg_message, line_delimiter);
+            snprintf(response_buf, MGMT_BUFFSIZE, invalid_arg_format, error_status, line_delimiter);
 			break;
 		}
+        case MGMT_CAPA: {
+            strncpy(response_buf, capa_message, MGMT_BUFFSIZE);
+            break;
+        }
 		case MGMT_PASS: {
             arg[argLen] = '\0';
             if(strcmp(arg, password) == 0) {
-                snprintf(response_buf, MGMT_BUFFSIZE, "%s %s%s", success_status, correct_password_message, line_delimiter);
+                snprintf(response_buf, MGMT_BUFFSIZE, correct_password_format, success_status,  line_delimiter);
                 c->input.cond = yyctrns;
             } else {
-                snprintf(response_buf, MGMT_BUFFSIZE, "%s %s%s", error_status, incorrect_password_message, line_delimiter);
+                snprintf(response_buf, MGMT_BUFFSIZE, incorrect_password_format, error_status, line_delimiter);
             }
 			break;
 		} 
@@ -143,25 +154,51 @@ bool processMgmtClient(mgmt_client *c)
             multiline_delimiter, line_delimiter);
 			break;
 		}
-		case MGMT_LIST: {
+		case MGMT_USERS: {
             // TODO: implement users feature
+            snprintf(response_buf, MGMT_BUFFSIZE, "%s Listing users... \r\njuan\r\npedro\r\njoaquin\r\n.\r\n", success_status);
 			break;
 		}
 		case MGMT_GET_BUFFSIZE: {
+            snprintf(response_buf, MGMT_BUFFSIZE, buffsize_format, success_status, line_delimiter,
+            get_buffsize(), line_delimiter, multiline_delimiter, line_delimiter);
 			break;
 		}
 		case MGMT_SET_BUFFSIZE: {
+            arg[argLen] = '\0';
+            size_t new_size = atoi(arg);
+            if(new_size) {
+                set_buffsize(new_size);
+                snprintf(response_buf, MGMT_BUFFSIZE, set_buffsize_format, success_status, line_delimiter);
+            } else {
+                snprintf(response_buf, MGMT_BUFFSIZE, set_buffsize_error_format, error_status, line_delimiter);
+            }
 			break;
 		}
 		case MGMT_GET_DISSECTOR_STATUS: {
+            snprintf(response_buf, MGMT_BUFFSIZE, dissector_status_format, success_status, line_delimiter,
+            get_dissector_state()? "on" : "off", line_delimiter, multiline_delimiter, line_delimiter);
 			break;
 		}
 		case MGMT_SET_DISSECTOR_STATUS: {
+            arg[argLen] = '\0';
+            for(int i = 0; arg[i]; i++) {
+                arg[i] = tolower(arg[i]);
+            }
+            if(strcmp(arg, "on") == 0) {
+                set_dissector_state(true);
+                snprintf(response_buf, MGMT_BUFFSIZE, set_dissector_status_format, success_status, line_delimiter);
+            } else if(strcmp(arg, "off") == 0) {
+                set_dissector_state(false);
+                snprintf(response_buf, MGMT_BUFFSIZE, set_dissector_status_format, success_status, line_delimiter);
+            } else {
+                snprintf(response_buf, MGMT_BUFFSIZE, set_dissector_status_error_format, error_status, line_delimiter);
+            }
 			break;
 		}
 		case MGMT_QUIT: {
             c->ready_to_close = true;
-            snprintf(response_buf, MGMT_BUFFSIZE, "%s %s%s", success_status, quit_message, line_delimiter);
+            snprintf(response_buf, MGMT_BUFFSIZE, quit_format, success_status, line_delimiter);
 			break;
 		}
 	}
