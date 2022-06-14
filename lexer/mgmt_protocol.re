@@ -49,18 +49,19 @@ MgmtCommand parseMgmtRequest(Input *in, char **arg, size_t *argLen, size_t *len)
         print = [\x20-\x7f];
         arg = (print\[ ])+;
         numarg = ([0-9])+;
-        cmds = ('pass'|'stats'|'list'|'buffsize'|'set-buffsize'|'dissector-status'|'set-dissector-status');
+        cmds = ('pass'|'users'|'list'|'buffsize'|'set-buffsize'|'dissector-status'|'set-dissector-status');
 
         <pass> 'pass' [ ]+ @args arg @arge [ ]* '\r\n'                      { result = MGMT_PASS; break; }
         
         <trns> 'stats' [ ]* '\r\n'                                          { result = MGMT_STATS; break; }
-        <trns> 'list' [ ]* '\r\n'                                           { result = MGMT_LIST; break; }
+        <trns> 'users' [ ]* '\r\n'                                          { result = MGMT_USERS; break; }
         <trns> 'buffsize' [ ]* '\r\n'                                       { result = MGMT_GET_BUFFSIZE; break; }
         <trns> 'set-buffsize' [ ]+ @args numarg @arge [ ]* '\r\n'           { result = MGMT_SET_BUFFSIZE; break; }
         <trns> 'dissector-status' [ ]* '\r\n'                               { result = MGMT_GET_DISSECTOR_STATUS; break; }
         <trns> 'set-dissector-status' [ ]* @args ("on"|"off") @arge'\r\n'   { result = MGMT_SET_DISSECTOR_STATUS; break; }
         
         <*> 'quit' [ ]* '\r\n'                                              { result = MGMT_QUIT; break; }
+        <*> 'capa' [ ]* '\r\n'                                              { result = MGMT_CAPA; break; }
 
         <*> cmds [ ]+ [^\r]* '\r\n'                                         { result = MGMT_INVALID_ARGS; break; }
         <*> print+ '\r\n'                                                   { result = MGMT_INVALID_CMD; break; }

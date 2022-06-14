@@ -9,14 +9,14 @@ typedef struct
 	int state, cond;
 	size_t written, bufSize;
 	
-#line 13 "mgmt_protocol.re.h"
+#line 13 "./include/mgmt_protocol.re.h"
 char *yyt1;
 char *yyt2;
-#line 13 "mgmt_protocol.re"
+#line 13 "lexer/mgmt_protocol.re"
 
 } Input;
 
-#include "mgmt_protocol.h"
+#include "../include/mgmt_protocol.h"
 MgmtCommand parseMgmtRequest(Input *in, char **arg, size_t *argLen, size_t *len);
 
 enum YYCONDTYPE {
