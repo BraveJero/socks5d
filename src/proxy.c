@@ -17,6 +17,7 @@
 #include "tcpClientUtil.h"
 #include "clients.h"
 #include "args.h"
+#include "mgmt.h"
 
 #define MAX_PENDING_CONNECTIONS 30
 
@@ -77,7 +78,7 @@ int main(int argc, char *argv[])
 	};
 
 	struct fd_handler monitor_handler = {
-		.handle_read = NULL,
+		.handle_read = mgmt_master_read_handler,
 		.handle_write = NULL,
 		.handle_close = NULL,
 		.handle_block = NULL

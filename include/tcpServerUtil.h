@@ -1,8 +1,8 @@
 #ifndef TCPSERVERUTIL_H_
 #define TCPSERVERUTIL_H_
 
-#include <stdio.h>
-#include <sys/socket.h>
+#include <stdint.h>
+#include <stdbool.h>
 
 
 int setUpMasterSocket(uint16_t port, bool ipv6);
