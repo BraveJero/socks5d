@@ -9,7 +9,7 @@ C_SOURCES := $(shell find $(SOURCE_DIR)/ -type f -name "*.c")
 OBJS := $(C_SOURCES:%.c=$(BUILD_DIR)/%.o)
 
 DEP_FLAGS := -MMD -MP
-CFLAGS += -Wall -fsanitize=address -g -lpthread -std=c11 -pedantic -pedantic-errors -Wextra -Werror -Wno-unused-parameter -Wno-implicit-fallthrough -D_POSIX_C_SOURCE=200112L 
+CFLAGS += -Wall -g -lpthread -std=c11 -pedantic -pedantic-errors -Wextra -Werror -Wno-unused-parameter -Wno-implicit-fallthrough -D_POSIX_C_SOURCE=200112L -fsanitize=address
 CFLAGS += -I$(SOURCE_DIR) -I$(INCLUDE_DIR) $(DEP_FLAGS)
 
 all: c
@@ -25,7 +25,7 @@ rebuild: clean
 $(BUILD_DIR)/$(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $^
 
-$(BUILD_DIR)/%.o: %.c
+$(BUILD_DIR)/%.o: %.c Makefile
 	$(MKDIR_P) $(dir $@)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
