@@ -1,9 +1,11 @@
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <pthread.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#include <assert.h>
 
 #include "clients.h"
 #include "logger.h"
@@ -45,6 +47,8 @@ unsigned handle_proxy_read(struct selector_key *key);
 
 unsigned handle_proxy_write(struct selector_key *key);
 
+static void start_name_resolution(unsigned state, struct selector_key *key);
+
 // Definicion de las acciones de cada estado
 static const struct state_definition state_actions[] = {
     {
@@ -59,7 +63,7 @@ static const struct state_definition state_actions[] = {
     },
     {
         .state = RESOLVING,
-        .on_arrival = NULL,
+        .on_arrival = start_name_resolution,
         .on_departure = NULL,
         .on_read_ready = NULL,
         .on_write_ready = NULL,
@@ -83,11 +87,8 @@ static const struct state_definition state_actions[] = {
         .on_read_ready = NULL,
         .on_write_ready = NULL,
     }, {
-        .state = FAILED,
-        .on_arrival = client_destroy,
-        .on_departure = NULL,
-        .on_read_ready = NULL,
-        .on_write_ready = NULL,
+        .state = WRITE_REMAINING,
+        .on_write_ready = handle_proxy_write,
     }
 };
 
@@ -102,6 +103,19 @@ static const struct fd_handler socks5_handler = {
     .handle_write  = socksv5_write,
     .handle_block  = socksv5_block,
 };
+
+static void start_name_resolution(unsigned state, struct selector_key *key)
+{
+    client *client = ATTACHMENT(key);
+    struct selector_key *dup_key = malloc(sizeof(*key));
+    
+    dup_key->data = client;
+    dup_key->fd = client->client_sock;
+    dup_key->s = key->s;
+
+    pthread_t tid;
+    pthread_create(&tid, NULL, thread_name_resolution, dup_key);
+}
 
 unsigned closeClient(client *client, enum socket_ends level, fd_selector selector)
 {
@@ -174,14 +188,6 @@ void master_read_handler(struct selector_key *key) {
     }
 
     selector_register(key->s, new_client->client_sock, &socks5_handler, OP_NOOP, new_client);
-    struct selector_key *dup_key = malloc(sizeof(*key));
-    
-    dup_key->data = new_client;
-    dup_key->fd = new_client->client_sock;
-    dup_key->s = key->s;
-
-    pthread_t tid;
-    pthread_create(&tid, NULL, thread_name_resolution, dup_key);
 
     return;
 }
@@ -198,7 +204,7 @@ client *create_client(int sock) {
     new_client->stm = malloc(sizeof(struct state_machine));
     new_client->stm->states = state_actions;
     new_client->stm->initial = RESOLVING;
-    new_client->stm->max_state = FAILED;
+    new_client->stm->max_state = WRITE_REMAINING;
 
     new_client->dest_fqdn = "localhost";
 	new_client->dest_port = 61441;
@@ -214,8 +220,8 @@ client *create_client(int sock) {
 
 unsigned handle_finished_resolution(struct selector_key *key) {
     client *c = ATTACHMENT(key);
-    if(c->resolution == NULL) return FAILED;
-    else return CONNECTING;
+    assert(c->resolution != NULL);
+    return CONNECTING;
 }
 
 // static void socksv5_done(struct selector_key *key)
@@ -285,9 +291,30 @@ void create_connection(const unsigned state, struct selector_key *key) {
     try_connect(key);
 }
 
+enum server_reply_type check_connection_error(int error)
+{
+    switch (error)
+    {
+        case EADDRNOTAVAIL:
+            return REPLY_ADDRESS_NOT_SUPPORTED;
+        case ECONNRESET:
+            return REPLY_NOT_ALLOWED;
+        case ECONNREFUSED: 
+            return REPLY_CONNECTION_REFUSED;
+        case ENETUNREACH:
+            return REPLY_NETWORK_UNREACHABLE;
+        case EHOSTUNREACH:
+            return REPLY_HOST_UNREACHABLE;
+        case ETIMEDOUT:
+            return REPLY_TTL_EXPIRED;
+        default:
+            return REPLY_SERVER_FAILURE;
+    }
+}
+
 unsigned try_connect(struct selector_key *key) {
     client *c = ATTACHMENT(key);
-    if(c->curr_addr == NULL) return FAILED;
+    assert(c->curr_addr != NULL);
     int sock = c->origin_sock;
     if (sock >= 0) {
         errno = 0;
@@ -304,10 +331,13 @@ unsigned try_connect(struct selector_key *key) {
                 return CONNECTING;
             }
         }
-        return FAILED;
+        enum server_reply_type reply = check_connection_error(errno);
+        server_reply(&c->client_buf, reply, ATYP_IPV4, EMPTY_IP, 0);
+        return closeClient(c, CLIENT, key->s);
     } else {
         logger(DEBUG, "Can't create client socket");
-        return FAILED;
+        server_reply(&c->client_buf, REPLY_SERVER_FAILURE, ATYP_IPV4, EMPTY_IP, 0);
+        return closeClient(c, CLIENT, key->s);
     }
 }
 
@@ -327,7 +357,13 @@ unsigned origin_check_connection(struct selector_key *key) {
         logger(ERROR, "Error: %d %s", error, strerror(error));
         c->curr_addr = c->curr_addr->ai_next;
         selector_remove_interest(key->s, c->origin_sock, OP_READ | OP_WRITE);
-        return try_connect(key);
+        if(c->curr_addr != NULL)
+            return try_connect(key);
+
+        // No hay más opciones. Responder con el error
+        enum server_reply_type reply = check_connection_error(error);
+        server_reply(&c->client_buf, reply, ATYP_IPV4, EMPTY_IP, 0);
+        return closeClient(c, CLIENT, key->s);
     }
 }
 
@@ -352,37 +388,37 @@ unsigned handle_proxy_write(struct selector_key *key) {
     ssize_t bytes_left = -1;
 	client *c = ATTACHMENT(key);
 
-	if (c->client_sock == key->fd)
-	{ // Envio al socket lo que haya en el buffer
-		if (!buffer_can_read(&c->client_buf))
-			goto skip;
-		
-		bytes_left = write_to_sock(c->client_sock, &(c->client_buf));
-		if (bytes_left != 0 && checkEOF(bytes_left))
-			return closeClient(c, CLIENT_WRITE, key->s);
+    if (c->client_sock == key->fd)
+    { // Envio al socket lo que haya en el buffer
+        if (!buffer_can_read(&c->client_buf))
+            goto skip;
+        
+        bytes_left = write_to_sock(c->client_sock, &(c->client_buf));
+        if (bytes_left != 0 && checkEOF(bytes_left))
+            return closeClient(c, CLIENT_WRITE, key->s);
         // if(bytes_left == 0){
         //     if(selector_set_interest(key->s, c->client_sock, OP_READ) != SELECTOR_SUCCESS) {
         //         return FAILED;
         //     }
         // }
-	}
-	else if (c->origin_sock == key->fd)
-	{ // Leer en el socket del origen y guardar en el buffer del usuario
-		if (!buffer_can_read(&c->origin_buf))
-			goto skip;
-		bytes_left = write_to_sock(c->origin_sock, &(c->origin_buf));
-		if (bytes_left != 0 && checkEOF(bytes_left))
-			return closeClient(c, ORIGIN_WRITE, key->s);
+    }
+    else if (c->origin_sock == key->fd)
+    { // Leer en el socket del origen y guardar en el buffer del usuario
+        if (!buffer_can_read(&c->origin_buf))
+            goto skip;
+        bytes_left = write_to_sock(c->origin_sock, &(c->origin_buf));
+        if (bytes_left != 0 && checkEOF(bytes_left))
+            return closeClient(c, ORIGIN_WRITE, key->s);
         // if(bytes_left == 0){
         //     if(selector_set_interest(key->s, c->origin_sock, OP_READ) != SELECTOR_SUCCESS) {
         //         return FAILED;
         //     }
         // }
-    } else {
-        return FAILED;
     }
+    else
+        abort();
 
-	skip:
+    skip:
     return stm_state(c->stm);
 }
 

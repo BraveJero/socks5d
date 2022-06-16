@@ -72,9 +72,9 @@ enum socks5_states
 	CONNECTING,
 	PROXY,
 	DONE,
-	FAILED,
+	WRITE_REMAINING,
 };
 
-#define ATTACHMENT(x) ((client *) x->data)
+#define ATTACHMENT(x) ((struct client*) x->data)
 
 #endif

@@ -12,6 +12,7 @@
 #include <string.h>
 
 const uint8_t server_version = 0x05;
+const uint8_t EMPTY_IP[] = {0,0,0,0};
 
 static void select_method(uint8_t method, client *c)
 {
@@ -133,7 +134,7 @@ unsigned read_proxy_request(struct selector_key *key)
 	enum cmd cmd = readBuffer[1];
 	if(cmd != CONNECT)
 	{
-		server_reply(&c->client_buf, REPLY_COMMAND_NOT_SUPPORTED, ATYP_IPV4, (uint8_t[]){0,0,0,0}, 0);
+		server_reply(&c->client_buf, REPLY_COMMAND_NOT_SUPPORTED, ATYP_IPV4, EMPTY_IP, 0);
 		return closeClient(c, CLIENT_READ, key->s);
 	}
 

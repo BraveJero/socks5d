@@ -1,6 +1,9 @@
 #pragma once
 #include "selector.h"
 #include "buffer.h"
+#include <stdint.h>
+
+extern const uint8_t EMPTY_IP[];
 
 enum server_reply_type
 {
@@ -20,6 +23,7 @@ enum atyp
     ATYP_IPV4 = 0x01,
     ATYP_DOMAIN_NAME = 0x03,
     ATYP_IPV6 = 0x04,
+    ATYP_EMPTY = ATYP_IPV4,
 };
 
 unsigned read_auth_method(struct selector_key *key);
