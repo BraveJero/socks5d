@@ -15,7 +15,7 @@ typedef struct mgmt_client {
     int cond;
 
     Input input;
-    bool ready_to_close;
+    bool quitted;
 
 } mgmt_client;
 

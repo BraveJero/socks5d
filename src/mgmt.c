@@ -74,7 +74,7 @@ void mgmt_master_read_handler (struct selector_key *key) {
 
 mgmt_client *create_mgmt_client(int sock) {
     mgmt_client *new_client = malloc(sizeof(mgmt_client));
-    new_client->ready_to_close = false;
+    new_client->quitted = false;
     new_client->fd = sock;
     buffer_init(&(new_client->write_buf), MGMT_BUFFSIZE, new_client->write_buf_raw);
     new_client->input.buf = new_client->read_buf_raw;
@@ -87,7 +87,8 @@ static void handle_mgmt_read(struct selector_key *key) {
     mgmt_client *c = ATTACHMENT(key);
     bool complete = true;
     if(fillBuffer(&(c->input), c->fd) <= 0) {
-        c->ready_to_close = true;
+        selector_unregister_fd(key->s, c->fd);
+        return;
     } else {
         complete = processMgmtClient(c);
     }
@@ -97,7 +98,6 @@ static void handle_mgmt_read(struct selector_key *key) {
 }
 
 static void handle_mgmt_close(struct selector_key *key) {
-    logger(DEBUG, "Deallocating client for fd %d", key->fd);
     close(key->fd);
     free(key->data);
 }
@@ -106,7 +106,7 @@ static void handle_mgmt_write(struct selector_key *key) {
     mgmt_client *c = ATTACHMENT(key);
     ssize_t bytes_left = write_to_sock(c->fd, &(c->write_buf));
     if(bytes_left == 0) {
-        if(!c->ready_to_close){
+        if(!c->quitted){
             selector_set_interest(key->s, c->fd, OP_READ);
         } else {
             selector_unregister_fd(key->s, c->fd);
@@ -197,7 +197,7 @@ bool processMgmtClient(mgmt_client *c)
 			break;
 		}
 		case MGMT_QUIT: {
-            c->ready_to_close = true;
+            c->quitted = true;
             snprintf(response_buf, MGMT_BUFFSIZE, quit_format, success_status, line_delimiter);
 			break;
 		}
