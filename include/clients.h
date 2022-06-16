@@ -6,9 +6,11 @@
 #include <netdb.h>
 #include "selector.h"
 #include "stm.h"
+#include <errno.h>
 
 #define MAX_SOCKETS 3
 #define BUFFSIZE 2048
+#define checkEOF(count) (count == 0 || (count < 0 && errno != EAGAIN))
 
 enum socket_ends
 {
@@ -57,9 +59,15 @@ ssize_t read_from_sock(int sd, buffer *b);
 */
 ssize_t write_to_sock(int sd, buffer *b);
 
+/*
+ * Avisa de la terminación de un extremo del pipeline
+*/
+unsigned closeClient(client *client, enum socket_ends level, fd_selector selector);
+
 enum socks5_states
 {
 	AUTH_METHOD,
+	REQUEST,
 	RESOLVING,
 	CONNECTING,
 	PROXY,

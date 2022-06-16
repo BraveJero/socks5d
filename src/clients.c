@@ -1,6 +1,5 @@
 #include <string.h>
 #include <unistd.h>
-#include <errno.h>
 #include <pthread.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -18,7 +17,6 @@
 
 #define N(x) (sizeof(x)/sizeof((x)[0]))
 #define hasFlag(x, f) (bool)((x) & (f))
-#define checkEOF(count) (count == 0 || (count < 0 && errno != EAGAIN))
 
 static uint8_t buf[BUFFSIZE];
 
@@ -53,6 +51,11 @@ static const struct state_definition state_actions[] = {
         .state = AUTH_METHOD,
         .on_read_ready = read_auth_method,
         .on_write_ready = handle_proxy_write,
+    },
+    {
+        .state = REQUEST,
+        .on_read_ready = read_proxy_request,
+        .on_write_ready = handle_proxy_write
     },
     {
         .state = RESOLVING,
@@ -100,7 +103,7 @@ static const struct fd_handler socks5_handler = {
     .handle_block  = socksv5_block,
 };
 
-static unsigned closeClient(client *client, enum socket_ends level, fd_selector selector)
+unsigned closeClient(client *client, enum socket_ends level, fd_selector selector)
 {
 	level &= client->active_ends;
 	if (hasFlag(level, CLIENT_READ))
