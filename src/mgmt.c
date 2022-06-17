@@ -15,7 +15,6 @@
 #define checkEOF(count) (count == 0 || (count < 0 && errno != EAGAIN))
 
 static char response_buf[MGMT_BUFFSIZE];
-static char capa_count = 0;
 
 static const char *success_status = "+OK";
 static const char *error_status = "-ERR";
@@ -153,7 +152,6 @@ bool processMgmtClient(mgmt_client *c)
                 break;
             }
             case MGMT_CAPA: {
-                logger(DEBUG, "CAPA count: %d", ++capa_count);
                 response_len = snprintf(response_buf, MGMT_BUFFSIZE, "%s", capa_message);
                 break;
             }
