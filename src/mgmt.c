@@ -4,6 +4,7 @@
 #include "mgmt.h"
 #include "selector.h"
 #include "users.h"
+#include "tokens.h"
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -15,8 +16,6 @@
 
 static char response_buf[MGMT_BUFFSIZE];
 static char capa_count = 0;
-
-static const char *password = "password";
 
 static const char *success_status = "+OK";
 static const char *error_status = "-ERR";
@@ -160,7 +159,7 @@ bool processMgmtClient(mgmt_client *c)
             }
             case MGMT_TOKEN: {
                 arg[argLen] = '\0';
-                if(strcmp(arg, password) == 0) {
+                if(check_token(arg)) {
                     response_len = snprintf(response_buf, MGMT_BUFFSIZE, correct_password_format, success_status,  line_delimiter);
                     c->input.cond = yyctrns;
                 } else {

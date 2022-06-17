@@ -18,6 +18,7 @@
 #include "clients.h"
 #include "args.h"
 #include "mgmt.h"
+#include "tokens.h"
 
 #define MAX_PENDING_CONNECTIONS 30
 

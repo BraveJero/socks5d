@@ -7,6 +7,7 @@
 
 #include "args.h"
 #include "users.h"
+#include "tokens.h"
 
 static unsigned short
 port(const char *s) {
@@ -86,7 +87,7 @@ parse_args(const int argc, char **argv, struct socks5args *args) {
             { 0,           0,                 0, 0 }
         };
 
-        c = getopt_long(argc, argv, "hl:L:Np:P:u:v", long_options, &option_index);
+        c = getopt_long(argc, argv, "hl:L:Np:P:ut:v", long_options, &option_index);
         if (c == -1)
             break;
 
@@ -114,7 +115,9 @@ parse_args(const int argc, char **argv, struct socks5args *args) {
                     fprintf(stderr, "maximun number of command line users reached: %d.\n", MAX_USERS);
                     exit(1);
                 } else {
-                    add_user(optarg);
+                    if(!add_user(optarg))  {
+                        fprintf(stderr, "error adding user: %s\n", optarg);
+                    }
                     nusers++;
                 }
                 break;
@@ -122,6 +125,12 @@ parse_args(const int argc, char **argv, struct socks5args *args) {
                 version();
                 exit(0);
                 break;
+            case 't':{
+                if(!add_token(optarg)) {
+                    fprintf(stderr, "Error adding token: %s\n", optarg);
+                }
+                break;
+            }
             case 0xD001:
                 args->doh.ip = optarg;
                 break;
