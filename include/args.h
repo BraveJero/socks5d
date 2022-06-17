@@ -3,13 +3,6 @@
 
 #include <stdbool.h>
 
-#define MAX_USERS 10
-
-struct users {
-    char *name;
-    char *pass;
-};
-
 struct doh {
     char           *host;
     char           *ip;
@@ -28,7 +21,6 @@ struct socks5args {
     bool            dissectors_enabled;
 
     struct doh      doh;
-    struct users    users[MAX_USERS];
 };
 
 /**

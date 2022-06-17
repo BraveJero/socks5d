@@ -6,6 +6,7 @@
 #include <getopt.h>
 
 #include "args.h"
+#include "users.h"
 
 static unsigned short
 port(const char *s) {
@@ -20,21 +21,6 @@ port(const char *s) {
          return 1;
      }
      return (unsigned short)sl;
-}
-
-static void
-user(char *s, struct users *user) {
-    char *p = strchr(s, ':');
-    if(p == NULL) {
-        fprintf(stderr, "password not found\n");
-        exit(1);
-    } else {
-        *p = 0;
-        p++;
-        user->name = s;
-        user->pass = p;
-    }
-
 }
 
 static void
@@ -128,7 +114,7 @@ parse_args(const int argc, char **argv, struct socks5args *args) {
                     fprintf(stderr, "maximun number of command line users reached: %d.\n", MAX_USERS);
                     exit(1);
                 } else {
-                    user(optarg, args->users + nusers);
+                    add_user(optarg);
                     nusers++;
                 }
                 break;

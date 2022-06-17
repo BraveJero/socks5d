@@ -3,6 +3,7 @@
 #include "socketsIO.h"
 #include "mgmt.h"
 #include "selector.h"
+#include "users.h"
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -176,8 +177,17 @@ bool processMgmtClient(mgmt_client *c)
                 break;
             }
             case MGMT_USERS: {
-                // TODO: implement users feature
-                response_len = snprintf(response_buf, MGMT_BUFFSIZE, "%s Listing users... \r\njuan\r\npedro\r\njoaquin\r\n.\r\n", success_status);
+                response_len = snprintf(response_buf, MGMT_BUFFSIZE, "%s Listing users... \r\n", success_status);
+                size_t user_count;
+                user *users = get_users(&user_count);
+
+                for(size_t i = 0; i < user_count; i++) {
+                    logger(DEBUG, "Sending user: %s", users[i].username);
+                    strcat(response_buf, users[i].username);
+                    strcat(response_buf, line_delimiter);
+                }
+                strcat(response_buf, ".\r\n");
+
                 break;
             }
             case MGMT_GET_BUFFSIZE: {
