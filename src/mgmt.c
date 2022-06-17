@@ -6,11 +6,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <errno.h>
 #include "state.h"
 
 #define ATTACHMENT(key) ((mgmt_client *) key->data);
+#define checkEOF(count) (count == 0 || (count < 0 && errno != EAGAIN))
 
 static char response_buf[MGMT_BUFFSIZE];
+static char capa_count = 0;
 
 static const char *password = "password";
 
@@ -19,7 +22,7 @@ static const char *error_status = "-ERR";
 static const char *line_delimiter = "\r\n";
 static const char *multiline_delimiter = ".";
 
-static const char *hello_format = "%s mgmt server ready. Authenticate using PASS to access all functionalities%s";
+static const char *hello_format = "%s mgmt server ready. Authenticate using TOKEN to access all functionalities%s";
 static const char *invalid_cmd_format = "%s Invalid command for this stage %s";
 static const char *invalid_arg_format = "%s Invalid arguments for command%s";
 static const char *correct_password_format = "%s Welcome!%s";
@@ -33,13 +36,18 @@ static const char *dissector_status_format = "%s %s%s%s%s%s";
 static const char *set_dissector_status_format = "%s Dissector status updated %s";
 static const char *set_dissector_status_error_format = "%s Error updating dissector status %s";
 
-static const char *capa_message = "+OK \r\nUSER\r\nPASS\r\nUSERS\r\nSTATS\r\nBUFFSIZE\r\nSET-BUFFSIZE\r\nDISSECTOR-STATUS\r\nSET-DISSECTOR-STATUS\r\n.\r\n";
+static const char *capa_message = "+OK \r\nTOKEN\r\nUSERS\r\nSTATS\r\nBUFFSIZE\r\nSET-BUFFSIZE\r\nDISSECTOR-STATUS\r\nSET-DISSECTOR-STATUS\r\n.\r\n";
 
 static void handle_mgmt_read(struct selector_key *key);
 static void handle_mgmt_write(struct selector_key *key);
 static void handle_mgmt_close(struct selector_key *key);
 static mgmt_client *create_mgmt_client(int sock);
+
+// Guarda response en el buffer b
 static ssize_t write_response(buffer *b, const char *response);
+
+// Copia el contenido de src a dest si entra todo. src cada vacio
+static ssize_t copy_from_buf(buffer *dest, buffer *src);
 
 static const struct fd_handler mgmt_handler = {
     .handle_read   = handle_mgmt_read,
@@ -69,7 +77,7 @@ void mgmt_master_read_handler (struct selector_key *key) {
 
     memcpy(write_ptr, response_buf, len);
     buffer_write_adv(&(new_client->write_buf), len);
-    selector_register(key->s, new_socket, &mgmt_handler, OP_WRITE, new_client);
+    selector_register(key->s, new_socket, &mgmt_handler, OP_WRITE | OP_READ, new_client);
 }
 
 mgmt_client *create_mgmt_client(int sock) {
@@ -77,6 +85,7 @@ mgmt_client *create_mgmt_client(int sock) {
     new_client->quitted = false;
     new_client->fd = sock;
     buffer_init(&(new_client->write_buf), MGMT_BUFFSIZE, new_client->write_buf_raw);
+    buffer_init(&(new_client->pending_buf), MGMT_BUFFSIZE, new_client->pending_buf_raw);
     new_client->input.buf = new_client->read_buf_raw;
     new_client->input.bufSize = MGMT_BUFFSIZE;
     initState(&(new_client->input));
@@ -85,16 +94,18 @@ mgmt_client *create_mgmt_client(int sock) {
 
 static void handle_mgmt_read(struct selector_key *key) {
     mgmt_client *c = ATTACHMENT(key);
-    bool complete = true;
-    if(fillBuffer(&(c->input), c->fd) <= 0) {
+
+    // Si tengo comandos en el buffer de pendientes no trato de leer
+    if(buffer_can_read(&(c->pending_buf))) {
+        return;
+    }
+
+    if(checkEOF(fillBuffer(&(c->input), c->fd))) {
         selector_unregister_fd(key->s, c->fd);
         return;
-    } else {
-        complete = processMgmtClient(c);
     }
-    if(complete) {
-        selector_set_interest(key->s, c->fd, OP_WRITE);
-    }
+    processMgmtClient(c);
+    selector_set_interest(key->s, c->fd, OP_WRITE | OP_READ);
 }
 
 static void handle_mgmt_close(struct selector_key *key) {
@@ -104,11 +115,19 @@ static void handle_mgmt_close(struct selector_key *key) {
 
 static void handle_mgmt_write(struct selector_key *key) {
     mgmt_client *c = ATTACHMENT(key);
+    if(!buffer_can_read(&(c->write_buf)) && !buffer_can_read(&(c->pending_buf)))  {
+        selector_set_interest(key->s, key->fd, OP_READ);
+        return;
+    }
+
+    // Si tengo algo en el buffer de pendientes, trato de copiarlo al de escritura
+    if(buffer_can_read(&(c->pending_buf))){
+        copy_from_buf(&(c->write_buf), &(c->pending_buf));
+    }
+
     ssize_t bytes_left = write_to_sock(c->fd, &(c->write_buf));
     if(bytes_left == 0) {
-        if(!c->quitted){
-            selector_set_interest(key->s, c->fd, OP_READ);
-        } else {
+        if(c->quitted){
             selector_unregister_fd(key->s, c->fd);
         }
     }
@@ -117,92 +136,101 @@ static void handle_mgmt_write(struct selector_key *key) {
 bool processMgmtClient(mgmt_client *c)
 {
 	char *arg;
-	size_t argLen, len;
-	MgmtCommand cmd = parseMgmtRequest(&(c->input), &arg, &argLen, &len);
-	switch (cmd)
-	{
-		case MGMT_INCOMPLETE: {
-			return false;
-		}
-		case MGMT_INVALID_CMD: {
-			snprintf(response_buf, MGMT_BUFFSIZE, invalid_cmd_format, error_status, line_delimiter);
-            break;
-		}
-		case MGMT_INVALID_ARGS: {
-            snprintf(response_buf, MGMT_BUFFSIZE, invalid_arg_format, error_status, line_delimiter);
-			break;
-		}
-        case MGMT_CAPA: {
-            strncpy(response_buf, capa_message, MGMT_BUFFSIZE);
-            break;
+	size_t argLen, len, space = c->write_buf.limit - c->write_buf.write, response_len = 0;
+    MgmtCommand cmd;
+    for(; (cmd = parseMgmtRequest(&(c->input), &arg, &argLen, &len)) != MGMT_INCOMPLETE; ) {
+        switch (cmd)
+        {
+            case MGMT_INCOMPLETE: {
+                return false;
+            }
+            case MGMT_INVALID_CMD: {
+                response_len = snprintf(response_buf, MGMT_BUFFSIZE, invalid_cmd_format, error_status, line_delimiter);
+                break;
+            }
+            case MGMT_INVALID_ARGS: {
+                response_len = snprintf(response_buf, MGMT_BUFFSIZE, invalid_arg_format, error_status, line_delimiter);
+                break;
+            }
+            case MGMT_CAPA: {
+                logger(DEBUG, "CAPA count: %d", ++capa_count);
+                response_len = snprintf(response_buf, MGMT_BUFFSIZE, "%s", capa_message);
+                break;
+            }
+            case MGMT_TOKEN: {
+                arg[argLen] = '\0';
+                if(strcmp(arg, password) == 0) {
+                    response_len = snprintf(response_buf, MGMT_BUFFSIZE, correct_password_format, success_status,  line_delimiter);
+                    c->input.cond = yyctrns;
+                } else {
+                    response_len = snprintf(response_buf, MGMT_BUFFSIZE, incorrect_password_format, error_status, line_delimiter);
+                }
+                break;
+            } 
+            case MGMT_STATS: {
+                response_len = snprintf(response_buf, MGMT_BUFFSIZE, stats_format, success_status, line_delimiter,
+                get_transferred_bytes(), line_delimiter,
+                get_all_connections(), line_delimiter,
+                get_current_connections(), line_delimiter,
+                multiline_delimiter, line_delimiter);
+                break;
+            }
+            case MGMT_USERS: {
+                // TODO: implement users feature
+                response_len = snprintf(response_buf, MGMT_BUFFSIZE, "%s Listing users... \r\njuan\r\npedro\r\njoaquin\r\n.\r\n", success_status);
+                break;
+            }
+            case MGMT_GET_BUFFSIZE: {
+                response_len = snprintf(response_buf, MGMT_BUFFSIZE, buffsize_format, success_status, line_delimiter,
+                get_buffsize(), line_delimiter, multiline_delimiter, line_delimiter);
+                break;
+            }
+            case MGMT_SET_BUFFSIZE: {
+                arg[argLen] = '\0';
+                size_t new_size = atoi(arg);
+                if(new_size) {
+                    set_buffsize(new_size);
+                    response_len = snprintf(response_buf, MGMT_BUFFSIZE, set_buffsize_format, success_status, line_delimiter);
+                } else {
+                    response_len = snprintf(response_buf, MGMT_BUFFSIZE, set_buffsize_error_format, error_status, line_delimiter);
+                }
+                break;
+            }
+            case MGMT_GET_DISSECTOR_STATUS: {
+                response_len = snprintf(response_buf, MGMT_BUFFSIZE, dissector_status_format, success_status, line_delimiter,
+                get_dissector_state()? "on" : "off", line_delimiter, multiline_delimiter, line_delimiter);
+                break;
+            }
+            case MGMT_SET_DISSECTOR_STATUS: {
+                arg[argLen] = '\0';
+                for(int i = 0; arg[i]; i++) {
+                    arg[i] = tolower(arg[i]);
+                }
+                if(strcmp(arg, "on") == 0) {
+                    set_dissector_state(true);
+                    response_len = snprintf(response_buf, MGMT_BUFFSIZE, set_dissector_status_format, success_status, line_delimiter);
+                } else if(strcmp(arg, "off") == 0) {
+                    set_dissector_state(false);
+                    response_len = snprintf(response_buf, MGMT_BUFFSIZE, set_dissector_status_format, success_status, line_delimiter);
+                } else {
+                    response_len = snprintf(response_buf, MGMT_BUFFSIZE, set_dissector_status_error_format, error_status, line_delimiter);
+                }
+                break;
+            }
+            case MGMT_QUIT: {
+                c->quitted = true;
+                response_len = snprintf(response_buf, MGMT_BUFFSIZE, quit_format, success_status, line_delimiter);
+                break;
+            }
         }
-		case MGMT_PASS: {
-            arg[argLen] = '\0';
-            if(strcmp(arg, password) == 0) {
-                snprintf(response_buf, MGMT_BUFFSIZE, correct_password_format, success_status,  line_delimiter);
-                c->input.cond = yyctrns;
-            } else {
-                snprintf(response_buf, MGMT_BUFFSIZE, incorrect_password_format, error_status, line_delimiter);
-            }
-			break;
-		} 
-		case MGMT_STATS: {
-            snprintf(response_buf, MGMT_BUFFSIZE, stats_format, success_status, line_delimiter,
-            get_transferred_bytes(), line_delimiter,
-            get_all_connections(), line_delimiter,
-            get_current_connections(), line_delimiter,
-            multiline_delimiter, line_delimiter);
-			break;
-		}
-		case MGMT_USERS: {
-            // TODO: implement users feature
-            snprintf(response_buf, MGMT_BUFFSIZE, "%s Listing users... \r\njuan\r\npedro\r\njoaquin\r\n.\r\n", success_status);
-			break;
-		}
-		case MGMT_GET_BUFFSIZE: {
-            snprintf(response_buf, MGMT_BUFFSIZE, buffsize_format, success_status, line_delimiter,
-            get_buffsize(), line_delimiter, multiline_delimiter, line_delimiter);
-			break;
-		}
-		case MGMT_SET_BUFFSIZE: {
-            arg[argLen] = '\0';
-            size_t new_size = atoi(arg);
-            if(new_size) {
-                set_buffsize(new_size);
-                snprintf(response_buf, MGMT_BUFFSIZE, set_buffsize_format, success_status, line_delimiter);
-            } else {
-                snprintf(response_buf, MGMT_BUFFSIZE, set_buffsize_error_format, error_status, line_delimiter);
-            }
-			break;
-		}
-		case MGMT_GET_DISSECTOR_STATUS: {
-            snprintf(response_buf, MGMT_BUFFSIZE, dissector_status_format, success_status, line_delimiter,
-            get_dissector_state()? "on" : "off", line_delimiter, multiline_delimiter, line_delimiter);
-			break;
-		}
-		case MGMT_SET_DISSECTOR_STATUS: {
-            arg[argLen] = '\0';
-            for(int i = 0; arg[i]; i++) {
-                arg[i] = tolower(arg[i]);
-            }
-            if(strcmp(arg, "on") == 0) {
-                set_dissector_state(true);
-                snprintf(response_buf, MGMT_BUFFSIZE, set_dissector_status_format, success_status, line_delimiter);
-            } else if(strcmp(arg, "off") == 0) {
-                set_dissector_state(false);
-                snprintf(response_buf, MGMT_BUFFSIZE, set_dissector_status_format, success_status, line_delimiter);
-            } else {
-                snprintf(response_buf, MGMT_BUFFSIZE, set_dissector_status_error_format, error_status, line_delimiter);
-            }
-			break;
-		}
-		case MGMT_QUIT: {
-            c->quitted = true;
-            snprintf(response_buf, MGMT_BUFFSIZE, quit_format, success_status, line_delimiter);
-			break;
-		}
+        if(response_len > space) {
+            write_response(&(c->pending_buf), response_buf);
+            break;
+            // No tengo mas espacio para mandar cosas, dejo de interpretar
+        } else {
+            write_response(&(c->write_buf), response_buf);
+        }
 	}
-    write_response(&(c->write_buf), response_buf);
 	return true;
 }
 
@@ -213,4 +241,15 @@ static ssize_t write_response(buffer *b, const char *response) {
     memcpy(write_ptr, response, len);
     buffer_write_adv(b, len);
     return len;
+}
+
+static ssize_t copy_from_buf(buffer *dest, buffer *src) {
+    size_t src_size, dest_capa;
+    uint8_t *dest_ptr = buffer_write_ptr(dest, &dest_capa);
+    uint8_t *src_ptr = buffer_read_ptr(src, &src_size);
+    if(src_size > dest_capa) return -1;
+    memcpy(dest_ptr, src_ptr, src_size);
+    buffer_read_adv(src, src_size);
+    buffer_write_adv(dest, dest_capa);
+    return src_size;
 }
