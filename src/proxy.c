@@ -41,6 +41,9 @@ int main(int argc, char *argv[])
 	struct socks5args args;
 	parse_args(argc, argv, &args);
 
+	char *token = getenv("TOKEN");
+	if(token != NULL) add_token(token);
+
 	for(int i = 0; i < 2; i++) {
 		if((master[master_size] = setUpMasterSocket(args.socks_port, i)) >= 0 
 		   && (monitor[monitor_size] = setUpMasterSocket(args.mng_port, i)) >= 0) {
