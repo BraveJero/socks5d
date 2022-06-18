@@ -51,7 +51,7 @@ MgmtCommand parseMgmtRequest(Input *in, char **arg, size_t *argLen, size_t *len)
         numarg = ([0-9])+;
         cmds = ('pass'|'users'|'list'|'buffsize'|'set-buffsize'|'dissector-status'|'set-dissector-status');
 
-        <pass> 'pass' [ ]+ @args arg @arge [ ]* '\r\n'                      { result = MGMT_PASS; break; }
+        <pass> 'token' [ ]+ @args arg @arge [ ]* '\r\n'                      { result = MGMT_TOKEN; break; }
         
         <trns> 'stats' [ ]* '\r\n'                                          { result = MGMT_STATS; break; }
         <trns> 'users' [ ]* '\r\n'                                          { result = MGMT_USERS; break; }

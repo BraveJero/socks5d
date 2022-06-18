@@ -10,7 +10,7 @@ typedef enum
 	MGMT_INCOMPLETE,
 	
 	// Auth state
-	MGMT_PASS,
+	MGMT_TOKEN,
 
 	// Transaction state
 	MGMT_STATS,
