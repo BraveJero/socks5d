@@ -62,7 +62,7 @@ ssize_t write_to_sock(int sd, buffer *b);
 /*
  * Avisa de la terminación de un extremo del pipeline
 */
-unsigned closeClient(client *client, enum socket_ends level, fd_selector selector);
+unsigned closeClient(client *client, enum socket_ends level, struct selector_key *key);
 
 enum socks5_states
 {

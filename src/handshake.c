@@ -30,7 +30,7 @@ unsigned read_auth_method(struct selector_key *key)
 	// Leer del socket cliente y almacenar en el buffer del origen
 	ssize_t bytes_read = read_from_sock(c->client_sock, &(c->origin_buf));
 	if (checkEOF(bytes_read))
-		return closeClient(c, CLIENT_READ, key->s);
+		return closeClient(c,  CLIENT_READ, key);
 
 	size_t availableBytes;
 	uint8_t *readBuffer = buffer_read_ptr(&c->origin_buf, &availableBytes);
@@ -63,7 +63,7 @@ unsigned read_auth_method(struct selector_key *key)
 	logger(ERROR, "No valid auth method");
 	fail:
 	select_method(0xFF, c);
-	return closeClient(c, CLIENT_READ, key->s);
+	return closeClient(c,  CLIENT_READ, key);
 }
 
 void server_reply(buffer *b, enum server_reply_type reply, enum atyp atyp, const uint8_t *addr, uint16_t port)
@@ -110,7 +110,7 @@ unsigned read_proxy_request(struct selector_key *key)
 	// Leer del socket cliente y almacenar en el buffer del origen
 	ssize_t bytes_read = read_from_sock(c->client_sock, &(c->origin_buf));
 	if (checkEOF(bytes_read))
-		return closeClient(c, CLIENT_READ, key->s);
+		return closeClient(c,  CLIENT_READ, key);
 
 	size_t availableBytes;
 	uint8_t *readBuffer = buffer_read_ptr(&c->origin_buf, &availableBytes);
@@ -134,7 +134,7 @@ unsigned read_proxy_request(struct selector_key *key)
 			break;
 		default:
 			server_reply(&c->client_buf, REPLY_ADDRESS_NOT_SUPPORTED, ATYP_IPV4, EMPTY_IP, 0);
-			return closeClient(c, CLIENT_READ, key->s);
+			return closeClient(c,  CLIENT_READ, key);
 	}
 	if(availableBytes < 6u + addrLen)
 		return stm_state(c->stm);
@@ -145,7 +145,7 @@ unsigned read_proxy_request(struct selector_key *key)
 	if(cmd != CONNECT)
 	{
 		server_reply(&c->client_buf, REPLY_COMMAND_NOT_SUPPORTED, ATYP_IPV4, EMPTY_IP, 0);
-		return closeClient(c, CLIENT_READ, key->s);
+		return closeClient(c,  CLIENT_READ, key);
 	}
 
 	if(atyp == ATYP_DOMAIN_NAME)
