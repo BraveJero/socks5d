@@ -15,6 +15,7 @@
 #define checkEOF(count) (count == 0 || (count < 0 && errno != EAGAIN))
 
 static char response_buf[MGMT_BUFFSIZE];
+static int capa_count = 0;
 
 static const char *success_status = "+OK";
 static const char *error_status = "-ERR";
@@ -122,6 +123,7 @@ static void handle_mgmt_write(struct selector_key *key) {
     // Si tengo algo en el buffer de pendientes, trato de copiarlo al de escritura
     if(buffer_can_read(&(c->pending_buf))){
         copy_from_buf(&(c->write_buf), &(c->pending_buf));
+        processMgmtClient(c);
     }
 
     ssize_t bytes_left = write_to_sock(c->fd, &(c->write_buf));
@@ -154,6 +156,7 @@ bool processMgmtClient(mgmt_client *c)
                 break;
             }
             case MGMT_CAPA: {
+                logger(DEBUG, "Capa count: %d", ++capa_count);
                 response_len = snprintf(response_buf, MGMT_BUFFSIZE, "%s", capa_message);
                 break;
             }
@@ -259,6 +262,6 @@ static ssize_t copy_from_buf(buffer *dest, buffer *src) {
     if(src_size > dest_capa) return -1;
     memcpy(dest_ptr, src_ptr, src_size);
     buffer_read_adv(src, src_size);
-    buffer_write_adv(dest, dest_capa);
+    buffer_write_adv(dest, src_size);
     return src_size;
 }
