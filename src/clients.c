@@ -11,6 +11,7 @@
 #include "logger.h"
 #include "buffer.h"
 #include "selector.h"
+#include "socketsIO.h"
 #include "stm.h"
 #include "tcpClientUtil.h"
 #include "util.h"
@@ -19,8 +20,6 @@
 
 #define N(x) (sizeof(x)/sizeof((x)[0]))
 #define hasFlag(x, f) (bool)((x) & (f))
-
-static uint8_t buf[BUFFSIZE];
 
 // Crea el cliente con el correspondiente sock
 client *create_client(int socks);
@@ -448,30 +447,6 @@ void enable_write(unsigned state, struct selector_key *key)
         selector_add_interest(key->s, c->client_sock, OP_WRITE);
     if(hasFlag(c->active_ends, ORIGIN_WRITE))
         selector_add_interest(key->s, c->origin_sock, OP_WRITE);
-}
-
-ssize_t read_from_sock(int sd, buffer *b) {
-    size_t size;
-    uint8_t *write_ptr = buffer_write_ptr(b, &size);
-    size = (size > BUFFSIZE? BUFFSIZE : size);
-    ssize_t bytes_rcv = read(sd, buf, size);
-    if(bytes_rcv > 0) {
-        memcpy(write_ptr, buf, bytes_rcv);
-        buffer_write_adv(b, bytes_rcv);
-    }
-    logger(DEBUG, "Read %ld bytes from socket %d", bytes_rcv, sd);
-    return bytes_rcv;
-}
-
-
-ssize_t write_to_sock(int sd, buffer *b) {
-    size_t size;
-    uint8_t *read_ptr = buffer_read_ptr(b, &size);
-    ssize_t bytes_sent = send(sd, read_ptr, size, MSG_DONTWAIT);
-    if(bytes_sent < 0) return bytes_sent;
-    buffer_read_adv(b, bytes_sent);
-    logger(DEBUG, "Sent %ld bytes through socket %d", bytes_sent, sd);
-    return size - bytes_sent;
 }
 
 static void client_destroy(unsigned state, struct selector_key *key) {

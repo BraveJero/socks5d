@@ -3,6 +3,7 @@
 #include "clients.h"
 #include "logger.h"
 #include "selector.h"
+#include "socketsIO.h"
 #include "stm.h"
 #include "users.h"
 #include <netdb.h>
@@ -51,7 +52,7 @@ unsigned read_auth_method(struct selector_key *key)
 		goto fail;
 	}
 	size_t nUsers = 1;
-	///TODO: get_users(&nUsers);
+	get_users(&nUsers);
 
 	for (int i = 0; i < nMethods; i++)
 	{
@@ -120,8 +121,7 @@ unsigned read_plain_auth(struct selector_key *key)
 	user_copy[userLen] = 0;
 	memcpy(pass_copy, pass, passLen);
 	pass_copy[passLen] = 0;
-	///TODO: if(try_credentials(user_copy, pass_copy))
-	if(true)
+	if(try_credentials(user_copy, pass_copy))
 	{
 		simple_reply(plain_auth_version, 0x0, c);
 		selector_add_interest(key->s, c->client_sock, OP_WRITE);

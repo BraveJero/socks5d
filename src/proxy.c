@@ -16,69 +16,68 @@
 #include "tcpServerUtil.h"
 #include "tcpClientUtil.h"
 #include "clients.h"
+#include "args.h"
+#include "mgmt.h"
+#include "tokens.h"
 
-#define max(n1, n2) ((n1) > (n2) ? (n1) : (n2))
+#define MAX_PENDING_CONNECTIONS 30
 
-#define TRUE 1
-#define FALSE 0
-#define PORT_IPv4 8888
-#define MAX_PENDING_CONNECTIONS 3
-
+#define SOCKS_ADDR4 "0.0.0.0"
+#define SOCKS_ADDR6 "::"
+#define MGMT_ADDR4 "127.0.0.1"
+#define MGMT_ADDR6 "::1"
 
 static bool done = false;
+static void sigterm(int sig) {
+	done = true;
+}
 
 int main(int argc, char *argv[])
 {
-	int opt = true;
-	int master_socket[2]; // IPv4 e IPv6 (si estan habilitados)
-	int master_socket_size = 0;
-	struct sockaddr_in address;
 	close(STDIN_FILENO);
 
+	if(signal(SIGTERM, sigterm) == SIG_ERR) {
+		logger(ERROR, "Cannot handle SIGTERM (%s). Aborting", strerror(errno));
+		exit(1);
+	}
+
+	int master[2], monitor[2], master_size = 0, monitor_size = 0;
+
+	struct socks5args args;
+	parse_args(argc, argv, &args);
+
+	char *token = getenv("TOKEN");
+	if(token != NULL) add_token(token);
+
+	if(args.socks_addr == NULL) {
+		if((master[master_size] = setUpMasterSocket(SOCKS_ADDR4, args.socks_port, false)) >= 0) {
+			master_size++;
+		}
+		if((master[master_size] = setUpMasterSocket(SOCKS_ADDR6, args.socks_port, true)) >= 0) {
+			master_size++;
+		}
+	} else {
+		bool ipv6 = strchr(args.socks_addr, ':') != NULL;
+		if((master[master_size] = setUpMasterSocket(args.socks_addr, args.socks_port, ipv6)) >= 0) {
+			master_size++;
+		}
+	}
+
+	if(args.mng_addr == NULL) {
+		if((monitor[monitor_size] = setUpMasterSocket(MGMT_ADDR4, args.mng_port, false)) >= 0) {
+			monitor_size++;
+		}
+		if((monitor[monitor_size] = setUpMasterSocket(MGMT_ADDR6, args.mng_port, true)) >= 0) {
+			monitor_size++;
+		}
+	} else {
+		bool ipv6 = strchr(args.mng_addr, ':') != NULL;
+		if((monitor[monitor_size] = setUpMasterSocket(args.mng_addr, args.mng_port, ipv6)) >= 0) {
+			monitor_size++;
+		}
+	}
+
 	fd_selector selector = NULL;
-
-	// TODO adaptar setupTCPServerSocket para que cree socket para IPv4 e IPv6 y ademas soporte opciones (y asi no repetir codigo)
-
-	// socket para IPv4 y para IPv6 (si estan disponibles)
-	///////////////////////////////////////////////////////////// IPv4
-	
-	if ((master_socket[master_socket_size] = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-	{
-		logger(ERROR, "socket IPv4 failed");
-	}
-	else
-	{
-		// set master socket to allow multiple connections , this is just a good habit, it will work without this
-		if (setsockopt(master_socket[master_socket_size], SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt)) < 0)
-		{
-			logger(ERROR, "set IPv4 socket options failed");
-		}
-
-		// type of socket created
-		address.sin_family = AF_INET;
-		address.sin_addr.s_addr = INADDR_ANY;
-		address.sin_port = htons(PORT_IPv4);
-
-		// bind the socket to localhost port 8888
-		if (bind(master_socket[master_socket_size], (struct sockaddr *)&address, sizeof(address)) < 0)
-		{
-			logger(ERROR, "bind for IPv4 failed");
-			close(master_socket[master_socket_size]);
-		}
-		else
-		{
-			if (listen(master_socket[0], MAX_PENDING_CONNECTIONS) < 0)
-			{
-				logger(ERROR, "listen on IPv4 socket failes");
-				close(master_socket[master_socket_size]);
-			}
-			else
-			{
-				logger(DEBUG, "Waiting for TCP IPv4 connections on socket %d\n", master_socket[master_socket_size]);
-				master_socket_size++;
-			}
-		}
-	}
 
 	const struct selector_init conf = {
 		.signal = SIGALRM,
@@ -105,10 +104,33 @@ int main(int argc, char *argv[])
 		.handle_block = NULL
 	};
 
-	for (int i = 0; i < master_socket_size; i++)
+	struct fd_handler monitor_handler = {
+		.handle_read = mgmt_master_read_handler,
+		.handle_write = NULL,
+		.handle_close = NULL,
+		.handle_block = NULL
+	};
+
+	for (int i = 0; i < master_size; i++)
 	{
-		selector_fd_set_nio(master_socket[i]);
-		selector_register(selector, master_socket[i], &master_handler, OP_READ, NULL);
+		if(listen(master[i], MAX_PENDING_CONNECTIONS) < 0) {
+			logger(ERROR, "Error listening on sock %d: %s", master[i], strerror(errno));
+		} else {
+			logger(INFO, "Waiting for TCP connections on socket %d", master[i]);
+			selector_fd_set_nio(master[i]);
+			selector_register(selector, master[i], &master_handler, OP_READ, NULL);
+		}
+	}
+
+	for (int i = 0; i < monitor_size; i++)
+	{
+		if(listen(monitor[i], MAX_PENDING_CONNECTIONS) < 0) {
+			logger(ERROR, "Error listening on sock %d: %s", monitor[i], strerror(errno));
+		} else {
+			logger(INFO, "Waiting for TCP connections on socket %d", monitor[i]);
+			selector_fd_set_nio(monitor[i]);
+			selector_register(selector, monitor[i], &monitor_handler, OP_READ, NULL);
+		}
 	}
 
 	while (!done)
@@ -121,7 +143,11 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	selector_destroy(selector);
+	logger(INFO, "SIGTERM received. Terminating...");
+
+	if(selector != NULL)
+		selector_destroy(selector);
+		
 	selector_close();
 
 	return 0;

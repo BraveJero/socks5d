@@ -6,6 +6,8 @@
 #include <getopt.h>
 
 #include "args.h"
+#include "users.h"
+#include "tokens.h"
 
 static unsigned short
 port(const char *s) {
@@ -20,21 +22,6 @@ port(const char *s) {
          return 1;
      }
      return (unsigned short)sl;
-}
-
-static void
-user(char *s, struct users *user) {
-    char *p = strchr(s, ':');
-    if(p == NULL) {
-        fprintf(stderr, "password not found\n");
-        exit(1);
-    } else {
-        *p = 0;
-        p++;
-        user->name = s;
-        user->pass = p;
-    }
-
 }
 
 static void
@@ -72,13 +59,13 @@ void
 parse_args(const int argc, char **argv, struct socks5args *args) {
     memset(args, 0, sizeof(*args)); // sobre todo para setear en null los punteros de users
 
-    args->socks_addr = "0.0.0.0";
+    args->socks_addr = NULL;
     args->socks_port = 1080;
 
-    args->mng_addr   = "127.0.0.1";
+    args->mng_addr   = NULL;
     args->mng_port   = 8080;
 
-    args->disectors_enabled = true;
+    args->dissectors_enabled = true;
 
     args->doh.host = "localhost";
     args->doh.ip   = "127.0.0.1";
@@ -100,7 +87,7 @@ parse_args(const int argc, char **argv, struct socks5args *args) {
             { 0,           0,                 0, 0 }
         };
 
-        c = getopt_long(argc, argv, "hl:L:Np:P:u:v", long_options, &option_index);
+        c = getopt_long(argc, argv, "hl:L:Np:P:u:t:v", long_options, &option_index);
         if (c == -1)
             break;
 
@@ -115,7 +102,7 @@ parse_args(const int argc, char **argv, struct socks5args *args) {
                 args->mng_addr = optarg;
                 break;
             case 'N':
-                args->disectors_enabled = false;
+                args->dissectors_enabled = false;
                 break;
             case 'p':
                 args->socks_port = port(optarg);
@@ -128,7 +115,9 @@ parse_args(const int argc, char **argv, struct socks5args *args) {
                     fprintf(stderr, "maximun number of command line users reached: %d.\n", MAX_USERS);
                     exit(1);
                 } else {
-                    user(optarg, args->users + nusers);
+                    if(!add_user(optarg))  {
+                        fprintf(stderr, "error adding user: %s\n", optarg);
+                    }
                     nusers++;
                 }
                 break;
@@ -136,6 +125,12 @@ parse_args(const int argc, char **argv, struct socks5args *args) {
                 version();
                 exit(0);
                 break;
+            case 't':{
+                if(!add_token(optarg)) {
+                    fprintf(stderr, "Error adding token: %s\n", optarg);
+                }
+                break;
+            }
             case 0xD001:
                 args->doh.ip = optarg;
                 break;
