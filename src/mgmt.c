@@ -135,9 +135,11 @@ static void handle_mgmt_write(struct selector_key *key) {
 bool processMgmtClient(mgmt_client *c)
 {
 	char *arg;
-	size_t argLen, len, space = c->write_buf.limit - c->write_buf.write, response_len = 0;
+	size_t argLen, len, response_len = 0;
     MgmtCommand cmd;
     for(; (cmd = parseMgmtRequest(&(c->input), &arg, &argLen, &len)) != MGMT_INCOMPLETE; ) {
+        size_t space;
+        buffer_write_ptr(&(c->write_buf), &space);
         switch (cmd)
         {
             case MGMT_INCOMPLETE: {
