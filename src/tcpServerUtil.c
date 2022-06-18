@@ -35,7 +35,7 @@ int acceptTCPConnection(int servSock) {
 	return clntSock;
 }
 
-int setUpMasterSocket(uint16_t port, bool ipv6) {
+int setUpMasterSocket(const char *ip, uint16_t port, bool ipv6) {
 	int sock, opt = true;
 	size_t len;
 	struct sockaddr_in addr4;
@@ -45,13 +45,6 @@ int setUpMasterSocket(uint16_t port, bool ipv6) {
 	if ((sock = socket(ipv6? AF_INET6 : AF_INET, SOCK_STREAM, 0)) < 0)
 	{
 		logger(ERROR, "socket for %s failed: %s", protocol, strerror(errno));
-		return -1;
-	}
-	// set master socket to allow multiple connections , this is just a good habit, it will work without this
-	if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt)) < 0)
-	{
-		logger(ERROR, "set %s socket options failed: %s", protocol, strerror(errno));
-		close(sock);
 		return -1;
 	}
 
@@ -68,6 +61,11 @@ int setUpMasterSocket(uint16_t port, bool ipv6) {
 		addr6.sin6_family = AF_INET6;
 		addr6.sin6_addr = in6addr_any;
 		addr6.sin6_port = htons(port);
+		if(inet_pton(AF_INET6, ip, &addr6.sin6_addr) != 1) {
+			logger(ERROR, "inet_pton() failed for %s", protocol);
+			close(sock);
+			return -1;
+		}
 		addr = (struct sockaddr *) &addr6;
 		len = sizeof(addr6);
 	} else {
@@ -75,6 +73,11 @@ int setUpMasterSocket(uint16_t port, bool ipv6) {
 		addr4.sin_family =AF_INET;
 		addr4.sin_addr.s_addr = INADDR_ANY;
 		addr4.sin_port = htons(port);
+		if(inet_pton(AF_INET, ip, &addr4.sin_addr) != 1) {
+			logger(ERROR, "inet_pton() failed for %s", protocol);
+			close(sock);
+			return -1;
+		}
 		addr = (struct sockaddr *) &addr4;
 		len = sizeof(addr4);
 	}

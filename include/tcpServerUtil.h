@@ -5,7 +5,7 @@
 #include <stdbool.h>
 
 
-int setUpMasterSocket(uint16_t port, bool ipv6);
+int setUpMasterSocket(const char *ip, uint16_t port, bool ipv6);
 
 // Accept a new TCP connection on a server socket
 int acceptTCPConnection(int servSock);

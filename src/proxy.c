@@ -22,6 +22,11 @@
 
 #define MAX_PENDING_CONNECTIONS 30
 
+#define SOCKS_ADDR4 "0.0.0.0"
+#define SOCKS_ADDR6 "::"
+#define MGMT_ADDR4 "127.0.0.1"
+#define MGMT_ADDR6 "::1"
+
 static bool done = false;
 static void sigterm(int sig) {
 	done = true;
@@ -44,13 +49,31 @@ int main(int argc, char *argv[])
 	char *token = getenv("TOKEN");
 	if(token != NULL) add_token(token);
 
-	for(int i = 0; i < 2; i++) {
-		if((master[master_size] = setUpMasterSocket(args.socks_port, i)) >= 0 
-		   && (monitor[monitor_size] = setUpMasterSocket(args.mng_port, i)) >= 0) {
-			monitor_size++; master_size++;
-		} else {
-			logger(ERROR, "Unable to open socket. Aborting");
-			exit(1);
+	if(args.socks_addr == NULL) {
+		if((master[master_size] = setUpMasterSocket(SOCKS_ADDR4, args.socks_port, false)) >= 0) {
+			master_size++;
+		}
+		if((master[master_size] = setUpMasterSocket(SOCKS_ADDR6, args.socks_port, true)) >= 0) {
+			master_size++;
+		}
+	} else {
+		bool ipv6 = strchr(args.socks_addr, ':') != NULL;
+		if((master[master_size] = setUpMasterSocket(args.socks_addr, args.socks_port, ipv6)) >= 0) {
+			master_size++;
+		}
+	}
+
+	if(args.mng_addr == NULL) {
+		if((monitor[monitor_size] = setUpMasterSocket(MGMT_ADDR4, args.mng_port, false)) >= 0) {
+			monitor_size++;
+		}
+		if((monitor[monitor_size] = setUpMasterSocket(MGMT_ADDR6, args.mng_port, true)) >= 0) {
+			monitor_size++;
+		}
+	} else {
+		bool ipv6 = strchr(args.mng_addr, ':') != NULL;
+		if((monitor[monitor_size] = setUpMasterSocket(args.mng_addr, args.mng_port, ipv6)) >= 0) {
+			monitor_size++;
 		}
 	}
 
