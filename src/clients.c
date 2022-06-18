@@ -58,6 +58,11 @@ static const struct state_definition state_actions[] = {
         .on_read_ready = read_auth_method,
     },
     {
+        .state = PLAIN_AUTH,
+        .on_read_ready = read_plain_auth,
+        .on_write_ready = handle_proxy_write
+    },
+    {
         .state = REQUEST,
         .on_read_ready = read_proxy_request,
         .on_write_ready = handle_proxy_write
@@ -477,7 +482,7 @@ static void client_destroy(unsigned state, struct selector_key *key) {
         logger(DEBUG, "Cleaning client");
         freeaddrinfo(c->resolution);
     }
-    else
+    else if(c->curr_addr != NULL)
     {
         free(c->curr_addr->ai_addr);
         free(c->curr_addr);

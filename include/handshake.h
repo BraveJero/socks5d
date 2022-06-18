@@ -27,5 +27,6 @@ enum atyp
 };
 
 unsigned read_auth_method(struct selector_key *key);
+unsigned read_plain_auth(struct selector_key *key);
 unsigned read_proxy_request(struct selector_key *key);
 void server_reply(buffer *b, enum server_reply_type reply, enum atyp atyp, const uint8_t *addr, uint16_t port);

@@ -67,6 +67,7 @@ unsigned closeClient(client *client, enum socket_ends level, struct selector_key
 enum socks5_states
 {
 	AUTH_METHOD,
+	PLAIN_AUTH,
 	REQUEST,
 	RESOLVING,
 	CONNECTING,

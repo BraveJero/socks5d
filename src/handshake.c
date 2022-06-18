@@ -4,6 +4,7 @@
 #include "logger.h"
 #include "selector.h"
 #include "stm.h"
+#include "users.h"
 #include <netdb.h>
 #include <netinet/in.h>
 #include <stddef.h>
@@ -15,10 +16,10 @@
 const uint8_t server_version = 0x05;
 const uint8_t EMPTY_IP[] = {0,0,0,0};
 
-static void select_method(uint8_t method, client *c)
+static void simple_reply(uint8_t version, uint8_t method, client *c)
 {
 	buffer *buffer = &c->client_buf;
-	buffer_write(buffer, server_version);
+	buffer_write(buffer, version);
 	buffer_write(buffer, method);
 }
 
@@ -48,22 +49,89 @@ unsigned read_auth_method(struct selector_key *key)
 	{
 		logger(ERROR, "Invalid protocol version: %u", version);
 		goto fail;
-	}	
+	}
+	size_t nUsers = 1;
+	///TODO: get_users(&nUsers);
+
 	for (int i = 0; i < nMethods; i++)
 	{
 		switch (methods[i])
 		{
-		case 0x00:
-			select_method(0, c);
+		case 0x0:
+			if(nUsers != 0)
+				break;
+			simple_reply(server_version, 0x0, c);
 			selector_add_interest(key->s, c->client_sock, OP_WRITE);
 			return REQUEST;
+		case 0x2:
+			if(nUsers == 0)
+				break;
+			simple_reply(server_version, 0x2, c);
+			selector_add_interest(key->s, c->client_sock, OP_WRITE);
+			return PLAIN_AUTH;
 		}
 	}
 
 	logger(ERROR, "No valid auth method");
 	fail:
-	select_method(0xFF, c);
+	simple_reply(server_version, 0xFF, c);
 	return closeClient(c,  CLIENT_READ, key);
+}
+
+unsigned read_plain_auth(struct selector_key *key)
+{
+	const uint8_t plain_auth_version = 0x01;
+
+	client *c = ATTACHMENT(key);
+	assert(c->client_sock == key->fd);
+
+	// Leer del socket cliente y almacenar en el buffer del origen
+	ssize_t bytes_read = read_from_sock(c->client_sock, &(c->origin_buf));
+	if (checkEOF(bytes_read))
+		return closeClient(c,  CLIENT_READ, key);
+
+	size_t availableBytes;
+	uint8_t *readBuffer = buffer_read_ptr(&c->origin_buf, &availableBytes);
+
+	// Esperar a que el mensaje esté completo
+	if (availableBytes < 2 || availableBytes < 2u + readBuffer[1])
+		return stm_state(c->stm);
+
+	uint8_t version = readBuffer[0];
+	uint8_t userLen = readBuffer[1];
+	uint8_t *user = &readBuffer[2];
+	uint8_t passLen = readBuffer[2 + userLen];
+	uint8_t *pass = &readBuffer[3 + userLen];
+
+	// Esperar a que el mensaje esté completo
+	if(availableBytes < 3u + userLen + passLen)
+		return stm_state(c->stm);
+
+	buffer_read_adv(&c->origin_buf, 3 + userLen + passLen);
+	if(version != plain_auth_version)
+	{
+		logger(ERROR, "Invalid protocol version: %u", version);
+		simple_reply(plain_auth_version, 0xFF, c);
+		return closeClient(c,  CLIENT_READ, key);
+	}
+
+	char user_copy[256], pass_copy[256];
+	memcpy(user_copy, user, userLen);
+	user_copy[userLen] = 0;
+	memcpy(pass_copy, pass, passLen);
+	pass_copy[passLen] = 0;
+	///TODO: if(try_credentials(user_copy, pass_copy))
+	if(true)
+	{
+		simple_reply(plain_auth_version, 0x0, c);
+		selector_add_interest(key->s, c->client_sock, OP_WRITE);
+		return REQUEST;
+	}
+	else
+	{
+		simple_reply(plain_auth_version, 0x1, c);
+		return closeClient(c, CLIENT_READ, key);
+	}
 }
 
 void server_reply(buffer *b, enum server_reply_type reply, enum atyp atyp, const uint8_t *addr, uint16_t port)
