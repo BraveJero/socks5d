@@ -5,6 +5,7 @@
 #include "selector.h"
 #include "stm.h"
 #include <netdb.h>
+#include <netinet/in.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <assert.h>
@@ -41,6 +42,7 @@ unsigned read_auth_method(struct selector_key *key)
 	uint8_t version = readBuffer[0];
 	uint8_t nMethods = readBuffer[1];
 	uint8_t *methods = &readBuffer[2];
+	buffer_read_adv(&c->origin_buf, readBuffer[1] + 2);
 
 	if (version != server_version)
 	{
@@ -53,7 +55,8 @@ unsigned read_auth_method(struct selector_key *key)
 		{
 		case 0x00:
 			select_method(0, c);
-			break;
+			selector_add_interest(key->s, c->client_sock, OP_WRITE);
+			return REQUEST;
 		}
 	}
 
@@ -87,7 +90,9 @@ void server_reply(buffer *b, enum server_reply_type reply, enum atyp atyp, const
 	if(space < addrLen + sizeof(port))
 		return;
 	memcpy(buf, addr, addrLen);
+	buffer_write_adv(b, addrLen);
 	memcpy(&buf[addrLen], &port, sizeof(port));
+	buffer_write_adv(b, sizeof(port));
 }
 
 unsigned read_proxy_request(struct selector_key *key)
@@ -127,9 +132,14 @@ unsigned read_proxy_request(struct selector_key *key)
 		case ATYP_DOMAIN_NAME:
 			addrLen = 1 + readBuffer[4];
 			break;
+		default:
+			server_reply(&c->client_buf, REPLY_ADDRESS_NOT_SUPPORTED, ATYP_IPV4, EMPTY_IP, 0);
+			return closeClient(c, CLIENT_READ, key->s);
 	}
 	if(availableBytes < 6u + addrLen)
 		return stm_state(c->stm);
+
+	buffer_read_adv(&c->origin_buf, addrLen + 6);
 
 	enum cmd cmd = readBuffer[1];
 	if(cmd != CONNECT)
@@ -144,16 +154,45 @@ unsigned read_proxy_request(struct selector_key *key)
 
 		memcpy(c->dest_fqdn, &readBuffer[5], addrLen-1);
 		c->dest_fqdn[addrLen-1] = '\0';
+		c->dest_port = *(uint16_t*)&readBuffer[4 + addrLen];
 		return RESOLVING;
 	}
-	else
+	else if(atyp == ATYP_IPV4)
 	{
-		c->curr_addr = calloc(1, sizeof(struct addrinfo));
-		struct sockaddr *sock = malloc(sizeof(struct sockaddr));
-
-		memcpy(sock, &readBuffer[4], addrLen);
-		c->curr_addr->ai_addr = sock;
-		c->curr_addr->ai_addrlen = addrLen;
+		c->curr_addr = malloc(sizeof(struct addrinfo));
+		struct sockaddr_in *sock = malloc(sizeof(*sock));
+		*sock = (struct sockaddr_in)
+		{
+			.sin_family = AF_INET,
+			.sin_addr = *(struct in_addr*)&readBuffer[4],
+			.sin_port = *(in_port_t*)&readBuffer[4 + addrLen],
+		};
+		*c->curr_addr = (struct addrinfo)
+		{
+			.ai_family = AF_INET,
+			.ai_socktype = SOCK_STREAM,
+			.ai_addr = (struct sockaddr*)sock,
+			.ai_addrlen = sizeof(*sock),
+		};
+		return CONNECTING;
+	}
+	else // if(atyp == ATYP_IPV6)
+	{
+		c->curr_addr = malloc(sizeof(struct addrinfo));
+		struct sockaddr_in6 *sock = malloc(sizeof(*sock));
+		*sock = (struct sockaddr_in6)
+		{
+			.sin6_family = AF_INET6,
+			.sin6_addr = *(struct in6_addr*)&readBuffer[4],
+			.sin6_port = *(in_port_t*)&readBuffer[4 + addrLen],
+		};
+		*c->curr_addr = (struct addrinfo)
+		{
+			.ai_family = AF_INET6,
+			.ai_socktype = SOCK_STREAM,
+			.ai_addr = (struct sockaddr*)sock,
+			.ai_addrlen = sizeof(*sock),
+		};
 		return CONNECTING;
 	}
 }

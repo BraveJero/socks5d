@@ -54,7 +54,6 @@ static const struct state_definition state_actions[] = {
     {
         .state = AUTH_METHOD,
         .on_read_ready = read_auth_method,
-        .on_write_ready = handle_proxy_write,
     },
     {
         .state = REQUEST,
@@ -187,7 +186,7 @@ void master_read_handler(struct selector_key *key) {
         // catch error
     }
 
-    selector_register(key->s, new_client->client_sock, &socks5_handler, OP_NOOP, new_client);
+    selector_register(key->s, new_client->client_sock, &socks5_handler, OP_READ, new_client);
 
     return;
 }
@@ -203,11 +202,8 @@ client *create_client(int sock) {
 
     new_client->stm = malloc(sizeof(struct state_machine));
     new_client->stm->states = state_actions;
-    new_client->stm->initial = RESOLVING;
+    new_client->stm->initial = AUTH_METHOD;
     new_client->stm->max_state = WRITE_REMAINING;
-
-    new_client->dest_fqdn = "localhost";
-	new_client->dest_port = 61441;
 
 	new_client->active_ends = CLIENT;
 
@@ -221,6 +217,7 @@ client *create_client(int sock) {
 unsigned handle_finished_resolution(struct selector_key *key) {
     client *c = ATTACHMENT(key);
     assert(c->resolution != NULL);
+    c->curr_addr = c->resolution;
     return CONNECTING;
 }
 
@@ -268,7 +265,7 @@ static void *thread_name_resolution(void *data) {
 
     logger(INFO, "ntohs(): %s", port_buf);
 
-    int err = getaddrinfo(c->dest_fqdn, "61441", &hints, &(c->resolution));
+    int err = getaddrinfo(c->dest_fqdn, port_buf, &hints, &(c->resolution));
     if(err != 0) {
         logger(ERROR, gai_strerror(err));
     }
@@ -280,14 +277,13 @@ static void *thread_name_resolution(void *data) {
 
 void create_connection(const unsigned state, struct selector_key *key) {
     client *c = ATTACHMENT(key);
-    c->curr_addr = c->resolution;
     c->origin_sock = socket(c->curr_addr->ai_family, c->curr_addr->ai_socktype, c->curr_addr->ai_protocol);
     if(c->origin_sock < 0) {
         logger(ERROR, "Error in socket()");
         perror("socket()");
     }
     selector_fd_set_nio(c->origin_sock);
-    selector_fd_set_nio(c->client_sock);
+    // selector_fd_set_nio(c->client_sock);
     try_connect(key);
 }
 
@@ -321,23 +317,20 @@ unsigned try_connect(struct selector_key *key) {
         char adrr_buf[1024];
         logger(DEBUG, "%s", printAddressPort(c->curr_addr, adrr_buf));
         // Establish the connection to the server
-        if ( connect(sock, c->curr_addr->ai_addr, c->curr_addr->ai_addrlen) != 0) {
-            if(errno == EINPROGRESS) {
-                c->origin_sock = sock;
-                selector_register(key->s, c->origin_sock, &socks5_handler, OP_WRITE, c);
-                // logger(ERROR, selector_error(ss));
-                
-                logger(INFO, "Connection to origin in progress");
-                return CONNECTING;
-            }
+        if ( connect(sock, c->curr_addr->ai_addr, c->curr_addr->ai_addrlen) == 0 || errno == EINPROGRESS) {
+            selector_register(key->s, c->origin_sock, &socks5_handler, OP_WRITE, c);
+            // logger(ERROR, selector_error(ss));
+            
+            logger(INFO, "Connection to origin in progress");
+            return CONNECTING;
         }
         enum server_reply_type reply = check_connection_error(errno);
         server_reply(&c->client_buf, reply, ATYP_IPV4, EMPTY_IP, 0);
-        return closeClient(c, CLIENT, key->s);
+        return closeClient(c, CLIENT_READ, key->s);
     } else {
         logger(DEBUG, "Can't create client socket");
         server_reply(&c->client_buf, REPLY_SERVER_FAILURE, ATYP_IPV4, EMPTY_IP, 0);
-        return closeClient(c, CLIENT, key->s);
+        return closeClient(c, CLIENT_READ, key->s);
     }
 }
 
@@ -352,6 +345,7 @@ unsigned origin_check_connection(struct selector_key *key) {
 		c->active_ends |= ORIGIN;
         selector_set_interest(key->s, c->origin_sock, OP_READ | OP_WRITE);
         selector_set_interest(key->s, c->client_sock, OP_READ | OP_WRITE);
+        server_reply(&c->client_buf, REPLY_SUCCEEDED, ATYP_IPV4, EMPTY_IP, 0);
         return PROXY;
     } else {
         logger(ERROR, "Error: %d %s", error, strerror(error));
@@ -363,7 +357,7 @@ unsigned origin_check_connection(struct selector_key *key) {
         // No hay más opciones. Responder con el error
         enum server_reply_type reply = check_connection_error(error);
         server_reply(&c->client_buf, reply, ATYP_IPV4, EMPTY_IP, 0);
-        return closeClient(c, CLIENT, key->s);
+        return closeClient(c, CLIENT_READ, key->s);
     }
 }
 
@@ -375,17 +369,21 @@ unsigned handle_proxy_read(struct selector_key *key) {
         bytes_read = read_from_sock(c->client_sock, &(c->origin_buf));
 		if (checkEOF(bytes_read))
 			return closeClient(c, CLIENT_READ, key->s);
+        selector_add_interest(key->s, c->origin_sock, OP_WRITE);
     } else if(c->origin_sock == key->fd) { // Leer en el socket del origen y guardar en el buffer del usuario
         bytes_read = read_from_sock(c->origin_sock, &(c->client_buf));
 		if (checkEOF(bytes_read))
 			return closeClient(c, ORIGIN_READ, key->s);
+        selector_add_interest(key->s, c->client_sock, OP_WRITE);
 	}
+    else
+        abort();
 	
     return stm_state(c->stm);
 }
 
 unsigned handle_proxy_write(struct selector_key *key) {
-    ssize_t bytes_left = -1;
+    ssize_t bytes_left = 0;
 	client *c = ATTACHMENT(key);
 
     if (c->client_sock == key->fd)
@@ -396,29 +394,22 @@ unsigned handle_proxy_write(struct selector_key *key) {
         bytes_left = write_to_sock(c->client_sock, &(c->client_buf));
         if (bytes_left != 0 && checkEOF(bytes_left))
             return closeClient(c, CLIENT_WRITE, key->s);
-        // if(bytes_left == 0){
-        //     if(selector_set_interest(key->s, c->client_sock, OP_READ) != SELECTOR_SUCCESS) {
-        //         return FAILED;
-        //     }
-        // }
     }
     else if (c->origin_sock == key->fd)
     { // Leer en el socket del origen y guardar en el buffer del usuario
         if (!buffer_can_read(&c->origin_buf))
             goto skip;
+
         bytes_left = write_to_sock(c->origin_sock, &(c->origin_buf));
         if (bytes_left != 0 && checkEOF(bytes_left))
             return closeClient(c, ORIGIN_WRITE, key->s);
-        // if(bytes_left == 0){
-        //     if(selector_set_interest(key->s, c->origin_sock, OP_READ) != SELECTOR_SUCCESS) {
-        //         return FAILED;
-        //     }
-        // }
     }
     else
         abort();
 
     skip:
+    if(bytes_left == 0)
+        selector_remove_interest(key->s, key->fd, OP_WRITE);
     return stm_state(c->stm);
 }
 
