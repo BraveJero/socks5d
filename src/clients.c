@@ -67,7 +67,7 @@ static const struct state_definition state_actions[] = {
         .on_arrival = start_name_resolution,
         .on_departure = NULL,
         .on_read_ready = NULL,
-        .on_write_ready = NULL,
+        .on_write_ready = handle_proxy_write,
         .on_block_ready = handle_finished_resolution,
     }, {
         .state = CONNECTING,
@@ -470,16 +470,19 @@ ssize_t write_to_sock(int sd, buffer *b) {
 }
 
 static void client_destroy(unsigned state, struct selector_key *key) {
-	/*
-     * TODO: problemita, si tenes mas de un sock para este cliente (o sea el par 
-     * {cliente, origen} esta seteado en algo que no es {-1, -1}) se llama por duplicado
-     * al unregister, que llama al socksv5_close que llama a la funcion que hacer frees 
-     * y el sanitizer tira error porque esa memoria ya fue liberada.
-    */
     client *c = ATTACHMENT(key);
 	
-    freeaddrinfo(c->resolution);
-    freeaddrinfo(c->curr_addr);
+    if(c->resolution != NULL)
+    {
+        logger(DEBUG, "Cleaning client");
+        freeaddrinfo(c->resolution);
+    }
+    else
+    {
+        free(c->curr_addr->ai_addr);
+        free(c->curr_addr);
+    }
+    free(c->dest_fqdn);
     free(c->stm);
     free(c);
 }
