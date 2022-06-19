@@ -3,7 +3,7 @@
 #include "buffer.h"
 #include "mgmt_protocol.re.h"
 
-#define MGMT_BUFFSIZE 150
+#define MGMT_BUFFSIZE 2048
 
 typedef struct mgmt_client {
     int fd;
