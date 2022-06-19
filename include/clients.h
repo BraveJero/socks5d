@@ -8,7 +8,7 @@
 #include "stm.h"
 #include <errno.h>
 
-#define MAX_SOCKETS 3
+#define MAX_CREDENTIALS 256
 #define BUFFSIZE 2048
 #define checkEOF(count) (count == 0 || (count < 0 && errno != EAGAIN))
 
@@ -28,8 +28,10 @@ struct client {
     int client_sock, origin_sock;
 
     // buffers to store and send
-    uint8_t client_buf_raw[BUFFSIZE], origin_buf_raw[BUFFSIZE];
+    uint8_t *client_buf_raw, *origin_buf_raw;
 	buffer client_buf, origin_buf;
+
+    char socks_user[MAX_CREDENTIALS];
 
 	// status of socket ends
 	enum socket_ends active_ends;

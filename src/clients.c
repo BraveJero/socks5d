@@ -13,7 +13,9 @@
 #include "selector.h"
 #include "socketsIO.h"
 #include "stm.h"
+#include "util.h"
 #include "tcpClientUtil.h"
+#include "state.h"
 #include "util.h"
 #include "tcpServerUtil.h"
 #include "handshake.h"
@@ -222,10 +224,23 @@ client *create_client(int sock) {
         .max_state = WRITE_REMAINING,
     };
 
+    size_t buffsize = get_buffsize();
+
+    new_client->client_buf_raw = malloc(sizeof(uint8_t) * buffsize);
+    new_client->origin_buf_raw = malloc(sizeof(uint8_t) * buffsize);
+
+    if(new_client->client_buf_raw == NULL || new_client->origin_buf_raw == NULL) {
+        free(new_client);
+        logger(DEBUG, "malloc() failed: %s", strerror(errno));
+        return NULL;
+    }
+
+    new_client->socks_user[0] = '\0';
+
     stm_init(new_client->stm);
 
-    buffer_init(&(new_client->client_buf), BUFFSIZE, new_client->client_buf_raw);
-    buffer_init(&(new_client->origin_buf), BUFFSIZE, new_client->origin_buf_raw);
+    buffer_init(&(new_client->client_buf), buffsize, new_client->client_buf_raw);
+    buffer_init(&(new_client->origin_buf), buffsize, new_client->origin_buf_raw);
     return new_client;
 }
 
@@ -276,8 +291,6 @@ static void *thread_name_resolution(void *data) {
     
     char port_buf[7];
     snprintf(port_buf, sizeof(port_buf), "%d", ntohs(c->dest_port));
-
-    logger(INFO, "ntohs(): %s", port_buf);
 
     int err = getaddrinfo(c->dest_fqdn, port_buf, &hints, &(c->resolution));
     if(err != 0) {
@@ -354,12 +367,14 @@ unsigned origin_check_connection(struct selector_key *key) {
     socklen_t len = sizeof(error);
     getsockopt(c->origin_sock, SOL_SOCKET, SO_ERROR, &error, &len);
     if(error == 0) {
-        logger(INFO, "Connection to origin succesful");
-
+        char addr_buf[64];
+        printAddressPort(c->curr_addr, addr_buf);
+        logger(INFO, "<%s> is connected to %s", c->socks_user, addr_buf);
 		c->active_ends |= ORIGIN;
         selector_set_interest(key->s, c->origin_sock, OP_READ | OP_WRITE);
         selector_set_interest(key->s, c->client_sock, OP_READ | OP_WRITE);
         server_reply(&c->client_buf, REPLY_SUCCEEDED, ATYP_IPV4, EMPTY_IP, 0);
+        add_connection();
         return PROXY;
     } else {
         logger(ERROR, "Error: %d %s", error, strerror(error));
@@ -398,6 +413,7 @@ unsigned handle_proxy_read(struct selector_key *key) {
 
 unsigned handle_proxy_write(struct selector_key *key) {
     ssize_t bytes_left = 0;
+    size_t bytes_to_write = 0;
 	client *c = ATTACHMENT(key);
 
     if (c->client_sock == key->fd)
@@ -412,7 +428,7 @@ unsigned handle_proxy_write(struct selector_key *key) {
                 return stm_state(c->stm);
             }
         }
-        
+        buffer_read_ptr(&(c->client_buf), &bytes_to_write);
         bytes_left = write_to_sock(c->client_sock, &(c->client_buf));
         if (bytes_left != 0 && checkEOF(bytes_left))
             return closeClient(c,  CLIENT_WRITE, key);
@@ -429,13 +445,17 @@ unsigned handle_proxy_write(struct selector_key *key) {
                 return stm_state(c->stm);
             }
         }
-
+        buffer_read_ptr(&(c->origin_buf), &bytes_to_write);
         bytes_left = write_to_sock(c->origin_sock, &(c->origin_buf));
         if (bytes_left != 0 && checkEOF(bytes_left))
             return closeClient(c,  ORIGIN_WRITE, key);
     }
     else
         abort();
+
+    if(stm_state(c->stm) == PROXY) {
+        add_bytes(bytes_to_write - bytes_left);
+    }
 
     return stm_state(c->stm);
 }
@@ -451,7 +471,7 @@ void enable_write(unsigned state, struct selector_key *key)
 
 static void client_destroy(unsigned state, struct selector_key *key) {
     client *c = ATTACHMENT(key);
-	
+	rm_connection();
     if(c->resolution != NULL)
     {
         logger(DEBUG, "Cleaning client");
@@ -464,5 +484,7 @@ static void client_destroy(unsigned state, struct selector_key *key) {
     }
     free(c->dest_fqdn);
     free(c->stm);
+    free(c->origin_buf_raw);
+    free(c->client_buf_raw);
     free(c);
 }
