@@ -315,10 +315,11 @@ selector_destroy(fd_selector s) {
                 }
             }
             pthread_mutex_destroy(&s->resolution_mutex);
-            for(struct blocking_job *j = s->resolution_jobs; j != NULL;
-                j = j->next) {
-                free(j);
-            }
+            for(struct blocking_job *j = s->resolution_jobs; j != NULL; ) {
+				struct blocking_job *aux = j;
+				j = j->next;
+				free(aux);
+			}
             free(s->fds);
             s->fds     = NULL;
             s->fd_size = 0;
@@ -428,6 +429,44 @@ finally:
 }
 
 selector_status
+selector_add_interest(fd_selector s, int fd, fd_interest i) {
+    selector_status ret = SELECTOR_SUCCESS;
+
+    if(NULL == s || INVALID_FD(fd)) {
+        ret = SELECTOR_IARGS;
+        goto finally;
+    }
+    struct item *item = s->fds + fd;
+    if(!ITEM_USED(item)) {
+        ret = SELECTOR_IARGS;
+        goto finally;
+    }
+    item->interest |= i;
+    items_update_fdset_for_fd(s, item);
+finally:
+    return ret;
+}
+
+selector_status
+selector_remove_interest(fd_selector s, int fd, fd_interest i) {
+    selector_status ret = SELECTOR_SUCCESS;
+
+    if(NULL == s || INVALID_FD(fd)) {
+        ret = SELECTOR_IARGS;
+        goto finally;
+    }
+    struct item *item = s->fds + fd;
+    if(!ITEM_USED(item)) {
+        ret = SELECTOR_IARGS;
+        goto finally;
+    }
+    item->interest &= ~i;
+    items_update_fdset_for_fd(s, item);
+finally:
+    return ret;
+}
+
+selector_status
 selector_set_interest_key(struct selector_key *key, fd_interest i) {
     selector_status ret;
 
@@ -485,8 +524,7 @@ handle_block_notifications(fd_selector s) {
     };
     pthread_mutex_lock(&s->resolution_mutex);
     for(struct blocking_job *j = s->resolution_jobs;
-        j != NULL ;
-        j  = j->next) {
+        j != NULL ;) {
 
         struct item *item = s->fds + j->fd;
         if(ITEM_USED(item)) {
@@ -494,8 +532,9 @@ handle_block_notifications(fd_selector s) {
             key.data = item->data;
             item->handler->handle_block(&key);
         }
-
-        free(j);
+        struct blocking_job *aux = j;
+        j = j->next;
+        free(aux);
     }
     s->resolution_jobs = 0;
     pthread_mutex_unlock(&s->resolution_mutex);
