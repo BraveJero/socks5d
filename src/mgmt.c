@@ -122,8 +122,8 @@ static void handle_mgmt_write(struct selector_key *key) {
 
     // Si tengo algo en el buffer de pendientes, trato de copiarlo al de escritura
     if(buffer_can_read(&(c->pending_buf))){
-        copy_from_buf(&(c->write_buf), &(c->pending_buf));
-        processMgmtClient(c);
+        if(copy_from_buf(&(c->write_buf), &(c->pending_buf)) > 0)
+            processMgmtClient(c);
     }
 
     ssize_t bytes_left = write_to_sock(c->fd, &(c->write_buf));
@@ -131,6 +131,10 @@ static void handle_mgmt_write(struct selector_key *key) {
         if(c->quitted){
             selector_unregister_fd(key->s, c->fd);
         }
+    }
+
+    if(bytes_left < 0) {
+        selector_unregister_fd(key->s, c->fd);
     }
 }
 
