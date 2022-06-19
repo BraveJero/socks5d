@@ -1,4 +1,5 @@
 #include "logger.h"
+#include <time.h>
 
 LOG_LEVEL current_level = DEBUG;
 
@@ -17,7 +18,10 @@ char * levelDescription(LOG_LEVEL level) {
 
 void logger(LOG_LEVEL level, const char *fmt, ...){
     if(level >= current_level){
-        fprintf (stderr, "%s: ", levelDescription(level)); 
+        time_t t = time(NULL);
+        struct tm *tm = localtime(&t);
+        fprintf (stderr, "%s: (%d/%02d/%02d %02d:%02d:%02d) ", levelDescription(level),
+                 tm->tm_year + 1900, tm->tm_mon, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec);
         va_list arg; 
         va_start(arg, fmt); 
         vfprintf(stderr, fmt, arg);

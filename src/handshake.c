@@ -116,12 +116,13 @@ unsigned read_plain_auth(struct selector_key *key)
 		return closeClient(c,  CLIENT_READ, key);
 	}
 
-	char user_copy[256], pass_copy[256];
-	memcpy(user_copy, user, userLen);
-	user_copy[userLen] = 0;
+    char pass_copy[MAX_CREDENTIALS];
+
+	memcpy(c->socks_user, user, userLen);
+	c->socks_user[userLen] = 0;
 	memcpy(pass_copy, pass, passLen);
-	pass_copy[passLen] = 0;
-	if(try_credentials(user_copy, pass_copy))
+    pass_copy[passLen] = 0;
+	if(try_credentials(c->socks_user, pass_copy))
 	{
 		simple_reply(plain_auth_version, 0x0, c);
 		selector_add_interest(key->s, c->client_sock, OP_WRITE);
