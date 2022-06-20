@@ -11,10 +11,10 @@
 #define ARGUMENTS   CONF_ARGUMENTS COMMAND_ARGUMENTS
 
 typedef struct mnmt_conf {
-    MgmtCommands cmd;
     const char * addr;
     const char * port;
     char * token;
+    int sock;
 } mnmt_conf;
 
 /**

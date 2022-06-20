@@ -4,14 +4,13 @@
 #include "mgmt_client_util.h"
 #include "conf.h"
 
-#define COMMAND_ARGUMENTS   "0123456:7:"
-
 int main(int argc, char *argv[]) {
     int sock = 0, exit_status = 0;
     char *err_msg, *success_msg = "";
     mnmt_conf conf = {
         .addr = "127.0.0.1", // default address
         .port = "8080", // default port
+        .token = NULL, // default token
     };
 
     if (!parse_conf(argc, argv, &conf)) {
