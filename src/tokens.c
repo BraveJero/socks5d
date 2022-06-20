@@ -34,3 +34,7 @@ bool check_token(const char *token) {
     }
     return false;
 }
+
+size_t get_token_count() {
+    return token_count;
+}
