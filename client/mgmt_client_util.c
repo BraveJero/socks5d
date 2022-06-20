@@ -98,6 +98,21 @@ bool capa(int sock) {
     return response_buf[0] == '+';
 }
 
+bool authenticate(int sock, const char *token) {
+    snprintf(request_buf, BUFFSIZE, commands_format[CMD_TOKEN], token);
+    if(send(sock, request_buf, strlen(request_buf), MSG_DONTWAIT) < 0) {
+        return false;
+    }
+
+    ssize_t bytes_read;
+    if((bytes_read = read(sock, response_buf, BUFFSIZE)) <= 0) {
+        return false;
+    }
+
+    response_buf[bytes_read] = '\0';
+    return response_buf[0] == '+';
+}
+
 bool stats(int sock) {
     if(send(sock, commands_format[CMD_STATS], strlen(commands_format[CMD_STATS]), MSG_DONTWAIT) < 0) {
         return false;
@@ -113,10 +128,8 @@ bool stats(int sock) {
     return response_buf[0] == '+';
 }
 
-
-bool authenticate(int sock, const char *token) {
-    snprintf(request_buf, BUFFSIZE, commands_format[CMD_TOKEN], token);
-    if(send(sock, request_buf, strlen(request_buf), MSG_DONTWAIT) < 0) {
+bool users(int sock) {
+    if(send(sock, commands_format[CMD_USERS], strlen(commands_format[CMD_USERS]), MSG_DONTWAIT) < 0) {
         return false;
     }
 
@@ -126,6 +139,7 @@ bool authenticate(int sock, const char *token) {
     }
 
     response_buf[bytes_read] = '\0';
+    printf("{{%s}}\n", response_buf);
     return response_buf[0] == '+';
 }
 

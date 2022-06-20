@@ -48,6 +48,12 @@ int main(int argc, char *argv[]) {
             case '1':
                 stats(conf.sock);
                 break;
+            case '2':
+                users(conf.sock);
+                break;
+            case '3':
+                // buffsize(conf.sock);
+                break;
         }
     }
 
