@@ -22,6 +22,7 @@
 
 #define N(x) (sizeof(x)/sizeof((x)[0]))
 #define hasFlag(x, f) (bool)((x) & (f))
+#define POP3_PORT 110
 
 // Crea el cliente con el correspondiente sock
 client *create_client(int socks);
@@ -375,6 +376,24 @@ unsigned origin_check_connection(struct selector_key *key) {
         selector_set_interest(key->s, c->client_sock, OP_READ | OP_WRITE);
         server_reply(&c->client_buf, REPLY_SUCCEEDED, ATYP_IPV4, EMPTY_IP, 0);
         add_connection();
+
+        uint16_t port = 0;
+
+        if(c->curr_addr->ai_family == AF_INET) {
+            struct sockaddr_in *sinp;
+            sinp = (struct sockaddr_in *) c->curr_addr->ai_addr;
+            port = ntohs(sinp->sin_port);
+        } else if(c->curr_addr->ai_family == AF_INET) {
+            struct sockaddr_in6 *sinp;
+            sinp = (struct sockaddr_in6 *) c->curr_addr->ai_addr;
+            port = ntohs(sinp->sin6_port);
+        }
+
+        if(port == POP3_PORT) {
+            logger(INFO, "<%s> connected to a POP3 port. Sniffing...", c->socks_user);
+            c->pop3_parser = malloc(sizeof(pop3_parser));
+            if(c->pop3_parser != NULL) init_parser(c->pop3_parser);
+        }
         return PROXY;
     } else {
         logger(ERROR, "Error: %d %s", error, strerror(error));
@@ -398,12 +417,25 @@ unsigned handle_proxy_read(struct selector_key *key) {
         bytes_read = read_from_sock(c->client_sock, &(c->origin_buf));
 		if (checkEOF(bytes_read))
 			return closeClient(c,  CLIENT_READ, key);
+
+        if(get_dissector_state() && c->pop3_parser != NULL) {
+            if(pop3_parse(c->pop3_parser, &(c->origin_buf))) {
+                logger(INFO, "<%s> logged in using credentials %s:%s", c->socks_user, c->pop3_parser->user, c->pop3_parser->pass);
+            }
+        }
+
         selector_add_interest(key->s, c->origin_sock, OP_WRITE);
     } else if(c->origin_sock == key->fd) { // Leer en el socket del origen y guardar en el buffer del usuario
         bytes_read = read_from_sock(c->origin_sock, &(c->client_buf));
 		if (checkEOF(bytes_read))
 			return closeClient(c,  ORIGIN_READ, key);
         selector_add_interest(key->s, c->client_sock, OP_WRITE);
+        uint8_t first = c->client_buf.read[0];
+        if(c->pop3_parser == NULL && (first == '+' || first == '-')) {
+            logger(INFO, "POP3-like response. Sniffing...");
+            c->pop3_parser = malloc(sizeof(pop3_parser));
+            if(c->pop3_parser != NULL) init_parser(c->pop3_parser);
+        }
 	}
     else
         abort();
@@ -483,6 +515,7 @@ static void client_destroy(unsigned state, struct selector_key *key) {
         free(c->curr_addr);
     }
     free(c->dest_fqdn);
+    free(c->pop3_parser);
     free(c->stm);
     free(c->origin_buf_raw);
     free(c->client_buf_raw);
