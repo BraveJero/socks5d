@@ -65,6 +65,7 @@ int tcpClientSocket(const char *host, const char *service) {
     freeaddrinfo(servAddr);
     return sock;
 }
+
 bool read_hello(int sock) {
     ssize_t bytes_read;
     if((bytes_read = read(sock, response_buf, BUFFSIZE)) <= 0) {
