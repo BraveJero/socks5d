@@ -83,6 +83,11 @@ bool read_hello(int sock) {
     return response_buf[0] == '+';
 }
 
+static bool
+send_text(int sock, const char * text) {
+    return send(sock, text, strlen(text), MSG_DONTWAIT) >= 0;
+}
+
 bool capa(int sock) {
     if(send(sock, commands_format[CMD_CAPA], strlen(commands_format[CMD_CAPA]), MSG_DONTWAIT) < 0) {
         return false;
