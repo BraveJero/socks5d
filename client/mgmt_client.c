@@ -1,15 +1,31 @@
-#include "mgmt_client_util.h"
-
 #include <stdio.h>
 #include <stddef.h>
 
-const char *token = "password";
-MgmtCommands cmd = CMD_SET_DISSECTOR_STATUS;
+#include "mgmt_client_util.h"
+#include "conf.h"
 
-int main(int argc, char *argv[]){
-    int sock, exit_status = 0;
+#define COMMAND_ARGUMENTS   "0123456:7:"
+
+int main(int argc, char *argv[]) {
+    int sock = 0, exit_status = 0;
     char *err_msg, *success_msg = "";
-    if((sock = tcpClientSocket("localhost", "8080")) < 0) {
+    mnmt_conf conf = {
+        .addr = "127.0.0.1", // default address
+        .port = "8080", // default port
+    };
+
+    if (!parse_conf(argc, argv, &conf)) {
+        err_msg = "Error parsing configuration from arguments";
+        exit_status = 1;
+        goto finally;
+    }
+
+    printf("addr: %s\n", conf.addr);
+    printf("port: %s\n", conf.port);
+    printf("token: %s\n", conf.token);
+    printf("cmd: %d\n", conf.cmd);
+
+    if((sock = tcpClientSocket(conf.addr, conf.port)) < 0) {
         err_msg = "Error creating sock with server";
         exit_status = 1;
         goto finally;
@@ -21,13 +37,13 @@ int main(int argc, char *argv[]){
         goto finally;
     }
 
-    if(!authenticate(sock, token)) {
+    if(!authenticate(sock, conf.token)) {
         err_msg = "Could not authenticate in server";
         exit_status = 1;
         goto finally;
     }
 
-    switch(cmd) {
+    switch(conf.cmd) {
         case CMD_STATS:
             break;
         case CMD_CAPA:
