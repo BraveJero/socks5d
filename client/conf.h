@@ -5,6 +5,11 @@
 
 #include "mgmt_client_util.h"
 
+// CAPA, STATS, USERS, BUFFSIZE, DISSECTOR_STATUS, SET-BUFFISZE, SETT-DISSECTOR-STATUS
+#define COMMAND_ARGUMENTS "012345:6:7:"
+#define CONF_ARGUMENTS  "hvL:P:"
+#define ARGUMENTS   CONF_ARGUMENTS COMMAND_ARGUMENTS
+
 typedef struct mnmt_conf {
     MgmtCommands cmd;
     const char * addr;
