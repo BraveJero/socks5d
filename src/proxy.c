@@ -49,6 +49,12 @@ int main(int argc, char *argv[])
 	char *token = getenv("TOKEN");
 	if(token != NULL) add_token(token);
 
+    if(get_token_count() == 0) {
+        logger(ERROR, "No tokens provided for mgmt. Exiting...");
+        exit(1);
+    }
+
+
 	if(args.socks_addr == NULL) {
 		if((master[master_size] = setUpMasterSocket(SOCKS_ADDR4, args.socks_port, false)) >= 0) {
 			master_size++;
@@ -76,6 +82,11 @@ int main(int argc, char *argv[])
 			monitor_size++;
 		}
 	}
+
+    if(master_size == 0 || monitor_size == 0) {
+        logger(ERROR, "Error setting up passive sockets. Exiting..");
+        exit(1);
+    }
 
 	fd_selector selector = NULL;
 
