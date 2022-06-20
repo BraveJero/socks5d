@@ -38,6 +38,8 @@ static const char *set_buffsize_error_format = "%s Error updating buffsize %s";
 static const char *dissector_status_format = "%s %s%s%s%s%s";
 static const char *set_dissector_status_format = "%s Dissector status updated %s";
 static const char *set_dissector_status_error_format = "%s Error updating dissector status %s";
+static const char *add_user_format = "%s Added user %s%s";
+static const char *add_user_error_format = "%s Error adding user %s%s";
 
 static const char *capa_message = "+OK \r\nTOKEN\r\nUSERS\r\nSTATS\r\nBUFFSIZE\r\nSET-BUFFSIZE\r\nDISSECTOR-STATUS\r\nSET-DISSECTOR-STATUS\r\n.\r\n";
 
@@ -191,7 +193,6 @@ bool processMgmtClient(mgmt_client *c)
                 user *users = get_users(&user_count);
 
                 for(size_t i = 0; i < user_count; i++) {
-                    logger(DEBUG, "Sending user: %s", users[i].username);
                     strcat(response_buf, users[i].username);
                     strcat(response_buf, line_delimiter);
                 }
@@ -235,6 +236,16 @@ bool processMgmtClient(mgmt_client *c)
                     response_len = snprintf(response_buf, MGMT_BUFFSIZE, set_dissector_status_error_format, error_status, line_delimiter);
                 }
                 break;
+            }
+            case MGMT_ADD_USER: {
+                arg[argLen] = '\0';
+                if(add_user(arg)) {
+                    response_len = snprintf(response_buf, MGMT_BUFFSIZE, add_user_format, success_status, arg, line_delimiter);
+                } else {
+                    response_len = snprintf(response_buf, MGMT_BUFFSIZE, add_user_error_format, error_status, arg, line_delimiter);
+                }
+                break;
+
             }
             case MGMT_QUIT: {
                 c->quitted = true;

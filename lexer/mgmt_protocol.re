@@ -57,8 +57,9 @@ MgmtCommand parseMgmtRequest(Input *in, char **arg, size_t *argLen, size_t *len)
         <trns> 'users' [ ]* '\r\n'                                          { result = MGMT_USERS; break; }
         <trns> 'buffsize' [ ]* '\r\n'                                       { result = MGMT_GET_BUFFSIZE; break; }
         <trns> 'set-buffsize' [ ]+ @args numarg @arge [ ]* '\r\n'           { result = MGMT_SET_BUFFSIZE; break; }
-        <trns> 'dissector-status' [ ]* '\r\n'                               { result = MGMT_GET_DISSECTOR_STATUS; break; }
-        <trns> 'set-dissector-status' [ ]* @args ("on"|"off") @arge'\r\n'   { result = MGMT_SET_DISSECTOR_STATUS; break; }
+        <trns> 'dissector-status' [ ]+ '\r\n'                               { result = MGMT_GET_DISSECTOR_STATUS; break; }
+        <trns> 'set-dissector-status' [ ]+ @args ("on"|"off") @arge'\r\n'   { result = MGMT_SET_DISSECTOR_STATUS; break; }
+        <trns> 'add-user' [ ]+ @args arg @arge [ ]* '\r\n'                  { result = MGMT_ADD_USER; break; }
         
         <*> 'quit' [ ]* '\r\n'                                              { result = MGMT_QUIT; break; }
         <*> 'capa' [ ]* '\r\n'                                              { result = MGMT_CAPA; break; }
