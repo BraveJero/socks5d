@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -380,7 +381,21 @@ unsigned origin_check_connection(struct selector_key *key) {
 		c->active_ends |= ORIGIN;
         selector_set_interest(key->s, c->origin_sock, OP_READ | OP_WRITE);
         selector_set_interest(key->s, c->client_sock, OP_READ | OP_WRITE);
-        server_reply(&c->client_buf, REPLY_SUCCEEDED, ATYP_IPV4, EMPTY_IP, 0);
+
+        struct sockaddr saddr;
+        socklen_t slen;
+        getsockname(c->origin_sock, &saddr, &slen);
+        if(c->curr_addr->ai_family == AF_INET)
+        {
+            struct sockaddr_in *sin = (void*)&saddr;
+            server_reply(&c->client_buf, REPLY_SUCCEEDED, ATYP_IPV4, (uint8_t*)&sin->sin_addr, sin->sin_port);
+        }
+        else
+        {
+            struct sockaddr_in6 *sin6 = (void*)&saddr;
+            server_reply(&c->client_buf, REPLY_SUCCEEDED, ATYP_IPV6, (uint8_t*)&sin6->sin6_addr, sin6->sin6_port);
+        }
+
         add_connection();
 
         uint16_t port = 0;
