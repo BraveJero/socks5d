@@ -75,6 +75,7 @@ MgmtCommand parseMgmtRequest(Input *in, char **arg, size_t *argLen, size_t *len)
 	*arg = args;
 	*argLen = arge - args;
 	*len = end - in->tok;
+    in->tok = in->mar = in->cur;
 	in->state = -1;
 	return result;
 }
