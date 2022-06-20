@@ -23,6 +23,7 @@ typedef enum {
 int tcpClientSocket(const char *host, const char *service);
 bool read_hello(int sock);
 bool authenticate(int sock, const char *token);
+bool capa(int sock);
 bool set_buffsize(int sock, size_t size);
 bool set_dissector_status(int sock, const char *status);
 

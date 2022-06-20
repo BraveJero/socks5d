@@ -37,41 +37,14 @@ int main(int argc, char *argv[]) {
         goto finally;
     }
 
-    switch(conf.cmd) {
-        case CMD_STATS:
-            break;
-        case CMD_CAPA:
-            break;
-        case CMD_USERS:
-            break;
-        case CMD_BUFFSIZE:
-            break;
-        case CMD_DISSECTOR_STATUS:
-            break;
-        case CMD_SET_BUFFSIZE: {
-            size_t size = 1024;
-            if (set_buffsize(sock, size)) {
-                success_msg = "Buffsize updated";
-            } else {
-                err_msg = "Error updating buffsize";
-                exit_status = 1;
-            }
-            break;
-        }
-        case CMD_SET_DISSECTOR_STATUS: {
-            const char *status = "on";
-            if (set_dissector_status(sock, status)) {
-                success_msg = "Dissector status updated";
-            } else {
-                err_msg = "Error updating dissector exit_status";
-                exit_status = 1;
-                goto finally;
-            }
-            break;
-        }
-        default: {
-            err_msg = "Unknown command";
-            exit_status = 1;
+    int c;
+    opterr = 0, optind = 0;
+    while (-1 != (c = getopt (argc, argv, ARGUMENTS))) {
+        switch(c) {
+            // CAPA, STATS, USERS, BUFFSIZE, DISSECTOR_STATUS, SET-BUFFISZE, SET-DISSECTOR-STATUS
+            case '0':
+                capa(conf.sock);
+                break;
         }
     }
 

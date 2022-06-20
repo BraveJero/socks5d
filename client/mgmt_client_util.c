@@ -12,6 +12,12 @@
 static char response_buf[BUFFSIZE];
 static char request_buf[BUFFSIZE];
 
+// typedef struct command_type {
+//     uint8_t id;
+//     const char * format;
+//     bool multiline;
+// } command_type;
+
 static const char *commands_format[] = {
         "CAPA\r\n",
         "TOKEN %s\r\n",
@@ -73,6 +79,36 @@ bool read_hello(int sock) {
     }
     response_buf[bytes_read] = '\0';
 
+    return response_buf[0] == '+';
+}
+
+bool capa(int sock) {
+    if(send(sock, commands_format[CMD_CAPA], strlen(commands_format[CMD_CAPA]), MSG_DONTWAIT) < 0) {
+        return false;
+    }
+
+    ssize_t bytes_read;
+    if((bytes_read = read(sock, response_buf, BUFFSIZE)) <= 0) {
+        return false;
+    }
+
+    response_buf[bytes_read] = '\0';
+    printf("{{%s}}\n", response_buf);
+    return response_buf[0] == '+';
+}
+
+bool stats(int sock) {
+    if(send(sock, commands_format[CMD_STATS], strlen(commands_format[CMD_STATS]), MSG_DONTWAIT) < 0) {
+        return false;
+    }
+
+    ssize_t bytes_read;
+    if((bytes_read = read(sock, response_buf, BUFFSIZE)) <= 0) {
+        return false;
+    }
+
+    response_buf[bytes_read] = '\0';
+    printf("{{%s}}\n", response_buf);
     return response_buf[0] == '+';
 }
 
