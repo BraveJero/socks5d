@@ -307,14 +307,8 @@ static void *thread_name_resolution(void *data) {
 
 void create_connection(const unsigned state, struct selector_key *key) {
     client *c = ATTACHMENT(key);
-    c->origin_sock = socket(c->curr_addr->ai_family, c->curr_addr->ai_socktype, c->curr_addr->ai_protocol);
-    if(c->origin_sock < 0) {
-        logger(ERROR, "Error in socket()");
-        perror("socket()");
-    }
-    selector_fd_set_nio(c->origin_sock);
-    // selector_fd_set_nio(c->client_sock);
-    try_connect(key);
+    // Truquito para que se llame a origin_check_connection
+    selector_add_interest(key->s, c->client_sock, OP_WRITE);
 }
 
 enum server_reply_type check_connection_error(int error)
@@ -341,32 +335,42 @@ enum server_reply_type check_connection_error(int error)
 unsigned try_connect(struct selector_key *key) {
     client *c = ATTACHMENT(key);
     assert(c->curr_addr != NULL);
-    int sock = c->origin_sock;
-    if (sock >= 0) {
-        errno = 0;
+    c->origin_sock = socket(c->curr_addr->ai_family, c->curr_addr->ai_socktype, c->curr_addr->ai_protocol);
+    if (c->origin_sock >= 0) {
+        selector_fd_set_nio(c->origin_sock);
         char adrr_buf[1024];
         logger(DEBUG, "%s", printAddressPort(c->curr_addr, adrr_buf));
         // Establish the connection to the server
-        if ( connect(sock, c->curr_addr->ai_addr, c->curr_addr->ai_addrlen) == 0 || errno == EINPROGRESS) {
-            selector_register(key->s, c->origin_sock, &socks5_handler, OP_WRITE, c);
-            // logger(ERROR, selector_error(ss));
-            
+        if ( connect(c->origin_sock, c->curr_addr->ai_addr, c->curr_addr->ai_addrlen) == 0 || errno == EINPROGRESS) {
+            if(selector_register(key->s, c->origin_sock, &socks5_handler, OP_WRITE, c) != SELECTOR_SUCCESS)
+            {
+                close(c->origin_sock);
+                logger(ERROR, "Can't register client socket");
+                server_reply(&c->client_buf, REPLY_SERVER_FAILURE, ATYP_IPV4, EMPTY_IP, 0);
+                return closeClient(c,  CLIENT_READ, key);
+            }
             logger(INFO, "Connection to origin in progress");
             return CONNECTING;
         }
         enum server_reply_type reply = check_connection_error(errno);
         server_reply(&c->client_buf, reply, ATYP_IPV4, EMPTY_IP, 0);
         return closeClient(c,  CLIENT_READ, key);
-    } else {
-        logger(DEBUG, "Can't create client socket");
-        server_reply(&c->client_buf, REPLY_SERVER_FAILURE, ATYP_IPV4, EMPTY_IP, 0);
-        return closeClient(c,  CLIENT_READ, key);
     }
+    logger(ERROR, "Can't create client socket");
+    server_reply(&c->client_buf, REPLY_SERVER_FAILURE, ATYP_IPV4, EMPTY_IP, 0);
+    return closeClient(c,  CLIENT_READ, key);
 }
 
 unsigned origin_check_connection(struct selector_key *key) {
     client *c = ATTACHMENT(key);
-    int error = 0;
+
+    if(key->fd == c->client_sock)
+    {
+        selector_remove_interest(key->s, c->client_sock, OP_WRITE);
+        return try_connect(key);
+    }
+
+    int error;
     socklen_t len = sizeof(error);
     getsockopt(c->origin_sock, SOL_SOCKET, SO_ERROR, &error, &len);
     if(error == 0) {
@@ -399,10 +403,12 @@ unsigned origin_check_connection(struct selector_key *key) {
         return PROXY;
     } else {
         logger(ERROR, "Error: %d %s", error, strerror(error));
-        c->curr_addr = c->curr_addr->ai_next;
-        selector_remove_interest(key->s, c->origin_sock, OP_READ | OP_WRITE);
-        if(c->curr_addr != NULL)
+        selector_unregister_fd(key->s, c->origin_sock);
+        if(c->curr_addr->ai_next != NULL)
+        {
+            c->curr_addr = c->curr_addr->ai_next;
             return try_connect(key);
+        }
 
         // No hay más opciones. Responder con el error
         enum server_reply_type reply = check_connection_error(error);
