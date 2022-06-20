@@ -18,6 +18,8 @@ typedef enum {
     CMD_DISSECTOR_STATUS,
     CMD_SET_BUFFSIZE,
     CMD_SET_DISSECTOR_STATUS,
+    CMD_ADD_USER,
+    CMD_SIZE,
 } MgmtCommands;
 
 int tcpClientSocket(const char *host, const char *service);

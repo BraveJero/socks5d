@@ -27,6 +27,7 @@ static const char *commands_format[] = {
         "DISSECTOR_STATUS\r\n",
         "SET-BUFFSIZE %d\r\n",
         "SET-DISSECTOR-STATUS %s\r\n",
+        "ADD-USER  %s\r\n",
 };
 
 //static const bool commands_multilne[] = {
