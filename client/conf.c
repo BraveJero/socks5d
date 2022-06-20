@@ -44,12 +44,15 @@ bool parse_conf(const int argc, char **argv, struct mnmt_conf* mnmt_conf) {
             case 'P':
                 mnmt_conf->port = optarg;
                 break;
-            case '?':
-                if (optopt == ':') {
-                    fprintf (stderr, "Option -%c requires an argument.\n", optopt);
-                    return false;
-                }
+            case '0': case '1': case '2': case '3':
+            case '4': case '5': case '6': case '7':
                 break;
+            case ':':
+                fprintf (stderr, "Option -%c requires an argument.\n", optopt);
+                return false;
+            default:
+                fprintf(stderr, "Unknown argument %c.\n", optopt);
+                return false;
         }
     }
     if (argc - optind < 1) {
