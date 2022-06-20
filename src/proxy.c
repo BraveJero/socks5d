@@ -113,13 +113,9 @@ int main(int argc, char *argv[])
 
 	for (int i = 0; i < master_size; i++)
 	{
-		if(listen(master[i], MAX_PENDING_CONNECTIONS) < 0) {
-			logger(ERROR, "Error listening on sock %d: %s", master[i], strerror(errno));
-		} else {
-			logger(INFO, "Waiting for TCP connections on socket %d", master[i]);
-			selector_fd_set_nio(master[i]);
-			selector_register(selector, master[i], &master_handler, OP_READ, NULL);
-		}
+        logger(INFO, "Waiting for TCP connections on socket %d", master[i]);
+        selector_fd_set_nio(master[i]);
+        selector_register(selector, master[i], &master_handler, OP_READ, NULL);
 	}
 
 	for (int i = 0; i < monitor_size; i++)
