@@ -45,6 +45,9 @@ int main(int argc, char *argv[]) {
             case '0':
                 capa(conf.sock);
                 break;
+            case '1':
+                stats(conf.sock);
+                break;
         }
     }
 
