@@ -29,8 +29,8 @@ usage(const char *progname) {
 
 bool parse_conf(const int argc, char **argv, struct mnmt_conf* mnmt_conf) {
     int c;
-    opterr = 0;
-    while (-1 != (c = getopt (argc, argv, OPTIONAL_ARGUMENTS))) {
+    opterr = 0, optind = 0;
+    while (-1 != (c = getopt (argc, argv, ARGUMENTS))) {
         switch(c) {
             case 'h':
                 usage(argv[0]);
