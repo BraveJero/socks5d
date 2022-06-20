@@ -4,8 +4,7 @@
 #include <ctype.h>
 
 #include "conf.h"
-
-#define OPTIONAL_ARGUMENTS  "hvL:P:"
+#include "mgmt_client_util.h"
 
 static void
 version(void) {

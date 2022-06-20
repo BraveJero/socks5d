@@ -19,24 +19,19 @@ int main(int argc, char *argv[]) {
         goto finally;
     }
 
-    printf("addr: %s\n", conf.addr);
-    printf("port: %s\n", conf.port);
-    printf("token: %s\n", conf.token);
-    printf("cmd: %d\n", conf.cmd);
-
-    if((sock = tcpClientSocket(conf.addr, conf.port)) < 0) {
+    if((conf.sock = tcpClientSocket(conf.addr, conf.port)) < 0) {
         err_msg = "Error creating sock with server";
         exit_status = 1;
         goto finally;
     }
 
-    if(!read_hello(sock)) {
+    if(!read_hello(conf.sock)) {
         err_msg = "Error in server greeting";
         exit_status = 1;
         goto finally;
     }
 
-    if(!authenticate(sock, conf.token)) {
+    if(!authenticate(conf.sock, conf.token)) {
         err_msg = "Could not authenticate in server";
         exit_status = 1;
         goto finally;
@@ -81,6 +76,7 @@ int main(int argc, char *argv[]) {
     }
 
     printf("%s\n", success_msg);
+    return 0;
 
 finally:
     if(exit_status) fprintf(stderr, "%s\n", err_msg);
