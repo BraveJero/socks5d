@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __MGMT_CLIENT_UTIL_H__
+#define __MGMT_CLIENT_UTIL_H__
 
 #include <string.h>
 #include <errno.h>
@@ -24,3 +25,5 @@ bool read_hello(int sock);
 bool authenticate(int sock, const char *token);
 bool set_buffsize(int sock, size_t size);
 bool set_dissector_status(int sock, const char *status);
+
+#endif
