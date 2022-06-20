@@ -39,6 +39,7 @@ bool parse_conf(const int argc, char **argv, struct mnmt_conf* mnmt_conf) {
                 version();
                 exit(0);
             case 'L':
+                // TODO: Check if optargs begin with '-'. e.g.: -P -L breaks
                 mnmt_conf->addr = optarg;
                 break;
             case 'P':
