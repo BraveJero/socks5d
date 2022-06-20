@@ -14,7 +14,7 @@ static char request_buf[BUFFSIZE];
 
 static const char *commands_format[] = {
         "CAPA\r\n",
-        "PASS %s\r\n",
+        "TOKEN %s\r\n",
         "STATS\r\n",
         "USERS\r\n",
         "BUFFSIZE\r\n",
@@ -77,7 +77,7 @@ bool read_hello(int sock) {
 
 
 bool authenticate(int sock, const char *token) {
-    snprintf(request_buf, BUFFSIZE, commands_format[CMD_PASS], token);
+    snprintf(request_buf, BUFFSIZE, commands_format[CMD_TOKEN], token);
     if(send(sock, request_buf, strlen(request_buf), MSG_DONTWAIT) < 0) {
         return false;
     }

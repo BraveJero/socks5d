@@ -11,7 +11,7 @@
 
 typedef enum {
     CMD_CAPA = 0,
-    CMD_PASS,
+    CMD_TOKEN,
     CMD_STATS,
     CMD_USERS,
     CMD_BUFFSIZE,
