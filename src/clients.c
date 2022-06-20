@@ -230,6 +230,8 @@ client *create_client(int sock) {
     new_client->origin_buf_raw = malloc(sizeof(uint8_t) * buffsize);
 
     if(new_client->client_buf_raw == NULL || new_client->origin_buf_raw == NULL) {
+        free(new_client->origin_buf_raw);
+        free(new_client->client_buf_raw);
         free(new_client);
         logger(DEBUG, "malloc() failed: %s", strerror(errno));
         return NULL;
