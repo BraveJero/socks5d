@@ -14,6 +14,9 @@
 #define ATTACHMENT(key) ((mgmt_client *) key->data);
 #define checkEOF(count) (count == 0 || (count < 0 && errno != EAGAIN))
 
+#define MIN_SOCKS_BUFFSIZE 512
+#define MAX_SOCKS_BUFFSIZE 10241
+
 static char response_buf[MGMT_BUFFSIZE];
 static int capa_count = 0;
 
@@ -204,7 +207,7 @@ bool processMgmtClient(mgmt_client *c)
             case MGMT_SET_BUFFSIZE: {
                 arg[argLen] = '\0';
                 size_t new_size = atoi(arg);
-                if(new_size) {
+                if(new_size > MIN_SOCKS_BUFFSIZE && new_size < MAX_SOCKS_BUFFSIZE) {
                     set_buffsize(new_size);
                     response_len = snprintf(response_buf, MGMT_BUFFSIZE, set_buffsize_format, success_status, line_delimiter);
                 } else {

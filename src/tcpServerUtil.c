@@ -48,13 +48,19 @@ int setUpMasterSocket(const char *ip, uint16_t port, bool ipv6) {
 		return -1;
 	}
 
-	// TODO: cambiar 15 por SO_REUSEPORT. No se por que me marca como que no esta definida.
-	if (setsockopt(sock, SOL_SOCKET, 15, (char *)&opt, sizeof(opt)) < 0)
-	{
-		logger(ERROR, "set %s socket options failed: %s", protocol, strerror(errno));
-		close(sock);
-		return -1;
-	}
+	if(ipv6) {
+        if (setsockopt(sock, SOL_IPV6, IPV6_V6ONLY, (char *) &opt, sizeof(opt)) < 0) {
+            logger(ERROR, "set %s socket options failed: %s", protocol, strerror(errno));
+            close(sock);
+            return -1;
+        }
+    } else {
+        if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char *) &opt, sizeof(opt)) < 0) {
+            logger(ERROR, "set %s socket options failed: %s", protocol, strerror(errno));
+            close(sock);
+            return -1;
+        }
+    }
 
 	if(ipv6) {
 		memset(&addr6, 0, sizeof(addr6));
@@ -88,5 +94,11 @@ int setUpMasterSocket(const char *ip, uint16_t port, bool ipv6) {
 		close(sock);
 		return -1;
 	}
+
+    if(listen(sock, MAX_PENDING_CONNECTIONS) < 0) {
+        close(sock);
+        logger(ERROR, "Error listening on sock %d: %s", sock, strerror(errno));
+        return -1;
+    }
 	return sock;
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include <stddef.h>
 
 #define MAX_TOKEN_LENGTH 32
 #define MAX_TOKENS 10
@@ -10,3 +11,5 @@ bool add_token(const char *token);
 
 // Chequea si un token existe en la lista de tokens
 bool check_token(const char *token);
+
+size_t get_token_count();

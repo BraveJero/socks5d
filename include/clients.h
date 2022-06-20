@@ -7,6 +7,7 @@
 #include "selector.h"
 #include "stm.h"
 #include <errno.h>
+#include "pop3_sniffer.h"
 
 #define MAX_CREDENTIALS 256
 #define BUFFSIZE 2048
@@ -45,6 +46,8 @@ struct client {
 
     // Máquina de estados
     struct state_machine *stm;
+
+    pop3_parser *pop3_parser;
 };
 
 // Maneja conexiones de nuevos clients
@@ -57,7 +60,7 @@ unsigned closeClient(client *client, enum socket_ends level, struct selector_key
 
 enum socks5_states
 {
-	AUTH_METHOD,
+	AUTH_METHOD = 0,
 	PLAIN_AUTH,
 	REQUEST,
 	RESOLVING,

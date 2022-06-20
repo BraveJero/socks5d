@@ -8,6 +8,7 @@
 #include "args.h"
 #include "users.h"
 #include "tokens.h"
+#include "state.h"
 
 static unsigned short
 port(const char *s) {
@@ -103,6 +104,7 @@ parse_args(const int argc, char **argv, struct socks5args *args) {
                 break;
             case 'N':
                 args->dissectors_enabled = false;
+                set_dissector_state(false);
                 break;
             case 'p':
                 args->socks_port = port(optarg);
