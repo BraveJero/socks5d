@@ -32,7 +32,7 @@ rebuild: clean
 	$(MAKE) all
 
 $(BUILD_DIR)/$(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) -o $@ $^ $(CFLAGS)
 
 $(BUILD_DIR)/%.o: %.c Makefile
 	$(MKDIR_P) $(dir $@)
