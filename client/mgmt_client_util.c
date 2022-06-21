@@ -89,6 +89,36 @@ send_text(int sock, const char * text) {
     return send(sock, text, strlen(text), MSG_DONTWAIT) >= 0;
 }
 
+/*
+ * buff is expected to hold a null terminated string
+ */
+static bool
+finished(char * buff, bool multiline) {
+    if (buff[0] == '-') // We know errors are one line
+        multiline = false;
+    return strstr(buff, (multiline) ? MULTILINE_END : ONELINE_END) != NULL;
+}
+
+/*
+ * Returns true if answer (whether +OK or -ERR is received) could be read.
+ * Returns false if an error occured.
+ */
+static bool
+get_response(int sock, char * buff, size_t len, bool multiline) {
+    char * write_ptr = buff;
+    do {
+        uint8_t bytes_read = read(sock, write_ptr, len - (write_ptr - buff) );
+        if (bytes_read <= 0) {
+            fprintf(stderr, "Error while reading answer.");
+            return false;
+        }
+        write_ptr += bytes_read;
+        *write_ptr = '\0';
+        printf("A");
+    } while(!finished(buff, multiline));
+    return true;
+}
+
 bool capa(int sock) {
     if(!send_text(sock, commands_format[CMD_CAPA])) {
         return false;
@@ -99,7 +129,6 @@ bool capa(int sock) {
         return false;
     }
 
-    response_buf[bytes_read] = '\0';
     printf("{{%s}}\n", response_buf);
     return response_buf[0] == '+';
 }
