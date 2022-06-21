@@ -225,14 +225,20 @@ bool buffsize(int sock) {
         return false;
     }
 
-    ssize_t bytes_read;
-    if((bytes_read = read(sock, response_buf, BUFFSIZE)) <= 0) {
+    if(!get_response(sock, response_buf, BUFFSIZE, true)) {
+        return false;
+    }
+    
+    if (response_buf[0] == '-') {
+        fprintf(stderr, "Error running BUFFSIZE: %s\n", response_buf);
         return false;
     }
 
-    response_buf[bytes_read] = '\0';
-    printf("{{%s}}\n", response_buf);
-    return response_buf[0] == '+';
+    char * tok = strtok(response_buf, EOL);
+    tok = strtok(NULL, EOL);
+    unsigned long long int buff_size = strtoull(tok, NULL, 10);
+    printf("Current size of the buffer: %llu\n", buff_size);
+    return true;
 }
 
 bool dissector_status(int sock) {
