@@ -69,18 +69,33 @@ int main(int argc, char *argv[]) {
                 dissector_status(conf.sock);
                 break;
             case '5':
+                if (*optarg == '-') {
+                    err_msg = "Option -5 requires an argument.\nError parsing configuration from arguments";
+                    exit_status = 1;
+                    goto finally;
+                }
                 set_buffsize(conf.sock, optarg);
                 break;
             case '6':
+                if (*optarg == '-') {
+                    err_msg = "Option -6 requires an argument.\nError parsing configuration from arguments";
+                    exit_status = 1;
+                    goto finally;
+                }
                 set_dissector_status(conf.sock, optarg);
                 break;
             case '7':
+                if (*optarg == '-') {
+                    err_msg = "Option -7 requires an argument.\nError parsing configuration from arguments";
+                    exit_status = 1;
+                    goto finally;
+                }
                 add_user(conf.sock, optarg);
                 break;
         }
     }
 
-    printf("%s\n", success_msg);
+    puts(success_msg);
 
 finally:
     if(exit_status) fprintf(stderr, "%s\n", err_msg);
