@@ -3,11 +3,12 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#define MAX_LEN 25
-#define MAX_USERS 30
+#define MAX_USER_LEN 10
+#define MAX_PASS_LEN 20
+#define MAX_USERS 20
 
 typedef struct user {
-    char username[MAX_LEN], password[MAX_LEN];
+    char username[MAX_USER_LEN + 1], password[MAX_PASS_LEN + 1];
 } user;
 
 // Agrega un usuario a la lista de usuarios. Recibe los usuarios en la forma <user>:<pass>

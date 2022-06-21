@@ -215,7 +215,7 @@ switch (YYGETSTATE) {
 		if (in->lim <= in->cur) goto yy17;
 		goto yyFillLabel62;
 	case 63:
-		if (in->lim <= in->cur) goto yy196;
+		if (in->lim <= in->cur) goto yy207;
 		goto yyFillLabel63;
 	case 64:
 		if (in->lim <= in->cur) goto yy78;
@@ -248,284 +248,311 @@ switch (YYGETSTATE) {
 		if (in->lim <= in->cur) goto yy78;
 		goto yyFillLabel73;
 	case 74:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy78;
 		goto yyFillLabel74;
 	case 75:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel75;
 	case 76:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel76;
 	case 77:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel77;
 	case 78:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel78;
 	case 79:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel79;
 	case 80:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel80;
 	case 81:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel81;
 	case 82:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel82;
 	case 83:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel83;
 	case 84:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel84;
 	case 85:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel85;
 	case 86:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel86;
 	case 87:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel87;
 	case 88:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel88;
 	case 89:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel89;
 	case 90:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel90;
 	case 91:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel91;
 	case 92:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel92;
 	case 93:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel93;
 	case 94:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel94;
 	case 95:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel95;
 	case 96:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel96;
 	case 97:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel97;
 	case 98:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel98;
 	case 99:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel99;
 	case 100:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel100;
 	case 101:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel101;
 	case 102:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel102;
 	case 103:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel103;
 	case 104:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel104;
 	case 105:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel105;
 	case 106:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel106;
 	case 107:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel107;
 	case 108:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel108;
 	case 109:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel109;
 	case 110:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel110;
 	case 111:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel111;
 	case 112:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel112;
 	case 113:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel113;
 	case 114:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel114;
 	case 115:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel115;
 	case 116:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel116;
 	case 117:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel117;
 	case 118:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel118;
 	case 119:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel119;
 	case 120:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel120;
 	case 121:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel121;
 	case 122:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel122;
 	case 123:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel123;
 	case 124:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel124;
 	case 125:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel125;
 	case 126:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel126;
 	case 127:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel127;
 	case 128:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel128;
 	case 129:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel129;
 	case 130:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel130;
 	case 131:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel131;
 	case 132:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel132;
 	case 133:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel133;
 	case 134:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel134;
 	case 135:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel135;
 	case 136:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel136;
 	case 137:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel137;
 	case 138:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel138;
 	case 139:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel139;
 	case 140:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel140;
 	case 141:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel141;
 	case 142:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel142;
 	case 143:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel143;
 	case 144:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel144;
 	case 145:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel145;
 	case 146:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel146;
 	case 147:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel147;
 	case 148:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel148;
 	case 149:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel149;
 	case 150:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel150;
 	case 151:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel151;
 	case 152:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel152;
 	case 153:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel153;
 	case 154:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel154;
 	case 155:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel155;
 	case 156:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel156;
 	case 157:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel157;
 	case 158:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel158;
 	case 159:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel159;
 	case 160:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel160;
 	case 161:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel161;
 	case 162:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel162;
 	case 163:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel163;
 	case 164:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel164;
 	case 165:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel165;
 	case 166:
-		if (in->lim <= in->cur) goto yy91;
+		if (in->lim <= in->cur) goto yy92;
 		goto yyFillLabel166;
+	case 167:
+		if (in->lim <= in->cur) goto yy92;
+		goto yyFillLabel167;
+	case 168:
+		if (in->lim <= in->cur) goto yy92;
+		goto yyFillLabel168;
+	case 169:
+		if (in->lim <= in->cur) goto yy92;
+		goto yyFillLabel169;
+	case 170:
+		if (in->lim <= in->cur) goto yy92;
+		goto yyFillLabel170;
+	case 171:
+		if (in->lim <= in->cur) goto yy92;
+		goto yyFillLabel171;
+	case 172:
+		if (in->lim <= in->cur) goto yy92;
+		goto yyFillLabel172;
+	case 173:
+		if (in->lim <= in->cur) goto yy92;
+		goto yyFillLabel173;
+	case 174:
+		if (in->lim <= in->cur) goto yy92;
+		goto yyFillLabel174;
+	case 175:
+		if (in->lim <= in->cur) goto yy92;
+		goto yyFillLabel175;
 }
 #line 33 "lexer/mgmt_protocol.re"
 
@@ -534,7 +561,7 @@ switch (YYGETSTATE) {
 	for (;;)
 	{
 		
-#line 538 "./src/mgmt_protocol.re.c"
+#line 565 "./src/mgmt_protocol.re.c"
 
 yy0:
 	switch (in->cond) {
@@ -654,9 +681,9 @@ yy2:
 	++in->cur;
 yy3:
 	in->state = -1;
-#line 69 "lexer/mgmt_protocol.re"
+#line 70 "lexer/mgmt_protocol.re"
 	{ result = MGMT_INVALID_CMD; break; }
-#line 660 "./src/mgmt_protocol.re.c"
+#line 687 "./src/mgmt_protocol.re.c"
 yy4:
 	++in->cur;
 yyFillLabel1:
@@ -1763,9 +1790,9 @@ yyFillLabel11:
 yy15:
 	++in->cur;
 	in->state = -1;
-#line 68 "lexer/mgmt_protocol.re"
+#line 69 "lexer/mgmt_protocol.re"
 	{ result = MGMT_INVALID_CMD; break; }
-#line 1769 "./src/mgmt_protocol.re.c"
+#line 1796 "./src/mgmt_protocol.re.c"
 yy16:
 	++in->cur;
 yyFillLabel12:
@@ -2030,9 +2057,9 @@ yyFillLabel22:
 yy29:
 	++in->cur;
 	in->state = -1;
-#line 67 "lexer/mgmt_protocol.re"
+#line 68 "lexer/mgmt_protocol.re"
 	{ result = MGMT_INVALID_CMD; break; }
-#line 2036 "./src/mgmt_protocol.re.c"
+#line 2063 "./src/mgmt_protocol.re.c"
 yy30:
 	++in->cur;
 yyFillLabel23:
@@ -2686,9 +2713,9 @@ yyFillLabel47:
 yy55:
 	++in->cur;
 	in->state = -1;
-#line 64 "lexer/mgmt_protocol.re"
+#line 65 "lexer/mgmt_protocol.re"
 	{ result = MGMT_CAPA; break; }
-#line 2692 "./src/mgmt_protocol.re.c"
+#line 2719 "./src/mgmt_protocol.re.c"
 yy56:
 	++in->cur;
 yyFillLabel48:
@@ -2720,9 +2747,9 @@ yyFillLabel49:
 yy58:
 	++in->cur;
 	in->state = -1;
-#line 63 "lexer/mgmt_protocol.re"
+#line 64 "lexer/mgmt_protocol.re"
 	{ result = MGMT_QUIT; break; }
-#line 2726 "./src/mgmt_protocol.re.c"
+#line 2753 "./src/mgmt_protocol.re.c"
 yy59:
 	++in->cur;
 yyFillLabel50:
@@ -2868,9 +2895,9 @@ yyFillLabel52:
 yy63:
 	++in->cur;
 	in->state = -1;
-#line 66 "lexer/mgmt_protocol.re"
+#line 67 "lexer/mgmt_protocol.re"
 	{ result = MGMT_INVALID_ARGS; break; }
-#line 2874 "./src/mgmt_protocol.re.c"
+#line 2901 "./src/mgmt_protocol.re.c"
 yy64:
 	++in->cur;
 yyFillLabel53:
@@ -3142,7 +3169,7 @@ yy69:
 	in->state = -1;
 #line 54 "lexer/mgmt_protocol.re"
 	{ result = MGMT_TOKEN; break; }
-#line 3146 "./src/mgmt_protocol.re.c"
+#line 3173 "./src/mgmt_protocol.re.c"
 yy70:
 	++in->cur;
 yyFillLabel58:
@@ -3220,9 +3247,9 @@ yyFillLabel62:
 	}
 yy75:
 	in->state = -1;
-#line 70 "lexer/mgmt_protocol.re"
+#line 71 "lexer/mgmt_protocol.re"
 	{ result = MGMT_INCOMPLETE; break; }
-#line 3226 "./src/mgmt_protocol.re.c"
+#line 3253 "./src/mgmt_protocol.re.c"
 /* *********************************** */
 yyc_trns:
 yyFillLabel63:
@@ -3262,7 +3289,6 @@ yyFillLabel63:
 		case '>':
 		case '?':
 		case '@':
-		case 'A':
 		case 'E':
 		case 'F':
 		case 'G':
@@ -3286,7 +3312,6 @@ yyFillLabel63:
 		case '^':
 		case '_':
 		case '`':
-		case 'a':
 		case 'e':
 		case 'f':
 		case 'g':
@@ -3309,22 +3334,24 @@ yyFillLabel63:
 		case '}':
 		case '~':
 		case 0x7F: goto yy80;
+		case 'A':
+		case 'a': goto yy81;
 		case 'B':
-		case 'b': goto yy81;
+		case 'b': goto yy82;
 		case 'C':
-		case 'c': goto yy82;
+		case 'c': goto yy83;
 		case 'D':
-		case 'd': goto yy83;
+		case 'd': goto yy84;
 		case 'L':
-		case 'l': goto yy84;
+		case 'l': goto yy85;
 		case 'P':
-		case 'p': goto yy85;
+		case 'p': goto yy86;
 		case 'Q':
-		case 'q': goto yy86;
+		case 'q': goto yy87;
 		case 'S':
-		case 's': goto yy87;
+		case 's': goto yy88;
 		case 'U':
-		case 'u': goto yy88;
+		case 'u': goto yy89;
 		default:
 			if (in->lim <= in->cur) {
 				in->state = 63;
@@ -3336,15 +3363,15 @@ yy77:
 	++in->cur;
 yy78:
 	in->state = -1;
-#line 69 "lexer/mgmt_protocol.re"
+#line 70 "lexer/mgmt_protocol.re"
 	{ result = MGMT_INVALID_CMD; break; }
-#line 3342 "./src/mgmt_protocol.re.c"
+#line 3369 "./src/mgmt_protocol.re.c"
 yy79:
 	++in->cur;
 yyFillLabel64:
 	yych = *in->cur;
 	switch (yych) {
-		case '\n': goto yy89;
+		case '\n': goto yy90;
 		default:
 			if (in->lim <= in->cur) {
 				in->state = 64;
@@ -3357,7 +3384,7 @@ yy80:
 yyFillLabel65:
 	yych = *in->cur;
 	switch (yych) {
-		case '\r': goto yy90;
+		case '\r': goto yy91;
 		case ' ':
 		case '!':
 		case '"':
@@ -3453,7 +3480,7 @@ yyFillLabel65:
 		case '|':
 		case '}':
 		case '~':
-		case 0x7F: goto yy92;
+		case 0x7F: goto yy93;
 		default:
 			if (in->lim <= in->cur) {
 				in->state = 65;
@@ -3466,7 +3493,7 @@ yy81:
 yyFillLabel66:
 	yych = *in->cur;
 	switch (yych) {
-		case '\r': goto yy90;
+		case '\r': goto yy91;
 		case ' ':
 		case '!':
 		case '"':
@@ -3503,7 +3530,6 @@ yyFillLabel66:
 		case 'A':
 		case 'B':
 		case 'C':
-		case 'D':
 		case 'E':
 		case 'F':
 		case 'G':
@@ -3520,6 +3546,7 @@ yyFillLabel66:
 		case 'R':
 		case 'S':
 		case 'T':
+		case 'U':
 		case 'V':
 		case 'W':
 		case 'X':
@@ -3534,7 +3561,6 @@ yyFillLabel66:
 		case 'a':
 		case 'b':
 		case 'c':
-		case 'd':
 		case 'e':
 		case 'f':
 		case 'g':
@@ -3551,6 +3577,7 @@ yyFillLabel66:
 		case 'r':
 		case 's':
 		case 't':
+		case 'u':
 		case 'v':
 		case 'w':
 		case 'x':
@@ -3560,9 +3587,9 @@ yyFillLabel66:
 		case '|':
 		case '}':
 		case '~':
-		case 0x7F: goto yy92;
-		case 'U':
-		case 'u': goto yy94;
+		case 0x7F: goto yy93;
+		case 'D':
+		case 'd': goto yy95;
 		default:
 			if (in->lim <= in->cur) {
 				in->state = 66;
@@ -3575,7 +3602,7 @@ yy82:
 yyFillLabel67:
 	yych = *in->cur;
 	switch (yych) {
-		case '\r': goto yy90;
+		case '\r': goto yy91;
 		case ' ':
 		case '!':
 		case '"':
@@ -3609,6 +3636,7 @@ yyFillLabel67:
 		case '>':
 		case '?':
 		case '@':
+		case 'A':
 		case 'B':
 		case 'C':
 		case 'D':
@@ -3628,7 +3656,6 @@ yyFillLabel67:
 		case 'R':
 		case 'S':
 		case 'T':
-		case 'U':
 		case 'V':
 		case 'W':
 		case 'X':
@@ -3640,6 +3667,7 @@ yyFillLabel67:
 		case '^':
 		case '_':
 		case '`':
+		case 'a':
 		case 'b':
 		case 'c':
 		case 'd':
@@ -3659,7 +3687,6 @@ yyFillLabel67:
 		case 'r':
 		case 's':
 		case 't':
-		case 'u':
 		case 'v':
 		case 'w':
 		case 'x':
@@ -3669,9 +3696,9 @@ yyFillLabel67:
 		case '|':
 		case '}':
 		case '~':
-		case 0x7F: goto yy92;
-		case 'A':
-		case 'a': goto yy95;
+		case 0x7F: goto yy93;
+		case 'U':
+		case 'u': goto yy96;
 		default:
 			if (in->lim <= in->cur) {
 				in->state = 67;
@@ -3684,7 +3711,7 @@ yy83:
 yyFillLabel68:
 	yych = *in->cur;
 	switch (yych) {
-		case '\r': goto yy90;
+		case '\r': goto yy91;
 		case ' ':
 		case '!':
 		case '"':
@@ -3718,7 +3745,6 @@ yyFillLabel68:
 		case '>':
 		case '?':
 		case '@':
-		case 'A':
 		case 'B':
 		case 'C':
 		case 'D':
@@ -3726,6 +3752,7 @@ yyFillLabel68:
 		case 'F':
 		case 'G':
 		case 'H':
+		case 'I':
 		case 'J':
 		case 'K':
 		case 'L':
@@ -3749,7 +3776,6 @@ yyFillLabel68:
 		case '^':
 		case '_':
 		case '`':
-		case 'a':
 		case 'b':
 		case 'c':
 		case 'd':
@@ -3757,6 +3783,7 @@ yyFillLabel68:
 		case 'f':
 		case 'g':
 		case 'h':
+		case 'i':
 		case 'j':
 		case 'k':
 		case 'l':
@@ -3778,9 +3805,9 @@ yyFillLabel68:
 		case '|':
 		case '}':
 		case '~':
-		case 0x7F: goto yy92;
-		case 'I':
-		case 'i': goto yy96;
+		case 0x7F: goto yy93;
+		case 'A':
+		case 'a': goto yy97;
 		default:
 			if (in->lim <= in->cur) {
 				in->state = 68;
@@ -3793,7 +3820,7 @@ yy84:
 yyFillLabel69:
 	yych = *in->cur;
 	switch (yych) {
-		case '\r': goto yy90;
+		case '\r': goto yy91;
 		case ' ':
 		case '!':
 		case '"':
@@ -3887,9 +3914,9 @@ yyFillLabel69:
 		case '|':
 		case '}':
 		case '~':
-		case 0x7F: goto yy92;
+		case 0x7F: goto yy93;
 		case 'I':
-		case 'i': goto yy97;
+		case 'i': goto yy98;
 		default:
 			if (in->lim <= in->cur) {
 				in->state = 69;
@@ -3902,7 +3929,7 @@ yy85:
 yyFillLabel70:
 	yych = *in->cur;
 	switch (yych) {
-		case '\r': goto yy90;
+		case '\r': goto yy91;
 		case ' ':
 		case '!':
 		case '"':
@@ -3936,6 +3963,7 @@ yyFillLabel70:
 		case '>':
 		case '?':
 		case '@':
+		case 'A':
 		case 'B':
 		case 'C':
 		case 'D':
@@ -3943,7 +3971,6 @@ yyFillLabel70:
 		case 'F':
 		case 'G':
 		case 'H':
-		case 'I':
 		case 'J':
 		case 'K':
 		case 'L':
@@ -3967,6 +3994,7 @@ yyFillLabel70:
 		case '^':
 		case '_':
 		case '`':
+		case 'a':
 		case 'b':
 		case 'c':
 		case 'd':
@@ -3974,7 +4002,6 @@ yyFillLabel70:
 		case 'f':
 		case 'g':
 		case 'h':
-		case 'i':
 		case 'j':
 		case 'k':
 		case 'l':
@@ -3996,9 +4023,9 @@ yyFillLabel70:
 		case '|':
 		case '}':
 		case '~':
-		case 0x7F: goto yy92;
-		case 'A':
-		case 'a': goto yy98;
+		case 0x7F: goto yy93;
+		case 'I':
+		case 'i': goto yy99;
 		default:
 			if (in->lim <= in->cur) {
 				in->state = 70;
@@ -4011,7 +4038,7 @@ yy86:
 yyFillLabel71:
 	yych = *in->cur;
 	switch (yych) {
-		case '\r': goto yy90;
+		case '\r': goto yy91;
 		case ' ':
 		case '!':
 		case '"':
@@ -4045,7 +4072,6 @@ yyFillLabel71:
 		case '>':
 		case '?':
 		case '@':
-		case 'A':
 		case 'B':
 		case 'C':
 		case 'D':
@@ -4065,6 +4091,7 @@ yyFillLabel71:
 		case 'R':
 		case 'S':
 		case 'T':
+		case 'U':
 		case 'V':
 		case 'W':
 		case 'X':
@@ -4076,7 +4103,6 @@ yyFillLabel71:
 		case '^':
 		case '_':
 		case '`':
-		case 'a':
 		case 'b':
 		case 'c':
 		case 'd':
@@ -4096,6 +4122,7 @@ yyFillLabel71:
 		case 'r':
 		case 's':
 		case 't':
+		case 'u':
 		case 'v':
 		case 'w':
 		case 'x':
@@ -4105,9 +4132,9 @@ yyFillLabel71:
 		case '|':
 		case '}':
 		case '~':
-		case 0x7F: goto yy92;
-		case 'U':
-		case 'u': goto yy99;
+		case 0x7F: goto yy93;
+		case 'A':
+		case 'a': goto yy100;
 		default:
 			if (in->lim <= in->cur) {
 				in->state = 71;
@@ -4120,7 +4147,7 @@ yy87:
 yyFillLabel72:
 	yych = *in->cur;
 	switch (yych) {
-		case '\r': goto yy90;
+		case '\r': goto yy91;
 		case ' ':
 		case '!':
 		case '"':
@@ -4158,6 +4185,7 @@ yyFillLabel72:
 		case 'B':
 		case 'C':
 		case 'D':
+		case 'E':
 		case 'F':
 		case 'G':
 		case 'H':
@@ -4172,7 +4200,7 @@ yyFillLabel72:
 		case 'Q':
 		case 'R':
 		case 'S':
-		case 'U':
+		case 'T':
 		case 'V':
 		case 'W':
 		case 'X':
@@ -4188,6 +4216,7 @@ yyFillLabel72:
 		case 'b':
 		case 'c':
 		case 'd':
+		case 'e':
 		case 'f':
 		case 'g':
 		case 'h':
@@ -4202,7 +4231,7 @@ yyFillLabel72:
 		case 'q':
 		case 'r':
 		case 's':
-		case 'u':
+		case 't':
 		case 'v':
 		case 'w':
 		case 'x':
@@ -4212,11 +4241,9 @@ yyFillLabel72:
 		case '|':
 		case '}':
 		case '~':
-		case 0x7F: goto yy92;
-		case 'E':
-		case 'e': goto yy100;
-		case 'T':
-		case 't': goto yy101;
+		case 0x7F: goto yy93;
+		case 'U':
+		case 'u': goto yy101;
 		default:
 			if (in->lim <= in->cur) {
 				in->state = 72;
@@ -4229,7 +4256,116 @@ yy88:
 yyFillLabel73:
 	yych = *in->cur;
 	switch (yych) {
-		case '\r': goto yy90;
+		case '\r': goto yy91;
+		case ' ':
+		case '!':
+		case '"':
+		case '#':
+		case '$':
+		case '%':
+		case '&':
+		case '\'':
+		case '(':
+		case ')':
+		case '*':
+		case '+':
+		case ',':
+		case '-':
+		case '.':
+		case '/':
+		case '0':
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9':
+		case ':':
+		case ';':
+		case '<':
+		case '=':
+		case '>':
+		case '?':
+		case '@':
+		case 'A':
+		case 'B':
+		case 'C':
+		case 'D':
+		case 'F':
+		case 'G':
+		case 'H':
+		case 'I':
+		case 'J':
+		case 'K':
+		case 'L':
+		case 'M':
+		case 'N':
+		case 'O':
+		case 'P':
+		case 'Q':
+		case 'R':
+		case 'S':
+		case 'U':
+		case 'V':
+		case 'W':
+		case 'X':
+		case 'Y':
+		case 'Z':
+		case '[':
+		case '\\':
+		case ']':
+		case '^':
+		case '_':
+		case '`':
+		case 'a':
+		case 'b':
+		case 'c':
+		case 'd':
+		case 'f':
+		case 'g':
+		case 'h':
+		case 'i':
+		case 'j':
+		case 'k':
+		case 'l':
+		case 'm':
+		case 'n':
+		case 'o':
+		case 'p':
+		case 'q':
+		case 'r':
+		case 's':
+		case 'u':
+		case 'v':
+		case 'w':
+		case 'x':
+		case 'y':
+		case 'z':
+		case '{':
+		case '|':
+		case '}':
+		case '~':
+		case 0x7F: goto yy93;
+		case 'E':
+		case 'e': goto yy102;
+		case 'T':
+		case 't': goto yy103;
+		default:
+			if (in->lim <= in->cur) {
+				in->state = 73;
+				{ return MGMT_INCOMPLETE; }
+			}
+			goto yy78;
+	}
+yy89:
+	in->mar = ++in->cur;
+yyFillLabel74:
+	yych = *in->cur;
+	switch (yych) {
+		case '\r': goto yy91;
 		case ' ':
 		case '!':
 		case '"':
@@ -4323,45 +4459,45 @@ yyFillLabel73:
 		case '|':
 		case '}':
 		case '~':
-		case 0x7F: goto yy92;
+		case 0x7F: goto yy93;
 		case 'S':
-		case 's': goto yy102;
-		default:
-			if (in->lim <= in->cur) {
-				in->state = 73;
-				{ return MGMT_INCOMPLETE; }
-			}
-			goto yy78;
-	}
-yy89:
-	++in->cur;
-	in->state = -1;
-#line 68 "lexer/mgmt_protocol.re"
-	{ result = MGMT_INVALID_CMD; break; }
-#line 4342 "./src/mgmt_protocol.re.c"
-yy90:
-	++in->cur;
-yyFillLabel74:
-	yych = *in->cur;
-	switch (yych) {
-		case '\n': goto yy103;
+		case 's': goto yy104;
 		default:
 			if (in->lim <= in->cur) {
 				in->state = 74;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
+			goto yy78;
 	}
+yy90:
+	++in->cur;
+	in->state = -1;
+#line 69 "lexer/mgmt_protocol.re"
+	{ result = MGMT_INVALID_CMD; break; }
+#line 4478 "./src/mgmt_protocol.re.c"
 yy91:
-	in->cur = in->mar;
-	goto yy78;
-yy92:
 	++in->cur;
 yyFillLabel75:
 	yych = *in->cur;
-yy93:
 	switch (yych) {
-		case '\r': goto yy90;
+		case '\n': goto yy105;
+		default:
+			if (in->lim <= in->cur) {
+				in->state = 75;
+				{ return MGMT_INCOMPLETE; }
+			}
+			goto yy92;
+	}
+yy92:
+	in->cur = in->mar;
+	goto yy78;
+yy93:
+	++in->cur;
+yyFillLabel76:
+	yych = *in->cur;
+yy94:
+	switch (yych) {
+		case '\r': goto yy91;
 		case ' ':
 		case '!':
 		case '"':
@@ -4457,28 +4593,13 @@ yy93:
 		case '|':
 		case '}':
 		case '~':
-		case 0x7F: goto yy92;
+		case 0x7F: goto yy93;
 		default:
-			if (in->lim <= in->cur) {
-				in->state = 75;
-				{ return MGMT_INCOMPLETE; }
-			}
-			goto yy91;
-	}
-yy94:
-	++in->cur;
-yyFillLabel76:
-	yych = *in->cur;
-	switch (yych) {
-		case 0x00:
 			if (in->lim <= in->cur) {
 				in->state = 76;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'F':
-		case 'f': goto yy104;
-		default: goto yy93;
+			goto yy92;
 	}
 yy95:
 	++in->cur;
@@ -4490,10 +4611,10 @@ yyFillLabel77:
 				in->state = 77;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'P':
-		case 'p': goto yy105;
-		default: goto yy93;
+			goto yy92;
+		case 'D':
+		case 'd': goto yy106;
+		default: goto yy94;
 	}
 yy96:
 	++in->cur;
@@ -4505,10 +4626,10 @@ yyFillLabel78:
 				in->state = 78;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'S':
-		case 's': goto yy106;
-		default: goto yy93;
+			goto yy92;
+		case 'F':
+		case 'f': goto yy107;
+		default: goto yy94;
 	}
 yy97:
 	++in->cur;
@@ -4520,10 +4641,10 @@ yyFillLabel79:
 				in->state = 79;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'S':
-		case 's': goto yy107;
-		default: goto yy93;
+			goto yy92;
+		case 'P':
+		case 'p': goto yy108;
+		default: goto yy94;
 	}
 yy98:
 	++in->cur;
@@ -4535,10 +4656,10 @@ yyFillLabel80:
 				in->state = 80;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
+			goto yy92;
 		case 'S':
-		case 's': goto yy108;
-		default: goto yy93;
+		case 's': goto yy109;
+		default: goto yy94;
 	}
 yy99:
 	++in->cur;
@@ -4550,10 +4671,10 @@ yyFillLabel81:
 				in->state = 81;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'I':
-		case 'i': goto yy109;
-		default: goto yy93;
+			goto yy92;
+		case 'S':
+		case 's': goto yy110;
+		default: goto yy94;
 	}
 yy100:
 	++in->cur;
@@ -4565,10 +4686,10 @@ yyFillLabel82:
 				in->state = 82;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'T':
-		case 't': goto yy110;
-		default: goto yy93;
+			goto yy92;
+		case 'S':
+		case 's': goto yy111;
+		default: goto yy94;
 	}
 yy101:
 	++in->cur;
@@ -4580,10 +4701,10 @@ yyFillLabel83:
 				in->state = 83;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'A':
-		case 'a': goto yy111;
-		default: goto yy93;
+			goto yy92;
+		case 'I':
+		case 'i': goto yy112;
+		default: goto yy94;
 	}
 yy102:
 	++in->cur;
@@ -4595,18 +4716,12 @@ yyFillLabel84:
 				in->state = 84;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'E':
-		case 'e': goto yy112;
-		default: goto yy93;
+			goto yy92;
+		case 'T':
+		case 't': goto yy113;
+		default: goto yy94;
 	}
 yy103:
-	++in->cur;
-	in->state = -1;
-#line 67 "lexer/mgmt_protocol.re"
-	{ result = MGMT_INVALID_CMD; break; }
-#line 4609 "./src/mgmt_protocol.re.c"
-yy104:
 	++in->cur;
 yyFillLabel85:
 	yych = *in->cur;
@@ -4616,12 +4731,12 @@ yyFillLabel85:
 				in->state = 85;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'F':
-		case 'f': goto yy113;
-		default: goto yy93;
+			goto yy92;
+		case 'A':
+		case 'a': goto yy114;
+		default: goto yy94;
 	}
-yy105:
+yy104:
 	++in->cur;
 yyFillLabel86:
 	yych = *in->cur;
@@ -4631,11 +4746,17 @@ yyFillLabel86:
 				in->state = 86;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'A':
-		case 'a': goto yy114;
-		default: goto yy93;
+			goto yy92;
+		case 'E':
+		case 'e': goto yy115;
+		default: goto yy94;
 	}
+yy105:
+	++in->cur;
+	in->state = -1;
+#line 68 "lexer/mgmt_protocol.re"
+	{ result = MGMT_INVALID_CMD; break; }
+#line 4760 "./src/mgmt_protocol.re.c"
 yy106:
 	++in->cur;
 yyFillLabel87:
@@ -4646,10 +4767,9 @@ yyFillLabel87:
 				in->state = 87;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'S':
-		case 's': goto yy115;
-		default: goto yy93;
+			goto yy92;
+		case '-': goto yy116;
+		default: goto yy94;
 	}
 yy107:
 	++in->cur;
@@ -4661,10 +4781,10 @@ yyFillLabel88:
 				in->state = 88;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'T':
-		case 't': goto yy116;
-		default: goto yy93;
+			goto yy92;
+		case 'F':
+		case 'f': goto yy117;
+		default: goto yy94;
 	}
 yy108:
 	++in->cur;
@@ -4676,10 +4796,10 @@ yyFillLabel89:
 				in->state = 89;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'S':
-		case 's': goto yy116;
-		default: goto yy93;
+			goto yy92;
+		case 'A':
+		case 'a': goto yy118;
+		default: goto yy94;
 	}
 yy109:
 	++in->cur;
@@ -4691,10 +4811,10 @@ yyFillLabel90:
 				in->state = 90;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'T':
-		case 't': goto yy117;
-		default: goto yy93;
+			goto yy92;
+		case 'S':
+		case 's': goto yy119;
+		default: goto yy94;
 	}
 yy110:
 	++in->cur;
@@ -4706,9 +4826,10 @@ yyFillLabel91:
 				in->state = 91;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case '-': goto yy118;
-		default: goto yy93;
+			goto yy92;
+		case 'T':
+		case 't': goto yy120;
+		default: goto yy94;
 	}
 yy111:
 	++in->cur;
@@ -4720,10 +4841,10 @@ yyFillLabel92:
 				in->state = 92;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'T':
-		case 't': goto yy119;
-		default: goto yy93;
+			goto yy92;
+		case 'S':
+		case 's': goto yy120;
+		default: goto yy94;
 	}
 yy112:
 	++in->cur;
@@ -4735,10 +4856,10 @@ yyFillLabel93:
 				in->state = 93;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'R':
-		case 'r': goto yy120;
-		default: goto yy93;
+			goto yy92;
+		case 'T':
+		case 't': goto yy121;
+		default: goto yy94;
 	}
 yy113:
 	++in->cur;
@@ -4750,119 +4871,24 @@ yyFillLabel94:
 				in->state = 94;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'S':
-		case 's': goto yy121;
-		default: goto yy93;
+			goto yy92;
+		case '-': goto yy122;
+		default: goto yy94;
 	}
 yy114:
 	++in->cur;
 yyFillLabel95:
 	yych = *in->cur;
 	switch (yych) {
-		case '\r': goto yy122;
-		case ' ': goto yy114;
-		case '!':
-		case '"':
-		case '#':
-		case '$':
-		case '%':
-		case '&':
-		case '\'':
-		case '(':
-		case ')':
-		case '*':
-		case '+':
-		case ',':
-		case '-':
-		case '.':
-		case '/':
-		case '0':
-		case '1':
-		case '2':
-		case '3':
-		case '4':
-		case '5':
-		case '6':
-		case '7':
-		case '8':
-		case '9':
-		case ':':
-		case ';':
-		case '<':
-		case '=':
-		case '>':
-		case '?':
-		case '@':
-		case 'A':
-		case 'B':
-		case 'C':
-		case 'D':
-		case 'E':
-		case 'F':
-		case 'G':
-		case 'H':
-		case 'I':
-		case 'J':
-		case 'K':
-		case 'L':
-		case 'M':
-		case 'N':
-		case 'O':
-		case 'P':
-		case 'Q':
-		case 'R':
-		case 'S':
-		case 'T':
-		case 'U':
-		case 'V':
-		case 'W':
-		case 'X':
-		case 'Y':
-		case 'Z':
-		case '[':
-		case '\\':
-		case ']':
-		case '^':
-		case '_':
-		case '`':
-		case 'a':
-		case 'b':
-		case 'c':
-		case 'd':
-		case 'e':
-		case 'f':
-		case 'g':
-		case 'h':
-		case 'i':
-		case 'j':
-		case 'k':
-		case 'l':
-		case 'm':
-		case 'n':
-		case 'o':
-		case 'p':
-		case 'q':
-		case 'r':
-		case 's':
-		case 't':
-		case 'u':
-		case 'v':
-		case 'w':
-		case 'x':
-		case 'y':
-		case 'z':
-		case '{':
-		case '|':
-		case '}':
-		case '~':
-		case 0x7F: goto yy92;
-		default:
+		case 0x00:
 			if (in->lim <= in->cur) {
 				in->state = 95;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
+			goto yy92;
+		case 'T':
+		case 't': goto yy123;
+		default: goto yy94;
 	}
 yy115:
 	++in->cur;
@@ -4874,10 +4900,10 @@ yyFillLabel96:
 				in->state = 96;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'E':
-		case 'e': goto yy123;
-		default: goto yy93;
+			goto yy92;
+		case 'R':
+		case 'r': goto yy124;
+		default: goto yy94;
 	}
 yy116:
 	++in->cur;
@@ -4889,17 +4915,33 @@ yyFillLabel97:
 				in->state = 97;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case ' ': goto yy124;
-		default: goto yy93;
+			goto yy92;
+		case 'U':
+		case 'u': goto yy125;
+		default: goto yy94;
 	}
 yy117:
 	++in->cur;
 yyFillLabel98:
 	yych = *in->cur;
 	switch (yych) {
-		case '\r': goto yy126;
-		case ' ': goto yy117;
+		case 0x00:
+			if (in->lim <= in->cur) {
+				in->state = 98;
+				{ return MGMT_INCOMPLETE; }
+			}
+			goto yy92;
+		case 'S':
+		case 's': goto yy126;
+		default: goto yy94;
+	}
+yy118:
+	++in->cur;
+yyFillLabel99:
+	yych = *in->cur;
+	switch (yych) {
+		case '\r': goto yy127;
+		case ' ': goto yy118;
 		case '!':
 		case '"':
 		case '#':
@@ -4994,30 +5036,13 @@ yyFillLabel98:
 		case '|':
 		case '}':
 		case '~':
-		case 0x7F: goto yy92;
+		case 0x7F: goto yy93;
 		default:
-			if (in->lim <= in->cur) {
-				in->state = 98;
-				{ return MGMT_INCOMPLETE; }
-			}
-			goto yy91;
-	}
-yy118:
-	++in->cur;
-yyFillLabel99:
-	yych = *in->cur;
-	switch (yych) {
-		case 0x00:
 			if (in->lim <= in->cur) {
 				in->state = 99;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'B':
-		case 'b': goto yy127;
-		case 'D':
-		case 'd': goto yy128;
-		default: goto yy93;
+			goto yy92;
 	}
 yy119:
 	++in->cur;
@@ -5029,10 +5054,10 @@ yyFillLabel100:
 				in->state = 100;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'S':
-		case 's': goto yy129;
-		default: goto yy93;
+			goto yy92;
+		case 'E':
+		case 'e': goto yy128;
+		default: goto yy94;
 	}
 yy120:
 	++in->cur;
@@ -5044,118 +5069,17 @@ yyFillLabel101:
 				in->state = 101;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'S':
-		case 's': goto yy130;
-		default: goto yy93;
+			goto yy92;
+		case ' ': goto yy129;
+		default: goto yy94;
 	}
 yy121:
 	++in->cur;
 yyFillLabel102:
 	yych = *in->cur;
 	switch (yych) {
-		case 0x00:
-			if (in->lim <= in->cur) {
-				in->state = 102;
-				{ return MGMT_INCOMPLETE; }
-			}
-			goto yy91;
-		case 'I':
-		case 'i': goto yy131;
-		default: goto yy93;
-	}
-yy122:
-	++in->cur;
-yyFillLabel103:
-	yych = *in->cur;
-	switch (yych) {
-		case '\n': goto yy132;
-		default:
-			if (in->lim <= in->cur) {
-				in->state = 103;
-				{ return MGMT_INCOMPLETE; }
-			}
-			goto yy91;
-	}
-yy123:
-	++in->cur;
-yyFillLabel104:
-	yych = *in->cur;
-	switch (yych) {
-		case 0x00:
-			if (in->lim <= in->cur) {
-				in->state = 104;
-				{ return MGMT_INCOMPLETE; }
-			}
-			goto yy91;
-		case 'C':
-		case 'c': goto yy133;
-		default: goto yy93;
-	}
-yy124:
-	++in->cur;
-yyFillLabel105:
-	yych = *in->cur;
-yy125:
-	switch (yych) {
-		case '\r': goto yy134;
-		default:
-			if (in->lim <= in->cur) {
-				in->state = 105;
-				{ return MGMT_INCOMPLETE; }
-			}
-			goto yy124;
-	}
-yy126:
-	++in->cur;
-yyFillLabel106:
-	yych = *in->cur;
-	switch (yych) {
-		case '\n': goto yy135;
-		default:
-			if (in->lim <= in->cur) {
-				in->state = 106;
-				{ return MGMT_INCOMPLETE; }
-			}
-			goto yy91;
-	}
-yy127:
-	++in->cur;
-yyFillLabel107:
-	yych = *in->cur;
-	switch (yych) {
-		case 0x00:
-			if (in->lim <= in->cur) {
-				in->state = 107;
-				{ return MGMT_INCOMPLETE; }
-			}
-			goto yy91;
-		case 'U':
-		case 'u': goto yy136;
-		default: goto yy93;
-	}
-yy128:
-	++in->cur;
-yyFillLabel108:
-	yych = *in->cur;
-	switch (yych) {
-		case 0x00:
-			if (in->lim <= in->cur) {
-				in->state = 108;
-				{ return MGMT_INCOMPLETE; }
-			}
-			goto yy91;
-		case 'I':
-		case 'i': goto yy137;
-		default: goto yy93;
-	}
-yy129:
-	++in->cur;
-yyFillLabel109:
-	yych = *in->cur;
-	switch (yych) {
-		case '\r': goto yy138;
-		case ' ': goto yy129;
+		case '\r': goto yy131;
+		case ' ': goto yy121;
 		case '!':
 		case '"':
 		case '#':
@@ -5250,51 +5174,147 @@ yyFillLabel109:
 		case '|':
 		case '}':
 		case '~':
-		case 0x7F: goto yy92;
+		case 0x7F: goto yy93;
 		default:
 			if (in->lim <= in->cur) {
-				in->state = 109;
+				in->state = 102;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
+			goto yy92;
 	}
-yy130:
+yy122:
 	++in->cur;
-yyFillLabel110:
+yyFillLabel103:
 	yych = *in->cur;
 	switch (yych) {
 		case 0x00:
 			if (in->lim <= in->cur) {
+				in->state = 103;
+				{ return MGMT_INCOMPLETE; }
+			}
+			goto yy92;
+		case 'B':
+		case 'b': goto yy132;
+		case 'D':
+		case 'd': goto yy133;
+		default: goto yy94;
+	}
+yy123:
+	++in->cur;
+yyFillLabel104:
+	yych = *in->cur;
+	switch (yych) {
+		case 0x00:
+			if (in->lim <= in->cur) {
+				in->state = 104;
+				{ return MGMT_INCOMPLETE; }
+			}
+			goto yy92;
+		case 'S':
+		case 's': goto yy134;
+		default: goto yy94;
+	}
+yy124:
+	++in->cur;
+yyFillLabel105:
+	yych = *in->cur;
+	switch (yych) {
+		case 0x00:
+			if (in->lim <= in->cur) {
+				in->state = 105;
+				{ return MGMT_INCOMPLETE; }
+			}
+			goto yy92;
+		case 'S':
+		case 's': goto yy135;
+		default: goto yy94;
+	}
+yy125:
+	++in->cur;
+yyFillLabel106:
+	yych = *in->cur;
+	switch (yych) {
+		case 0x00:
+			if (in->lim <= in->cur) {
+				in->state = 106;
+				{ return MGMT_INCOMPLETE; }
+			}
+			goto yy92;
+		case 'S':
+		case 's': goto yy136;
+		default: goto yy94;
+	}
+yy126:
+	++in->cur;
+yyFillLabel107:
+	yych = *in->cur;
+	switch (yych) {
+		case 0x00:
+			if (in->lim <= in->cur) {
+				in->state = 107;
+				{ return MGMT_INCOMPLETE; }
+			}
+			goto yy92;
+		case 'I':
+		case 'i': goto yy137;
+		default: goto yy94;
+	}
+yy127:
+	++in->cur;
+yyFillLabel108:
+	yych = *in->cur;
+	switch (yych) {
+		case '\n': goto yy138;
+		default:
+			if (in->lim <= in->cur) {
+				in->state = 108;
+				{ return MGMT_INCOMPLETE; }
+			}
+			goto yy92;
+	}
+yy128:
+	++in->cur;
+yyFillLabel109:
+	yych = *in->cur;
+	switch (yych) {
+		case 0x00:
+			if (in->lim <= in->cur) {
+				in->state = 109;
+				{ return MGMT_INCOMPLETE; }
+			}
+			goto yy92;
+		case 'C':
+		case 'c': goto yy139;
+		default: goto yy94;
+	}
+yy129:
+	++in->cur;
+yyFillLabel110:
+	yych = *in->cur;
+yy130:
+	switch (yych) {
+		case '\r': goto yy140;
+		default:
+			if (in->lim <= in->cur) {
 				in->state = 110;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case '\r': goto yy139;
-		case ' ': goto yy140;
-		default: goto yy93;
+			goto yy129;
 	}
 yy131:
 	++in->cur;
 yyFillLabel111:
 	yych = *in->cur;
 	switch (yych) {
-		case 0x00:
+		case '\n': goto yy141;
+		default:
 			if (in->lim <= in->cur) {
 				in->state = 111;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'Z':
-		case 'z': goto yy141;
-		default: goto yy93;
+			goto yy92;
 	}
 yy132:
-	++in->cur;
-	in->state = -1;
-#line 64 "lexer/mgmt_protocol.re"
-	{ result = MGMT_CAPA; break; }
-#line 5297 "./src/mgmt_protocol.re.c"
-yy133:
 	++in->cur;
 yyFillLabel112:
 	yych = *in->cur;
@@ -5304,46 +5324,136 @@ yyFillLabel112:
 				in->state = 112;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'T':
-		case 't': goto yy142;
-		default: goto yy93;
+			goto yy92;
+		case 'U':
+		case 'u': goto yy142;
+		default: goto yy94;
 	}
-yy134:
+yy133:
 	++in->cur;
 yyFillLabel113:
 	yych = *in->cur;
 	switch (yych) {
-		case '\n': goto yy143;
-		default:
+		case 0x00:
 			if (in->lim <= in->cur) {
 				in->state = 113;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
+			goto yy92;
+		case 'I':
+		case 'i': goto yy143;
+		default: goto yy94;
 	}
-yy135:
-	++in->cur;
-	in->state = -1;
-#line 63 "lexer/mgmt_protocol.re"
-	{ result = MGMT_QUIT; break; }
-#line 5331 "./src/mgmt_protocol.re.c"
-yy136:
+yy134:
 	++in->cur;
 yyFillLabel114:
 	yych = *in->cur;
 	switch (yych) {
-		case 0x00:
+		case '\r': goto yy144;
+		case ' ': goto yy134;
+		case '!':
+		case '"':
+		case '#':
+		case '$':
+		case '%':
+		case '&':
+		case '\'':
+		case '(':
+		case ')':
+		case '*':
+		case '+':
+		case ',':
+		case '-':
+		case '.':
+		case '/':
+		case '0':
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9':
+		case ':':
+		case ';':
+		case '<':
+		case '=':
+		case '>':
+		case '?':
+		case '@':
+		case 'A':
+		case 'B':
+		case 'C':
+		case 'D':
+		case 'E':
+		case 'F':
+		case 'G':
+		case 'H':
+		case 'I':
+		case 'J':
+		case 'K':
+		case 'L':
+		case 'M':
+		case 'N':
+		case 'O':
+		case 'P':
+		case 'Q':
+		case 'R':
+		case 'S':
+		case 'T':
+		case 'U':
+		case 'V':
+		case 'W':
+		case 'X':
+		case 'Y':
+		case 'Z':
+		case '[':
+		case '\\':
+		case ']':
+		case '^':
+		case '_':
+		case '`':
+		case 'a':
+		case 'b':
+		case 'c':
+		case 'd':
+		case 'e':
+		case 'f':
+		case 'g':
+		case 'h':
+		case 'i':
+		case 'j':
+		case 'k':
+		case 'l':
+		case 'm':
+		case 'n':
+		case 'o':
+		case 'p':
+		case 'q':
+		case 'r':
+		case 's':
+		case 't':
+		case 'u':
+		case 'v':
+		case 'w':
+		case 'x':
+		case 'y':
+		case 'z':
+		case '{':
+		case '|':
+		case '}':
+		case '~':
+		case 0x7F: goto yy93;
+		default:
 			if (in->lim <= in->cur) {
 				in->state = 114;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'F':
-		case 'f': goto yy144;
-		default: goto yy93;
+			goto yy92;
 	}
-yy137:
+yy135:
 	++in->cur;
 yyFillLabel115:
 	yych = *in->cur;
@@ -5353,66 +5463,81 @@ yyFillLabel115:
 				in->state = 115;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'S':
-		case 's': goto yy145;
-		default: goto yy93;
+			goto yy92;
+		case '\r': goto yy145;
+		case ' ': goto yy146;
+		default: goto yy94;
 	}
-yy138:
+yy136:
 	++in->cur;
 yyFillLabel116:
 	yych = *in->cur;
 	switch (yych) {
-		case '\n': goto yy146;
-		default:
+		case 0x00:
 			if (in->lim <= in->cur) {
 				in->state = 116;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
+			goto yy92;
+		case 'E':
+		case 'e': goto yy147;
+		default: goto yy94;
 	}
-yy139:
+yy137:
 	++in->cur;
 yyFillLabel117:
 	yych = *in->cur;
 	switch (yych) {
-		case '\n': goto yy147;
-		default:
+		case 0x00:
 			if (in->lim <= in->cur) {
 				in->state = 117;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
+			goto yy92;
+		case 'Z':
+		case 'z': goto yy148;
+		default: goto yy94;
 	}
-yy140:
+yy138:
+	++in->cur;
+	in->state = -1;
+#line 65 "lexer/mgmt_protocol.re"
+	{ result = MGMT_CAPA; break; }
+#line 5507 "./src/mgmt_protocol.re.c"
+yy139:
 	++in->cur;
 yyFillLabel118:
 	yych = *in->cur;
 	switch (yych) {
-		case '\r': goto yy139;
-		case ' ': goto yy140;
-		default:
+		case 0x00:
 			if (in->lim <= in->cur) {
 				in->state = 118;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy124;
+			goto yy92;
+		case 'T':
+		case 't': goto yy149;
+		default: goto yy94;
 	}
-yy141:
+yy140:
 	++in->cur;
 yyFillLabel119:
 	yych = *in->cur;
 	switch (yych) {
-		case 0x00:
+		case '\n': goto yy150;
+		default:
 			if (in->lim <= in->cur) {
 				in->state = 119;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'E':
-		case 'e': goto yy148;
-		default: goto yy93;
+			goto yy92;
 	}
+yy141:
+	++in->cur;
+	in->state = -1;
+#line 64 "lexer/mgmt_protocol.re"
+	{ result = MGMT_QUIT; break; }
+#line 5541 "./src/mgmt_protocol.re.c"
 yy142:
 	++in->cur;
 yyFillLabel120:
@@ -5423,18 +5548,12 @@ yyFillLabel120:
 				in->state = 120;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'O':
-		case 'o': goto yy149;
-		default: goto yy93;
+			goto yy92;
+		case 'F':
+		case 'f': goto yy151;
+		default: goto yy94;
 	}
 yy143:
-	++in->cur;
-	in->state = -1;
-#line 66 "lexer/mgmt_protocol.re"
-	{ result = MGMT_INVALID_ARGS; break; }
-#line 5437 "./src/mgmt_protocol.re.c"
-yy144:
 	++in->cur;
 yyFillLabel121:
 	yych = *in->cur;
@@ -5444,69 +5563,52 @@ yyFillLabel121:
 				in->state = 121;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'F':
-		case 'f': goto yy150;
-		default: goto yy93;
+			goto yy92;
+		case 'S':
+		case 's': goto yy152;
+		default: goto yy94;
 	}
-yy145:
+yy144:
 	++in->cur;
 yyFillLabel122:
 	yych = *in->cur;
 	switch (yych) {
-		case 0x00:
+		case '\n': goto yy153;
+		default:
 			if (in->lim <= in->cur) {
 				in->state = 122;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'S':
-		case 's': goto yy151;
-		default: goto yy93;
+			goto yy92;
 	}
-yy146:
-	++in->cur;
-	in->state = -1;
-#line 56 "lexer/mgmt_protocol.re"
-	{ result = MGMT_STATS; break; }
-#line 5473 "./src/mgmt_protocol.re.c"
-yy147:
-	++in->cur;
-	in->state = -1;
-#line 57 "lexer/mgmt_protocol.re"
-	{ result = MGMT_USERS; break; }
-#line 5479 "./src/mgmt_protocol.re.c"
-yy148:
+yy145:
 	++in->cur;
 yyFillLabel123:
 	yych = *in->cur;
 	switch (yych) {
-		case 0x00:
+		case '\n': goto yy154;
+		default:
 			if (in->lim <= in->cur) {
 				in->state = 123;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case '\r': goto yy152;
-		case ' ': goto yy153;
-		default: goto yy93;
+			goto yy92;
 	}
-yy149:
+yy146:
 	++in->cur;
 yyFillLabel124:
 	yych = *in->cur;
 	switch (yych) {
-		case 0x00:
+		case '\r': goto yy145;
+		case ' ': goto yy146;
+		default:
 			if (in->lim <= in->cur) {
 				in->state = 124;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'R':
-		case 'r': goto yy154;
-		default: goto yy93;
+			goto yy129;
 	}
-yy150:
+yy147:
 	++in->cur;
 yyFillLabel125:
 	yych = *in->cur;
@@ -5516,12 +5618,12 @@ yyFillLabel125:
 				in->state = 125;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'S':
-		case 's': goto yy155;
-		default: goto yy93;
+			goto yy92;
+		case 'R':
+		case 'r': goto yy155;
+		default: goto yy94;
 	}
-yy151:
+yy148:
 	++in->cur;
 yyFillLabel126:
 	yych = *in->cur;
@@ -5531,39 +5633,48 @@ yyFillLabel126:
 				in->state = 126;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
+			goto yy92;
 		case 'E':
 		case 'e': goto yy156;
-		default: goto yy93;
+		default: goto yy94;
 	}
-yy152:
+yy149:
 	++in->cur;
 yyFillLabel127:
 	yych = *in->cur;
 	switch (yych) {
-		case '\n': goto yy157;
-		default:
+		case 0x00:
 			if (in->lim <= in->cur) {
 				in->state = 127;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
+			goto yy92;
+		case 'O':
+		case 'o': goto yy157;
+		default: goto yy94;
 	}
-yy153:
+yy150:
+	++in->cur;
+	in->state = -1;
+#line 67 "lexer/mgmt_protocol.re"
+	{ result = MGMT_INVALID_ARGS; break; }
+#line 5662 "./src/mgmt_protocol.re.c"
+yy151:
 	++in->cur;
 yyFillLabel128:
 	yych = *in->cur;
 	switch (yych) {
-		case '\r': goto yy152;
-		case ' ': goto yy153;
-		default:
+		case 0x00:
 			if (in->lim <= in->cur) {
 				in->state = 128;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy124;
+			goto yy92;
+		case 'F':
+		case 'f': goto yy158;
+		default: goto yy94;
 	}
-yy154:
+yy152:
 	++in->cur;
 yyFillLabel129:
 	yych = *in->cur;
@@ -5573,10 +5684,23 @@ yyFillLabel129:
 				in->state = 129;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case '-': goto yy158;
-		default: goto yy93;
+			goto yy92;
+		case 'S':
+		case 's': goto yy159;
+		default: goto yy94;
 	}
+yy153:
+	++in->cur;
+	in->state = -1;
+#line 56 "lexer/mgmt_protocol.re"
+	{ result = MGMT_STATS; break; }
+#line 5698 "./src/mgmt_protocol.re.c"
+yy154:
+	++in->cur;
+	in->state = -1;
+#line 57 "lexer/mgmt_protocol.re"
+	{ result = MGMT_USERS; break; }
+#line 5704 "./src/mgmt_protocol.re.c"
 yy155:
 	++in->cur;
 yyFillLabel130:
@@ -5587,10 +5711,103 @@ yyFillLabel130:
 				in->state = 130;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
+			goto yy92;
+		case '!':
+		case '"':
+		case '#':
+		case '$':
+		case '%':
+		case '&':
+		case '\'':
+		case '(':
+		case ')':
+		case '*':
+		case '+':
+		case ',':
+		case '-':
+		case '.':
+		case '/':
+		case '0':
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9':
+		case ':':
+		case ';':
+		case '<':
+		case '=':
+		case '>':
+		case '?':
+		case '@':
+		case 'A':
+		case 'B':
+		case 'C':
+		case 'D':
+		case 'E':
+		case 'F':
+		case 'G':
+		case 'H':
 		case 'I':
-		case 'i': goto yy159;
-		default: goto yy93;
+		case 'J':
+		case 'K':
+		case 'L':
+		case 'M':
+		case 'N':
+		case 'O':
+		case 'P':
+		case 'Q':
+		case 'R':
+		case 'S':
+		case 'T':
+		case 'U':
+		case 'V':
+		case 'W':
+		case 'X':
+		case 'Y':
+		case 'Z':
+		case '[':
+		case '\\':
+		case ']':
+		case '^':
+		case '_':
+		case '`':
+		case 'a':
+		case 'b':
+		case 'c':
+		case 'd':
+		case 'e':
+		case 'f':
+		case 'g':
+		case 'h':
+		case 'i':
+		case 'j':
+		case 'k':
+		case 'l':
+		case 'm':
+		case 'n':
+		case 'o':
+		case 'p':
+		case 'q':
+		case 'r':
+		case 's':
+		case 't':
+		case 'u':
+		case 'v':
+		case 'w':
+		case 'x':
+		case 'y':
+		case 'z':
+		case '{':
+		case '|':
+		case '}':
+		case '~':
+		case 0x7F: goto yy93;
+		default: goto yy161;
 	}
 yy156:
 	++in->cur;
@@ -5602,18 +5819,12 @@ yyFillLabel131:
 				in->state = 131;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'C':
-		case 'c': goto yy160;
-		default: goto yy93;
+			goto yy92;
+		case '\r': goto yy162;
+		case ' ': goto yy163;
+		default: goto yy94;
 	}
 yy157:
-	++in->cur;
-	in->state = -1;
-#line 58 "lexer/mgmt_protocol.re"
-	{ result = MGMT_GET_BUFFSIZE; break; }
-#line 5616 "./src/mgmt_protocol.re.c"
-yy158:
 	++in->cur;
 yyFillLabel132:
 	yych = *in->cur;
@@ -5623,12 +5834,12 @@ yyFillLabel132:
 				in->state = 132;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'S':
-		case 's': goto yy161;
-		default: goto yy93;
+			goto yy92;
+		case 'R':
+		case 'r': goto yy164;
+		default: goto yy94;
 	}
-yy159:
+yy158:
 	++in->cur;
 yyFillLabel133:
 	yych = *in->cur;
@@ -5638,12 +5849,12 @@ yyFillLabel133:
 				in->state = 133;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'Z':
-		case 'z': goto yy162;
-		default: goto yy93;
+			goto yy92;
+		case 'S':
+		case 's': goto yy165;
+		default: goto yy94;
 	}
-yy160:
+yy159:
 	++in->cur;
 yyFillLabel134:
 	yych = *in->cur;
@@ -5653,55 +5864,149 @@ yyFillLabel134:
 				in->state = 134;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'T':
-		case 't': goto yy163;
-		default: goto yy93;
+			goto yy92;
+		case 'E':
+		case 'e': goto yy166;
+		default: goto yy94;
 	}
-yy161:
+yy160:
 	++in->cur;
 yyFillLabel135:
 	yych = *in->cur;
+yy161:
 	switch (yych) {
-		case 0x00:
+		case '\r': goto yy91;
+		case ' ': goto yy160;
+		case '!':
+		case '"':
+		case '#':
+		case '$':
+		case '%':
+		case '&':
+		case '\'':
+		case '(':
+		case ')':
+		case '*':
+		case '+':
+		case ',':
+		case '-':
+		case '.':
+		case '/':
+		case '0':
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9':
+		case ':':
+		case ';':
+		case '<':
+		case '=':
+		case '>':
+		case '?':
+		case '@':
+		case 'A':
+		case 'B':
+		case 'C':
+		case 'D':
+		case 'E':
+		case 'F':
+		case 'G':
+		case 'H':
+		case 'I':
+		case 'J':
+		case 'K':
+		case 'L':
+		case 'M':
+		case 'N':
+		case 'O':
+		case 'P':
+		case 'Q':
+		case 'R':
+		case 'S':
+		case 'T':
+		case 'U':
+		case 'V':
+		case 'W':
+		case 'X':
+		case 'Y':
+		case 'Z':
+		case '[':
+		case '\\':
+		case ']':
+		case '^':
+		case '_':
+		case '`':
+		case 'a':
+		case 'b':
+		case 'c':
+		case 'd':
+		case 'e':
+		case 'f':
+		case 'g':
+		case 'h':
+		case 'i':
+		case 'j':
+		case 'k':
+		case 'l':
+		case 'm':
+		case 'n':
+		case 'o':
+		case 'p':
+		case 'q':
+		case 'r':
+		case 's':
+		case 't':
+		case 'u':
+		case 'v':
+		case 'w':
+		case 'x':
+		case 'y':
+		case 'z':
+		case '{':
+		case '|':
+		case '}':
+		case '~':
+		case 0x7F:
+			yyt1 = in->cur;
+			goto yy167;
+		default:
 			if (in->lim <= in->cur) {
 				in->state = 135;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'T':
-		case 't': goto yy164;
-		default: goto yy93;
+			goto yy92;
 	}
 yy162:
 	++in->cur;
 yyFillLabel136:
 	yych = *in->cur;
 	switch (yych) {
-		case 0x00:
+		case '\n': goto yy168;
+		default:
 			if (in->lim <= in->cur) {
 				in->state = 136;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'E':
-		case 'e': goto yy165;
-		default: goto yy93;
+			goto yy92;
 	}
 yy163:
 	++in->cur;
 yyFillLabel137:
 	yych = *in->cur;
 	switch (yych) {
-		case 0x00:
+		case '\r': goto yy162;
+		case ' ': goto yy163;
+		default:
 			if (in->lim <= in->cur) {
 				in->state = 137;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'O':
-		case 'o': goto yy166;
-		default: goto yy93;
+			goto yy129;
 	}
 yy164:
 	++in->cur;
@@ -5713,10 +6018,9 @@ yyFillLabel138:
 				in->state = 138;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'A':
-		case 'a': goto yy167;
-		default: goto yy93;
+			goto yy92;
+		case '-': goto yy169;
+		default: goto yy94;
 	}
 yy165:
 	++in->cur;
@@ -5728,9 +6032,10 @@ yyFillLabel139:
 				in->state = 139;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case ' ': goto yy168;
-		default: goto yy93;
+			goto yy92;
+		case 'I':
+		case 'i': goto yy170;
+		default: goto yy94;
 	}
 yy166:
 	++in->cur;
@@ -5742,33 +6047,416 @@ yyFillLabel140:
 				in->state = 140;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'R':
-		case 'r': goto yy169;
-		default: goto yy93;
+			goto yy92;
+		case 'C':
+		case 'c': goto yy171;
+		default: goto yy94;
 	}
 yy167:
 	++in->cur;
 yyFillLabel141:
 	yych = *in->cur;
 	switch (yych) {
-		case 0x00:
+		case '\r':
+			yyt2 = in->cur;
+			goto yy172;
+		case ' ':
+			yyt2 = in->cur;
+			goto yy173;
+		case '!':
+		case '"':
+		case '#':
+		case '$':
+		case '%':
+		case '&':
+		case '\'':
+		case '(':
+		case ')':
+		case '*':
+		case '+':
+		case ',':
+		case '-':
+		case '.':
+		case '/':
+		case '0':
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9':
+		case ':':
+		case ';':
+		case '<':
+		case '=':
+		case '>':
+		case '?':
+		case '@':
+		case 'A':
+		case 'B':
+		case 'C':
+		case 'D':
+		case 'E':
+		case 'F':
+		case 'G':
+		case 'H':
+		case 'I':
+		case 'J':
+		case 'K':
+		case 'L':
+		case 'M':
+		case 'N':
+		case 'O':
+		case 'P':
+		case 'Q':
+		case 'R':
+		case 'S':
+		case 'T':
+		case 'U':
+		case 'V':
+		case 'W':
+		case 'X':
+		case 'Y':
+		case 'Z':
+		case '[':
+		case '\\':
+		case ']':
+		case '^':
+		case '_':
+		case '`':
+		case 'a':
+		case 'b':
+		case 'c':
+		case 'd':
+		case 'e':
+		case 'f':
+		case 'g':
+		case 'h':
+		case 'i':
+		case 'j':
+		case 'k':
+		case 'l':
+		case 'm':
+		case 'n':
+		case 'o':
+		case 'p':
+		case 'q':
+		case 'r':
+		case 's':
+		case 't':
+		case 'u':
+		case 'v':
+		case 'w':
+		case 'x':
+		case 'y':
+		case 'z':
+		case '{':
+		case '|':
+		case '}':
+		case '~':
+		case 0x7F: goto yy167;
+		default:
 			if (in->lim <= in->cur) {
 				in->state = 141;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'T':
-		case 't': goto yy170;
-		default: goto yy93;
+			goto yy92;
 	}
 yy168:
+	++in->cur;
+	in->state = -1;
+#line 58 "lexer/mgmt_protocol.re"
+	{ result = MGMT_GET_BUFFSIZE; break; }
+#line 6174 "./src/mgmt_protocol.re.c"
+yy169:
 	++in->cur;
 yyFillLabel142:
 	yych = *in->cur;
 	switch (yych) {
-		case '\r': goto yy134;
-		case ' ': goto yy168;
+		case 0x00:
+			if (in->lim <= in->cur) {
+				in->state = 142;
+				{ return MGMT_INCOMPLETE; }
+			}
+			goto yy92;
+		case 'S':
+		case 's': goto yy174;
+		default: goto yy94;
+	}
+yy170:
+	++in->cur;
+yyFillLabel143:
+	yych = *in->cur;
+	switch (yych) {
+		case 0x00:
+			if (in->lim <= in->cur) {
+				in->state = 143;
+				{ return MGMT_INCOMPLETE; }
+			}
+			goto yy92;
+		case 'Z':
+		case 'z': goto yy175;
+		default: goto yy94;
+	}
+yy171:
+	++in->cur;
+yyFillLabel144:
+	yych = *in->cur;
+	switch (yych) {
+		case 0x00:
+			if (in->lim <= in->cur) {
+				in->state = 144;
+				{ return MGMT_INCOMPLETE; }
+			}
+			goto yy92;
+		case 'T':
+		case 't': goto yy176;
+		default: goto yy94;
+	}
+yy172:
+	++in->cur;
+yyFillLabel145:
+	yych = *in->cur;
+	switch (yych) {
+		case '\n': goto yy177;
+		default:
+			if (in->lim <= in->cur) {
+				in->state = 145;
+				{ return MGMT_INCOMPLETE; }
+			}
+			goto yy92;
+	}
+yy173:
+	++in->cur;
+yyFillLabel146:
+	yych = *in->cur;
+	switch (yych) {
+		case '\r': goto yy172;
+		case ' ': goto yy173;
+		case '!':
+		case '"':
+		case '#':
+		case '$':
+		case '%':
+		case '&':
+		case '\'':
+		case '(':
+		case ')':
+		case '*':
+		case '+':
+		case ',':
+		case '-':
+		case '.':
+		case '/':
+		case '0':
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9':
+		case ':':
+		case ';':
+		case '<':
+		case '=':
+		case '>':
+		case '?':
+		case '@':
+		case 'A':
+		case 'B':
+		case 'C':
+		case 'D':
+		case 'E':
+		case 'F':
+		case 'G':
+		case 'H':
+		case 'I':
+		case 'J':
+		case 'K':
+		case 'L':
+		case 'M':
+		case 'N':
+		case 'O':
+		case 'P':
+		case 'Q':
+		case 'R':
+		case 'S':
+		case 'T':
+		case 'U':
+		case 'V':
+		case 'W':
+		case 'X':
+		case 'Y':
+		case 'Z':
+		case '[':
+		case '\\':
+		case ']':
+		case '^':
+		case '_':
+		case '`':
+		case 'a':
+		case 'b':
+		case 'c':
+		case 'd':
+		case 'e':
+		case 'f':
+		case 'g':
+		case 'h':
+		case 'i':
+		case 'j':
+		case 'k':
+		case 'l':
+		case 'm':
+		case 'n':
+		case 'o':
+		case 'p':
+		case 'q':
+		case 'r':
+		case 's':
+		case 't':
+		case 'u':
+		case 'v':
+		case 'w':
+		case 'x':
+		case 'y':
+		case 'z':
+		case '{':
+		case '|':
+		case '}':
+		case '~':
+		case 0x7F: goto yy93;
+		default:
+			if (in->lim <= in->cur) {
+				in->state = 146;
+				{ return MGMT_INCOMPLETE; }
+			}
+			goto yy92;
+	}
+yy174:
+	++in->cur;
+yyFillLabel147:
+	yych = *in->cur;
+	switch (yych) {
+		case 0x00:
+			if (in->lim <= in->cur) {
+				in->state = 147;
+				{ return MGMT_INCOMPLETE; }
+			}
+			goto yy92;
+		case 'T':
+		case 't': goto yy178;
+		default: goto yy94;
+	}
+yy175:
+	++in->cur;
+yyFillLabel148:
+	yych = *in->cur;
+	switch (yych) {
+		case 0x00:
+			if (in->lim <= in->cur) {
+				in->state = 148;
+				{ return MGMT_INCOMPLETE; }
+			}
+			goto yy92;
+		case 'E':
+		case 'e': goto yy179;
+		default: goto yy94;
+	}
+yy176:
+	++in->cur;
+yyFillLabel149:
+	yych = *in->cur;
+	switch (yych) {
+		case 0x00:
+			if (in->lim <= in->cur) {
+				in->state = 149;
+				{ return MGMT_INCOMPLETE; }
+			}
+			goto yy92;
+		case 'O':
+		case 'o': goto yy180;
+		default: goto yy94;
+	}
+yy177:
+	++in->cur;
+	args = yyt1;
+	arge = yyt2;
+	in->state = -1;
+#line 62 "lexer/mgmt_protocol.re"
+	{ result = MGMT_ADD_USER; break; }
+#line 6394 "./src/mgmt_protocol.re.c"
+yy178:
+	++in->cur;
+yyFillLabel150:
+	yych = *in->cur;
+	switch (yych) {
+		case 0x00:
+			if (in->lim <= in->cur) {
+				in->state = 150;
+				{ return MGMT_INCOMPLETE; }
+			}
+			goto yy92;
+		case 'A':
+		case 'a': goto yy181;
+		default: goto yy94;
+	}
+yy179:
+	++in->cur;
+yyFillLabel151:
+	yych = *in->cur;
+	switch (yych) {
+		case 0x00:
+			if (in->lim <= in->cur) {
+				in->state = 151;
+				{ return MGMT_INCOMPLETE; }
+			}
+			goto yy92;
+		case ' ': goto yy182;
+		default: goto yy94;
+	}
+yy180:
+	++in->cur;
+yyFillLabel152:
+	yych = *in->cur;
+	switch (yych) {
+		case 0x00:
+			if (in->lim <= in->cur) {
+				in->state = 152;
+				{ return MGMT_INCOMPLETE; }
+			}
+			goto yy92;
+		case 'R':
+		case 'r': goto yy183;
+		default: goto yy94;
+	}
+yy181:
+	++in->cur;
+yyFillLabel153:
+	yych = *in->cur;
+	switch (yych) {
+		case 0x00:
+			if (in->lim <= in->cur) {
+				in->state = 153;
+				{ return MGMT_INCOMPLETE; }
+			}
+			goto yy92;
+		case 'T':
+		case 't': goto yy184;
+		default: goto yy94;
+	}
+yy182:
+	++in->cur;
+yyFillLabel154:
+	yych = *in->cur;
+	switch (yych) {
+		case '\r': goto yy140;
+		case ' ': goto yy182;
 		case '0':
 		case '1':
 		case '2':
@@ -5780,209 +6468,15 @@ yyFillLabel142:
 		case '8':
 		case '9':
 			yyt1 = in->cur;
-			goto yy171;
-		default:
-			if (in->lim <= in->cur) {
-				in->state = 142;
-				{ return MGMT_INCOMPLETE; }
-			}
-			goto yy124;
-	}
-yy169:
-	++in->cur;
-yyFillLabel143:
-	yych = *in->cur;
-	switch (yych) {
-		case 0x00:
-			if (in->lim <= in->cur) {
-				in->state = 143;
-				{ return MGMT_INCOMPLETE; }
-			}
-			goto yy91;
-		case '-': goto yy172;
-		default: goto yy93;
-	}
-yy170:
-	++in->cur;
-yyFillLabel144:
-	yych = *in->cur;
-	switch (yych) {
-		case 0x00:
-			if (in->lim <= in->cur) {
-				in->state = 144;
-				{ return MGMT_INCOMPLETE; }
-			}
-			goto yy91;
-		case 'U':
-		case 'u': goto yy173;
-		default: goto yy93;
-	}
-yy171:
-	++in->cur;
-yyFillLabel145:
-	yych = *in->cur;
-	switch (yych) {
-		case '\r':
-			yyt2 = in->cur;
-			goto yy174;
-		case ' ':
-			yyt2 = in->cur;
-			goto yy175;
-		case '0':
-		case '1':
-		case '2':
-		case '3':
-		case '4':
-		case '5':
-		case '6':
-		case '7':
-		case '8':
-		case '9': goto yy171;
-		default:
-			if (in->lim <= in->cur) {
-				in->state = 145;
-				{ return MGMT_INCOMPLETE; }
-			}
-			goto yy124;
-	}
-yy172:
-	++in->cur;
-yyFillLabel146:
-	yych = *in->cur;
-	switch (yych) {
-		case 0x00:
-			if (in->lim <= in->cur) {
-				in->state = 146;
-				{ return MGMT_INCOMPLETE; }
-			}
-			goto yy91;
-		case 'S':
-		case 's': goto yy176;
-		default: goto yy93;
-	}
-yy173:
-	++in->cur;
-yyFillLabel147:
-	yych = *in->cur;
-	switch (yych) {
-		case 0x00:
-			if (in->lim <= in->cur) {
-				in->state = 147;
-				{ return MGMT_INCOMPLETE; }
-			}
-			goto yy91;
-		case 'S':
-		case 's': goto yy177;
-		default: goto yy93;
-	}
-yy174:
-	++in->cur;
-yyFillLabel148:
-	yych = *in->cur;
-	switch (yych) {
-		case '\n': goto yy178;
-		default:
-			if (in->lim <= in->cur) {
-				in->state = 148;
-				{ return MGMT_INCOMPLETE; }
-			}
-			goto yy91;
-	}
-yy175:
-	++in->cur;
-yyFillLabel149:
-	yych = *in->cur;
-	switch (yych) {
-		case '\r': goto yy174;
-		case ' ': goto yy175;
-		default:
-			if (in->lim <= in->cur) {
-				in->state = 149;
-				{ return MGMT_INCOMPLETE; }
-			}
-			goto yy124;
-	}
-yy176:
-	++in->cur;
-yyFillLabel150:
-	yych = *in->cur;
-	switch (yych) {
-		case 0x00:
-			if (in->lim <= in->cur) {
-				in->state = 150;
-				{ return MGMT_INCOMPLETE; }
-			}
-			goto yy91;
-		case 'T':
-		case 't': goto yy179;
-		default: goto yy93;
-	}
-yy177:
-	++in->cur;
-yyFillLabel151:
-	yych = *in->cur;
-	switch (yych) {
-		case 0x00:
-			if (in->lim <= in->cur) {
-				in->state = 151;
-				{ return MGMT_INCOMPLETE; }
-			}
-			goto yy91;
-		case '\r': goto yy180;
-		case ' ': goto yy181;
-		default: goto yy93;
-	}
-yy178:
-	++in->cur;
-	args = yyt1;
-	arge = yyt2;
-	in->state = -1;
-#line 59 "lexer/mgmt_protocol.re"
-	{ result = MGMT_SET_BUFFSIZE; break; }
-#line 5943 "./src/mgmt_protocol.re.c"
-yy179:
-	++in->cur;
-yyFillLabel152:
-	yych = *in->cur;
-	switch (yych) {
-		case 0x00:
-			if (in->lim <= in->cur) {
-				in->state = 152;
-				{ return MGMT_INCOMPLETE; }
-			}
-			goto yy91;
-		case 'A':
-		case 'a': goto yy182;
-		default: goto yy93;
-	}
-yy180:
-	++in->cur;
-yyFillLabel153:
-	yych = *in->cur;
-	switch (yych) {
-		case '\n': goto yy183;
-		default:
-			if (in->lim <= in->cur) {
-				in->state = 153;
-				{ return MGMT_INCOMPLETE; }
-			}
-			goto yy91;
-	}
-yy181:
-	++in->cur;
-yyFillLabel154:
-	yych = *in->cur;
-	switch (yych) {
-		case '\r': goto yy180;
-		case ' ': goto yy181;
+			goto yy185;
 		default:
 			if (in->lim <= in->cur) {
 				in->state = 154;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy124;
+			goto yy129;
 	}
-yy182:
+yy183:
 	++in->cur;
 yyFillLabel155:
 	yych = *in->cur;
@@ -5992,17 +6486,10 @@ yyFillLabel155:
 				in->state = 155;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'T':
-		case 't': goto yy184;
-		default: goto yy93;
+			goto yy92;
+		case '-': goto yy186;
+		default: goto yy94;
 	}
-yy183:
-	++in->cur;
-	in->state = -1;
-#line 60 "lexer/mgmt_protocol.re"
-	{ result = MGMT_GET_DISSECTOR_STATUS; break; }
-#line 6006 "./src/mgmt_protocol.re.c"
 yy184:
 	++in->cur;
 yyFillLabel156:
@@ -6013,25 +6500,38 @@ yyFillLabel156:
 				in->state = 156;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
+			goto yy92;
 		case 'U':
-		case 'u': goto yy185;
-		default: goto yy93;
+		case 'u': goto yy187;
+		default: goto yy94;
 	}
 yy185:
 	++in->cur;
 yyFillLabel157:
 	yych = *in->cur;
 	switch (yych) {
-		case 0x00:
+		case '\r':
+			yyt2 = in->cur;
+			goto yy188;
+		case ' ':
+			yyt2 = in->cur;
+			goto yy189;
+		case '0':
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9': goto yy185;
+		default:
 			if (in->lim <= in->cur) {
 				in->state = 157;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'S':
-		case 's': goto yy186;
-		default: goto yy93;
+			goto yy129;
 	}
 yy186:
 	++in->cur;
@@ -6043,59 +6543,52 @@ yyFillLabel158:
 				in->state = 158;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case ' ': goto yy187;
-		case 'o':
-			yyt1 = in->cur;
-			goto yy188;
-		default: goto yy93;
+			goto yy92;
+		case 'S':
+		case 's': goto yy190;
+		default: goto yy94;
 	}
 yy187:
 	++in->cur;
 yyFillLabel159:
 	yych = *in->cur;
 	switch (yych) {
-		case '\r': goto yy134;
-		case ' ': goto yy187;
-		case 'o':
-			yyt1 = in->cur;
-			goto yy189;
-		default:
+		case 0x00:
 			if (in->lim <= in->cur) {
 				in->state = 159;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy124;
+			goto yy92;
+		case 'S':
+		case 's': goto yy191;
+		default: goto yy94;
 	}
 yy188:
 	++in->cur;
 yyFillLabel160:
 	yych = *in->cur;
 	switch (yych) {
-		case 0x00:
+		case '\n': goto yy192;
+		default:
 			if (in->lim <= in->cur) {
 				in->state = 160;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'f': goto yy190;
-		case 'n': goto yy191;
-		default: goto yy93;
+			goto yy92;
 	}
 yy189:
 	++in->cur;
 yyFillLabel161:
 	yych = *in->cur;
 	switch (yych) {
-		case 0x00:
+		case '\r': goto yy188;
+		case ' ': goto yy189;
+		default:
 			if (in->lim <= in->cur) {
 				in->state = 161;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy124;
-		case 'f': goto yy192;
-		case 'n': goto yy193;
-		default: goto yy125;
+			goto yy129;
 	}
 yy190:
 	++in->cur;
@@ -6107,9 +6600,10 @@ yyFillLabel162:
 				in->state = 162;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case 'f': goto yy191;
-		default: goto yy93;
+			goto yy92;
+		case 'T':
+		case 't': goto yy193;
+		default: goto yy94;
 	}
 yy191:
 	++in->cur;
@@ -6121,11 +6615,19 @@ yyFillLabel163:
 				in->state = 163;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
-		case '\r': goto yy194;
-		default: goto yy93;
+			goto yy92;
+		case ' ': goto yy194;
+		default: goto yy94;
 	}
 yy192:
+	++in->cur;
+	args = yyt1;
+	arge = yyt2;
+	in->state = -1;
+#line 59 "lexer/mgmt_protocol.re"
+	{ result = MGMT_SET_BUFFSIZE; break; }
+#line 6630 "./src/mgmt_protocol.re.c"
+yy193:
 	++in->cur;
 yyFillLabel164:
 	yych = *in->cur;
@@ -6135,50 +6637,189 @@ yyFillLabel164:
 				in->state = 164;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy124;
-		case 'f': goto yy193;
-		default: goto yy125;
+			goto yy92;
+		case 'A':
+		case 'a': goto yy195;
+		default: goto yy94;
 	}
-yy193:
+yy194:
 	++in->cur;
 yyFillLabel165:
 	yych = *in->cur;
 	switch (yych) {
-		case '\r': goto yy194;
+		case '\r': goto yy196;
+		case ' ': goto yy194;
 		default:
 			if (in->lim <= in->cur) {
 				in->state = 165;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy124;
+			goto yy129;
 	}
-yy194:
+yy195:
 	++in->cur;
 yyFillLabel166:
 	yych = *in->cur;
 	switch (yych) {
-		case '\n': goto yy195;
-		default:
+		case 0x00:
 			if (in->lim <= in->cur) {
 				in->state = 166;
 				{ return MGMT_INCOMPLETE; }
 			}
-			goto yy91;
+			goto yy92;
+		case 'T':
+		case 't': goto yy197;
+		default: goto yy94;
 	}
-yy195:
+yy196:
+	++in->cur;
+yyFillLabel167:
+	yych = *in->cur;
+	switch (yych) {
+		case '\n': goto yy198;
+		default:
+			if (in->lim <= in->cur) {
+				in->state = 167;
+				{ return MGMT_INCOMPLETE; }
+			}
+			goto yy92;
+	}
+yy197:
+	++in->cur;
+yyFillLabel168:
+	yych = *in->cur;
+	switch (yych) {
+		case 0x00:
+			if (in->lim <= in->cur) {
+				in->state = 168;
+				{ return MGMT_INCOMPLETE; }
+			}
+			goto yy92;
+		case 'U':
+		case 'u': goto yy199;
+		default: goto yy94;
+	}
+yy198:
+	++in->cur;
+	in->state = -1;
+#line 60 "lexer/mgmt_protocol.re"
+	{ result = MGMT_GET_DISSECTOR_STATUS; break; }
+#line 6708 "./src/mgmt_protocol.re.c"
+yy199:
+	++in->cur;
+yyFillLabel169:
+	yych = *in->cur;
+	switch (yych) {
+		case 0x00:
+			if (in->lim <= in->cur) {
+				in->state = 169;
+				{ return MGMT_INCOMPLETE; }
+			}
+			goto yy92;
+		case 'S':
+		case 's': goto yy200;
+		default: goto yy94;
+	}
+yy200:
+	++in->cur;
+yyFillLabel170:
+	yych = *in->cur;
+	switch (yych) {
+		case 0x00:
+			if (in->lim <= in->cur) {
+				in->state = 170;
+				{ return MGMT_INCOMPLETE; }
+			}
+			goto yy92;
+		case ' ': goto yy201;
+		default: goto yy94;
+	}
+yy201:
+	++in->cur;
+yyFillLabel171:
+	yych = *in->cur;
+	switch (yych) {
+		case '\r': goto yy140;
+		case ' ': goto yy201;
+		case 'o':
+			yyt1 = in->cur;
+			goto yy202;
+		default:
+			if (in->lim <= in->cur) {
+				in->state = 171;
+				{ return MGMT_INCOMPLETE; }
+			}
+			goto yy129;
+	}
+yy202:
+	++in->cur;
+yyFillLabel172:
+	yych = *in->cur;
+	switch (yych) {
+		case 0x00:
+			if (in->lim <= in->cur) {
+				in->state = 172;
+				{ return MGMT_INCOMPLETE; }
+			}
+			goto yy129;
+		case 'f': goto yy203;
+		case 'n': goto yy204;
+		default: goto yy130;
+	}
+yy203:
+	++in->cur;
+yyFillLabel173:
+	yych = *in->cur;
+	switch (yych) {
+		case 0x00:
+			if (in->lim <= in->cur) {
+				in->state = 173;
+				{ return MGMT_INCOMPLETE; }
+			}
+			goto yy129;
+		case 'f': goto yy204;
+		default: goto yy130;
+	}
+yy204:
+	++in->cur;
+yyFillLabel174:
+	yych = *in->cur;
+	switch (yych) {
+		case '\r': goto yy205;
+		default:
+			if (in->lim <= in->cur) {
+				in->state = 174;
+				{ return MGMT_INCOMPLETE; }
+			}
+			goto yy129;
+	}
+yy205:
+	++in->cur;
+yyFillLabel175:
+	yych = *in->cur;
+	switch (yych) {
+		case '\n': goto yy206;
+		default:
+			if (in->lim <= in->cur) {
+				in->state = 175;
+				{ return MGMT_INCOMPLETE; }
+			}
+			goto yy92;
+	}
+yy206:
 	++in->cur;
 	args = yyt1;
 	arge = in->cur - 2;
 	in->state = -1;
 #line 61 "lexer/mgmt_protocol.re"
 	{ result = MGMT_SET_DISSECTOR_STATUS; break; }
-#line 6176 "./src/mgmt_protocol.re.c"
-yy196:
+#line 6817 "./src/mgmt_protocol.re.c"
+yy207:
 	in->state = -1;
-#line 70 "lexer/mgmt_protocol.re"
-	{ result = MGMT_INCOMPLETE; break; }
-#line 6181 "./src/mgmt_protocol.re.c"
 #line 71 "lexer/mgmt_protocol.re"
+	{ result = MGMT_INCOMPLETE; break; }
+#line 6822 "./src/mgmt_protocol.re.c"
+#line 72 "lexer/mgmt_protocol.re"
 
 	}
 
