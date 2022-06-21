@@ -89,7 +89,7 @@ send_text(int sock, const char * text) {
 }
 
 bool capa(int sock) {
-    if(send(sock, commands_format[CMD_CAPA], strlen(commands_format[CMD_CAPA]), MSG_DONTWAIT) < 0) {
+    if(!send_text(sock, commands_format[CMD_CAPA])) {
         return false;
     }
 
@@ -105,7 +105,7 @@ bool capa(int sock) {
 
 bool authenticate(int sock, const char *token) {
     snprintf(request_buf, BUFFSIZE, commands_format[CMD_TOKEN], token);
-    if(send(sock, request_buf, strlen(request_buf), MSG_DONTWAIT) < 0) {
+    if(!send_text(sock, request_buf)) {
         return false;
     }
 
@@ -119,7 +119,7 @@ bool authenticate(int sock, const char *token) {
 }
 
 bool stats(int sock) {
-    if(send(sock, commands_format[CMD_STATS], strlen(commands_format[CMD_STATS]), MSG_DONTWAIT) < 0) {
+    if(!send_text(sock, commands_format[CMD_STATS])) {
         return false;
     }
 
@@ -134,7 +134,7 @@ bool stats(int sock) {
 }
 
 bool users(int sock) {
-    if(send(sock, commands_format[CMD_USERS], strlen(commands_format[CMD_USERS]), MSG_DONTWAIT) < 0) {
+    if(!send_text(sock, commands_format[CMD_USERS])) {
         return false;
     }
 
@@ -150,7 +150,7 @@ bool users(int sock) {
 
 bool set_buffsize(int sock, size_t size) {
     snprintf(request_buf, BUFFSIZE, commands_format[CMD_SET_BUFFSIZE], size);
-    if(send(sock, request_buf, strlen(request_buf), MSG_DONTWAIT) < 0) {
+    if(!send_text(sock, request_buf)) {
         return false;
     }
 
@@ -165,7 +165,7 @@ bool set_buffsize(int sock, size_t size) {
 
 bool set_dissector_status(int sock, const char *status) {
     snprintf(request_buf, BUFFSIZE, commands_format[CMD_SET_DISSECTOR_STATUS], status);
-    if(send(sock, request_buf, strlen(request_buf), MSG_DONTWAIT) < 0) {
+    if(!send_text(sock, request_buf)) {
         return false;
     }
 
