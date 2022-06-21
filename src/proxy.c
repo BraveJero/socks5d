@@ -53,11 +53,6 @@ int main(int argc, char *argv[])
 	char *token = getenv("TOKEN");
 	if(token != NULL) add_token(token);
 
-    if(get_token_count() == 0) {
-        logger(ERROR, "No tokens provided for mgmt. Exiting...");
-        exit(1);
-    }
-
 
 	if(args.socks_addr == NULL) {
 		if((master[master_size] = setUpMasterSocket(SOCKS_ADDR4, args.socks_port, false)) >= 0) {
@@ -73,22 +68,26 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if(args.mng_addr == NULL) {
-		if((monitor[monitor_size] = setUpMasterSocket(MGMT_ADDR4, args.mng_port, false)) >= 0) {
-			monitor_size++;
-		}
-		if((monitor[monitor_size] = setUpMasterSocket(MGMT_ADDR6, args.mng_port, true)) >= 0) {
-			monitor_size++;
-		}
-	} else {
-		bool ipv6 = strchr(args.mng_addr, ':') != NULL;
-		if((monitor[monitor_size] = setUpMasterSocket(args.mng_addr, args.mng_port, ipv6)) >= 0) {
-			monitor_size++;
-		}
-	}
+    if(get_token_count() == 0) {
+        logger(ERROR, "No tokens provided for management. Mgmt port will not be set up.");
+    } else {
+        if (args.mng_addr == NULL) {
+            if ((monitor[monitor_size] = setUpMasterSocket(MGMT_ADDR4, args.mng_port, false)) >= 0) {
+                monitor_size++;
+            }
+            if ((monitor[monitor_size] = setUpMasterSocket(MGMT_ADDR6, args.mng_port, true)) >= 0) {
+                monitor_size++;
+            }
+        } else {
+            bool ipv6 = strchr(args.mng_addr, ':') != NULL;
+            if ((monitor[monitor_size] = setUpMasterSocket(args.mng_addr, args.mng_port, ipv6)) >= 0) {
+                monitor_size++;
+            }
+        }
+    }
 
-    if(master_size == 0 || monitor_size == 0) {
-        logger(ERROR, "Error setting up passive sockets. Exiting..");
+    if(master_size == 0) {
+        logger(ERROR, "Error setting up passive sockets for socks. Exiting..");
         exit(2);
     }
 
