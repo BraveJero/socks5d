@@ -1,3 +1,5 @@
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -113,19 +115,6 @@ static const struct fd_handler socks5_handler = {
     .handle_block  = socksv5_block,
 };
 
-static void start_name_resolution(unsigned state, struct selector_key *key)
-{
-    client *client = ATTACHMENT(key);
-    struct selector_key *dup_key = malloc(sizeof(*key));
-    
-    dup_key->data = client;
-    dup_key->fd = client->client_sock;
-    dup_key->s = key->s;
-
-    pthread_t tid;
-    pthread_create(&tid, NULL, thread_name_resolution, dup_key);
-}
-
 unsigned closeClient(client *client, enum socket_ends level, struct selector_key *key)
 {
 	level &= client->active_ends;
@@ -186,9 +175,16 @@ unsigned closeClient(client *client, enum socket_ends level, struct selector_key
 
 // If master has activity, it must be due to incoming connections
 void master_read_handler(struct selector_key *key) {
+    if(!add_proxy_client())
+    {
+        logger(ERROR, "No more space for clients! Waiting...");
+        return;
+    }
+
     int new_socket = acceptTCPConnection(key->fd);
     if(new_socket < 0){
         logger(DEBUG, "accept() failed. New connection refused");
+        rm_proxy_client();
         return;
     }
             
@@ -196,7 +192,9 @@ void master_read_handler(struct selector_key *key) {
     client *new_client = create_client(new_socket);
 
     if(new_client == NULL) {
-        // catch error
+        close(new_socket);
+        rm_proxy_client();
+        return;
     }
 
     selector_register(key->s, new_client->client_sock, &socks5_handler, OP_READ, new_client);
@@ -206,10 +204,8 @@ void master_read_handler(struct selector_key *key) {
 
 client *create_client(int sock) {
     client *new_client = malloc(sizeof(client));
-    if(new_client == NULL) {
-        logger(DEBUG, "malloc() failed. New connection refused");
-        close(sock);
-    }
+    if(new_client == NULL)
+        goto fail;
 
     *new_client = (struct client)
     {
@@ -218,6 +214,8 @@ client *create_client(int sock) {
         .origin_sock = -1,
         .active_ends = CLIENT,
     };
+    if(new_client->stm == NULL)
+        goto fail;
     *new_client->stm = (struct state_machine)
     {
         .initial = AUTH_METHOD,
@@ -231,9 +229,10 @@ client *create_client(int sock) {
     new_client->origin_buf_raw = malloc(sizeof(uint8_t) * buffsize);
 
     if(new_client->client_buf_raw == NULL || new_client->origin_buf_raw == NULL) {
-        free(new_client);
-        logger(DEBUG, "malloc() failed: %s", strerror(errno));
-        return NULL;
+        free(new_client->stm);
+        free(new_client->origin_buf_raw);
+        free(new_client->client_buf_raw);
+        goto fail;
     }
 
     new_client->socks_user[0] = '\0';
@@ -243,19 +242,12 @@ client *create_client(int sock) {
     buffer_init(&(new_client->client_buf), buffsize, new_client->client_buf_raw);
     buffer_init(&(new_client->origin_buf), buffsize, new_client->origin_buf_raw);
     return new_client;
-}
 
-unsigned handle_finished_resolution(struct selector_key *key) {
-    client *c = ATTACHMENT(key);
-    assert(c->resolution != NULL);
-    c->curr_addr = c->resolution;
-    return CONNECTING;
+    fail:
+    free(new_client);
+    logger(DEBUG, "malloc() failed. New connection refused");
+    return NULL;
 }
-
-// static void socksv5_done(struct selector_key *key)
-// {
-// 	closeClient(ATTACHMENT(key),  CLIENT | ORIGIN, key);
-// }
 
 static void
 socksv5_read(struct selector_key *key) {
@@ -275,9 +267,16 @@ socksv5_block(struct selector_key *key) {
     stm_handler_block(stm, key);
 }
 
+static void start_name_resolution(unsigned state, struct selector_key *key)
+{
+    client *client = ATTACHMENT(key);
+
+    pthread_t tid;
+    pthread_create(&tid, NULL, thread_name_resolution, client);
+}
+
 static void *thread_name_resolution(void *data) {
-    struct selector_key *key = (struct selector_key*) data;
-    client *c = ATTACHMENT(key);
+    client *c = (client*)data;
 
     pthread_detach(pthread_self());
     struct addrinfo hints = {
@@ -298,21 +297,21 @@ static void *thread_name_resolution(void *data) {
         logger(ERROR, gai_strerror(err));
     }
 
-    selector_notify_block(key->s, key->fd);
-    free(data);
+    selector_notify_block(selector, c->client_sock);
     return NULL;
+}
+
+unsigned handle_finished_resolution(struct selector_key *key) {
+    client *c = ATTACHMENT(key);
+    assert(c->resolution != NULL);
+    c->curr_addr = c->resolution;
+    return CONNECTING;
 }
 
 void create_connection(const unsigned state, struct selector_key *key) {
     client *c = ATTACHMENT(key);
-    c->origin_sock = socket(c->curr_addr->ai_family, c->curr_addr->ai_socktype, c->curr_addr->ai_protocol);
-    if(c->origin_sock < 0) {
-        logger(ERROR, "Error in socket()");
-        perror("socket()");
-    }
-    selector_fd_set_nio(c->origin_sock);
-    // selector_fd_set_nio(c->client_sock);
-    try_connect(key);
+    // Truquito para que se llame a origin_check_connection
+    selector_add_interest(key->s, c->client_sock, OP_WRITE);
 }
 
 enum server_reply_type check_connection_error(int error)
@@ -339,32 +338,42 @@ enum server_reply_type check_connection_error(int error)
 unsigned try_connect(struct selector_key *key) {
     client *c = ATTACHMENT(key);
     assert(c->curr_addr != NULL);
-    int sock = c->origin_sock;
-    if (sock >= 0) {
-        errno = 0;
+    c->origin_sock = socket(c->curr_addr->ai_family, c->curr_addr->ai_socktype, c->curr_addr->ai_protocol);
+    if (c->origin_sock >= 0) {
+        selector_fd_set_nio(c->origin_sock);
         char adrr_buf[1024];
         logger(DEBUG, "%s", printAddressPort(c->curr_addr, adrr_buf));
         // Establish the connection to the server
-        if ( connect(sock, c->curr_addr->ai_addr, c->curr_addr->ai_addrlen) == 0 || errno == EINPROGRESS) {
-            selector_register(key->s, c->origin_sock, &socks5_handler, OP_WRITE, c);
-            // logger(ERROR, selector_error(ss));
-            
+        if ( connect(c->origin_sock, c->curr_addr->ai_addr, c->curr_addr->ai_addrlen) == 0 || errno == EINPROGRESS) {
+            if(selector_register(key->s, c->origin_sock, &socks5_handler, OP_WRITE, c) != SELECTOR_SUCCESS)
+            {
+                close(c->origin_sock);
+                logger(ERROR, "Can't register client socket");
+                server_reply(&c->client_buf, REPLY_SERVER_FAILURE, ATYP_IPV4, EMPTY_IP, 0);
+                return closeClient(c,  CLIENT_READ, key);
+            }
             logger(INFO, "Connection to origin in progress");
             return CONNECTING;
         }
         enum server_reply_type reply = check_connection_error(errno);
         server_reply(&c->client_buf, reply, ATYP_IPV4, EMPTY_IP, 0);
         return closeClient(c,  CLIENT_READ, key);
-    } else {
-        logger(DEBUG, "Can't create client socket");
-        server_reply(&c->client_buf, REPLY_SERVER_FAILURE, ATYP_IPV4, EMPTY_IP, 0);
-        return closeClient(c,  CLIENT_READ, key);
     }
+    logger(ERROR, "Can't create client socket");
+    server_reply(&c->client_buf, REPLY_SERVER_FAILURE, ATYP_IPV4, EMPTY_IP, 0);
+    return closeClient(c,  CLIENT_READ, key);
 }
 
 unsigned origin_check_connection(struct selector_key *key) {
     client *c = ATTACHMENT(key);
-    int error = 0;
+
+    if(key->fd == c->client_sock)
+    {
+        selector_remove_interest(key->s, c->client_sock, OP_WRITE);
+        return try_connect(key);
+    }
+
+    int error;
     socklen_t len = sizeof(error);
     getsockopt(c->origin_sock, SOL_SOCKET, SO_ERROR, &error, &len);
     if(error == 0) {
@@ -374,11 +383,22 @@ unsigned origin_check_connection(struct selector_key *key) {
 		c->active_ends |= ORIGIN;
         selector_set_interest(key->s, c->origin_sock, OP_READ | OP_WRITE);
         selector_set_interest(key->s, c->client_sock, OP_READ | OP_WRITE);
-        server_reply(&c->client_buf, REPLY_SUCCEEDED, ATYP_IPV4, EMPTY_IP, 0);
-        add_connection();
+
+        struct sockaddr_storage saddr;
+        socklen_t slen = sizeof(saddr);
+        getsockname(c->origin_sock, (struct sockaddr*)&saddr, &slen);
+        if(c->curr_addr->ai_family == AF_INET)
+        {
+            struct sockaddr_in *sin = (void*)&saddr;
+            server_reply(&c->client_buf, REPLY_SUCCEEDED, ATYP_IPV4, (uint8_t*)&sin->sin_addr, sin->sin_port);
+        }
+        else
+        {
+            struct sockaddr_in6 *sin6 = (void*)&saddr;
+            server_reply(&c->client_buf, REPLY_SUCCEEDED, ATYP_IPV6, (uint8_t*)&sin6->sin6_addr, sin6->sin6_port);
+        }
 
         uint16_t port = 0;
-
         if(c->curr_addr->ai_family == AF_INET) {
             struct sockaddr_in *sinp;
             sinp = (struct sockaddr_in *) c->curr_addr->ai_addr;
@@ -397,10 +417,12 @@ unsigned origin_check_connection(struct selector_key *key) {
         return PROXY;
     } else {
         logger(ERROR, "Error: %d %s", error, strerror(error));
-        c->curr_addr = c->curr_addr->ai_next;
-        selector_remove_interest(key->s, c->origin_sock, OP_READ | OP_WRITE);
-        if(c->curr_addr != NULL)
+        selector_unregister_fd(key->s, c->origin_sock);
+        if(c->curr_addr->ai_next != NULL)
+        {
+            c->curr_addr = c->curr_addr->ai_next;
             return try_connect(key);
+        }
 
         // No hay más opciones. Responder con el error
         enum server_reply_type reply = check_connection_error(error);
@@ -414,22 +436,34 @@ unsigned handle_proxy_read(struct selector_key *key) {
 	client *c = ATTACHMENT(key);
 	
     if(c->client_sock == key->fd) { // Leer del socket cliente y almacenar en el buffer del origen
+        if(!buffer_can_write(&c->origin_buf))
+        {
+            selector_mask_interest(key->s, c->client_sock, OP_READ);
+            goto next;
+        }
+
         bytes_read = read_from_sock(c->client_sock, &(c->origin_buf));
 		if (checkEOF(bytes_read))
 			return closeClient(c,  CLIENT_READ, key);
+        selector_unmask_interest(key->s, c->origin_sock, OP_WRITE);
 
         if(get_dissector_state() && c->pop3_parser != NULL) {
             if(pop3_parse(c->pop3_parser, &(c->origin_buf))) {
                 logger(INFO, "<%s> logged in using credentials %s:%s", c->socks_user, c->pop3_parser->user, c->pop3_parser->pass);
             }
         }
-
-        selector_add_interest(key->s, c->origin_sock, OP_WRITE);
     } else if(c->origin_sock == key->fd) { // Leer en el socket del origen y guardar en el buffer del usuario
+        if(!buffer_can_write(&c->client_buf))
+        {
+            selector_mask_interest(key->s, c->origin_sock, OP_READ);
+            goto next;
+        }
+        
         bytes_read = read_from_sock(c->origin_sock, &(c->client_buf));
 		if (checkEOF(bytes_read))
 			return closeClient(c,  ORIGIN_READ, key);
-        selector_add_interest(key->s, c->client_sock, OP_WRITE);
+        selector_unmask_interest(key->s, c->client_sock, OP_WRITE);
+
         uint8_t first = c->client_buf.read[0];
         if(c->pop3_parser == NULL && (first == '+' || first == '-')) {
             logger(INFO, "POP3-like response. Sniffing...");
@@ -439,7 +473,8 @@ unsigned handle_proxy_read(struct selector_key *key) {
 	}
     else
         abort();
-	
+
+    next:
     return stm_state(c->stm);
 }
 
@@ -456,7 +491,7 @@ unsigned handle_proxy_write(struct selector_key *key) {
                 return closeClient(c,  CLIENT_WRITE, key);
             else
             {
-                selector_remove_interest(key->s, key->fd, OP_WRITE);
+                selector_mask_interest(key->s, key->fd, OP_WRITE);
                 return stm_state(c->stm);
             }
         }
@@ -464,6 +499,7 @@ unsigned handle_proxy_write(struct selector_key *key) {
         bytes_left = write_to_sock(c->client_sock, &(c->client_buf));
         if (bytes_left != 0 && checkEOF(bytes_left))
             return closeClient(c,  CLIENT_WRITE, key);
+        selector_unmask_interest(key->s, c->origin_sock, OP_READ);
     }
     else if (c->origin_sock == key->fd)
     { // Leer en el socket del origen y guardar en el buffer del usuario
@@ -473,7 +509,7 @@ unsigned handle_proxy_write(struct selector_key *key) {
                 return closeClient(c,  ORIGIN_WRITE, key);
             else
             {
-                selector_remove_interest(key->s, key->fd, OP_WRITE);
+                selector_mask_interest(key->s, key->fd, OP_WRITE);
                 return stm_state(c->stm);
             }
         }
@@ -481,6 +517,7 @@ unsigned handle_proxy_write(struct selector_key *key) {
         bytes_left = write_to_sock(c->origin_sock, &(c->origin_buf));
         if (bytes_left != 0 && checkEOF(bytes_left))
             return closeClient(c,  ORIGIN_WRITE, key);
+        selector_unmask_interest(key->s, c->client_sock, OP_READ);
     }
     else
         abort();
@@ -496,14 +533,20 @@ void enable_write(unsigned state, struct selector_key *key)
 {
 	client *c = ATTACHMENT(key);
     if(hasFlag(c->active_ends, CLIENT_WRITE))
+    {
         selector_add_interest(key->s, c->client_sock, OP_WRITE);
+        selector_unmask_interest(key->s, c->client_sock, OP_WRITE);
+    }
     if(hasFlag(c->active_ends, ORIGIN_WRITE))
+    {
         selector_add_interest(key->s, c->origin_sock, OP_WRITE);
+        selector_unmask_interest(key->s, c->client_sock, OP_WRITE);
+    }
 }
 
 static void client_destroy(unsigned state, struct selector_key *key) {
     client *c = ATTACHMENT(key);
-	rm_connection();
+	rm_proxy_client();
     if(c->resolution != NULL)
     {
         logger(DEBUG, "Cleaning client");

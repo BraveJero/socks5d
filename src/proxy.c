@@ -13,6 +13,7 @@
 #include <netinet/in.h>
 #include <sys/time.h>
 #include "logger.h"
+#include "selector.h"
 #include "tcpServerUtil.h"
 #include "tcpClientUtil.h"
 #include "clients.h"
@@ -26,6 +27,8 @@
 #define SOCKS_ADDR6 "::"
 #define MGMT_ADDR4 "127.0.0.1"
 #define MGMT_ADDR6 "::1"
+
+fd_selector selector;
 
 static bool done = false;
 static void sigterm(int sig) {
@@ -85,10 +88,8 @@ int main(int argc, char *argv[])
 
     if(master_size == 0 || monitor_size == 0) {
         logger(ERROR, "Error setting up passive sockets. Exiting..");
-        exit(1);
+        exit(2);
     }
-
-	fd_selector selector = NULL;
 
 	const struct selector_init conf = {
 		.signal = SIGALRM,
@@ -106,6 +107,7 @@ int main(int argc, char *argv[])
 	if (selector == NULL)
 	{
 		logger(ERROR, "selector_new() failed");
+		exit(3);
 	}
 
 	struct fd_handler master_handler = {

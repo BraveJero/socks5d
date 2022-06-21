@@ -60,17 +60,27 @@ static const struct fd_handler mgmt_handler = {
 };
 
 void mgmt_master_read_handler (struct selector_key *key) {
+    if(!add_mgmt_client())
+    {
+        logger(ERROR, "No more space for clients! Waiting...");
+        return;
+    }
+
     int new_socket = acceptTCPConnection(key->fd);
     if(new_socket < 0){
         logger(DEBUG, "accept() failed. New connection refused");
+        rm_mgmt_client();
         return;
     }
             
     selector_fd_set_nio(new_socket);
     mgmt_client *new_client = create_mgmt_client(new_socket);
+    struct selector_key client_key = {.data = new_client, .fd = new_socket};
 
     if(new_client == NULL) {
-        // catch error
+        handle_mgmt_close(&client_key);
+        rm_mgmt_client();
+        return;
     }
 
     size_t size;
@@ -80,11 +90,18 @@ void mgmt_master_read_handler (struct selector_key *key) {
 
     memcpy(write_ptr, response_buf, len);
     buffer_write_adv(&(new_client->write_buf), len);
-    selector_register(key->s, new_socket, &mgmt_handler, OP_WRITE | OP_READ, new_client);
+    if(selector_register(key->s, new_socket, &mgmt_handler, OP_WRITE | OP_READ, new_client) != SELECTOR_SUCCESS)
+    {
+        handle_mgmt_close(&client_key);
+        rm_mgmt_client();
+        return;
+    }
 }
 
 mgmt_client *create_mgmt_client(int sock) {
     mgmt_client *new_client = malloc(sizeof(mgmt_client));
+    if(new_client == NULL)
+        return NULL;
     new_client->quitted = false;
     new_client->fd = sock;
     buffer_init(&(new_client->write_buf), MGMT_BUFFSIZE, new_client->write_buf_raw);
@@ -114,6 +131,7 @@ static void handle_mgmt_read(struct selector_key *key) {
 static void handle_mgmt_close(struct selector_key *key) {
     close(key->fd);
     free(key->data);
+    rm_mgmt_client();
 }
 
 static void handle_mgmt_write(struct selector_key *key) {
@@ -181,7 +199,7 @@ bool processMgmtClient(mgmt_client *c)
                 response_len = snprintf(response_buf, MGMT_BUFFSIZE, stats_format, success_status, line_delimiter,
                 get_transferred_bytes(), line_delimiter,
                 get_all_connections(), line_delimiter,
-                get_current_connections(), line_delimiter,
+                get_current_clients(), line_delimiter,
                 multiline_delimiter, line_delimiter);
                 break;
             }

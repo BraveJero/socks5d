@@ -170,9 +170,17 @@ selector_set_interest(fd_selector s, int fd, fd_interest i);
 selector_status
 selector_add_interest(fd_selector s, int fd, fd_interest i);
 
+/** permite desenmascarar intereses para un file descriptor */
+selector_status
+selector_unmask_interest(fd_selector s, int fd, fd_interest i);
+
 /** permite remover los intereses para un file descriptor */
 selector_status
 selector_remove_interest(fd_selector s, int fd, fd_interest i);
+
+/** permite enmascarar los intereses para un file descriptor */
+selector_status
+selector_mask_interest(fd_selector s, int fd, fd_interest i);
 
 /** permite cambiar los intereses para un file descriptor */
 __attribute__((deprecated))
