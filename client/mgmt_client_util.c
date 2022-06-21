@@ -164,13 +164,16 @@ bool authenticate(int sock, const char *token) {
         return false;
     }
 
-    ssize_t bytes_read;
-    if((bytes_read = read(sock, response_buf, BUFFSIZE)) <= 0) {
+    if(!get_response(sock, response_buf, BUFFSIZE, false)) {
         return false;
     }
 
-    response_buf[bytes_read] = '\0';
-    return response_buf[0] == '+';
+    if (response_buf[0] == '-') {
+        return false;
+    }
+
+    printf("Authentication with token: \"%s\" successful!\n", token);
+    return true;
 }
 
 bool stats(int sock) {
