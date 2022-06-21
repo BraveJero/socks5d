@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <clients.h>
 #include <logger.h>
+#include "handshake.h"
 
 const char *
 printFamily(struct addrinfo *aip)
@@ -158,13 +159,17 @@ void log_access_info(client *c, unsigned reply) {
     char client_addr_buf[64], origin_addr_buf[262];
     printSocketAddress(&c->client_addr, client_addr_buf);
 
-    if(c->resolution != NULL) {
+    if(c->atyp == ATYP_DOMAIN_NAME) {
         strncpy(origin_addr_buf, c->dest_fqdn, 255);
         char port_buf[7];
         snprintf(port_buf, 7, ":%d", htons(c->dest_port));
         strncat(origin_addr_buf, port_buf, 6);
     } else {
-        printAddressPort(c->curr_addr, origin_addr_buf);
+        if(c->curr_addr != NULL) {
+            printAddressPort(c->curr_addr, origin_addr_buf);
+        } else {
+            strncpy(origin_addr_buf, "Address unkown", sizeof(origin_addr_buf));
+        }
     }
 
     logger(INFO, "<%s>\tA\t%s\t%s\tstatus:%d", c->socks_user, client_addr_buf, origin_addr_buf, reply);
@@ -174,7 +179,7 @@ void log_sniffer_info(client *c, const char *user, const char *pass){
     char client_addr_buf[64], origin_addr_buf[262];
     printSocketAddress(&c->client_addr, client_addr_buf);
 
-    if(c->resolution != NULL) {
+    if(c->atyp == ATYP_DOMAIN_NAME) {
         strncpy(origin_addr_buf, c->dest_fqdn, 255);
         char port_buf[7];
         snprintf(port_buf, 7, ":%d", htons(c->dest_port));

@@ -197,6 +197,8 @@ unsigned read_proxy_request(struct selector_key *key)
 	if (availableBytes < 5)
 		return stm_state(c->stm);
 	enum atyp atyp = readBuffer[3];
+    c->atyp = atyp;
+
 	size_t addrLen;
 	switch (atyp)
 	{
