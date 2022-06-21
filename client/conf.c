@@ -55,11 +55,12 @@ bool parse_conf(const int argc, char **argv, struct mnmt_conf* mnmt_conf) {
                 return false;
         }
     }
-    if (argc - optind < 1) {
-        fprintf(stderr, "A token must be provided.\n");
+    const char * env_token = getenv(TOKEN_ENV_VAR);
+    if (argc - optind < 1 && env_token == NULL) {
+        fprintf(stderr, "A token must be provided either as an environment variable or as an operand.\n");
         usage(argv[0]);
         return false;
     }
-    mnmt_conf->token = argv[optind++];
+    mnmt_conf->token = (env_token) ? env_token : argv[optind++];
     return true;
 }
