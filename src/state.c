@@ -17,7 +17,7 @@ size_t get_all_connections(void) {
 }
 
 size_t get_current_clients(void) {
-    return proxy_client_count;
+    return proxy_client_count + mgmt_client_count;
 }
 
 size_t get_buffsize(void) {
@@ -36,6 +36,7 @@ bool add_proxy_client(void) {
     if(mgmt_client_count + proxy_client_count * 2 <= 1020 - 2)
     {
         proxy_client_count++;
+        all_connections++;
         return true;
     }
     return false;
@@ -45,6 +46,7 @@ bool add_mgmt_client(void) {
     if(mgmt_client_count + proxy_client_count * 2 <= 1020 - 1)
     {
         mgmt_client_count++;
+        all_connections++;
         return true;
     }
     return false;
