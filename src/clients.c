@@ -384,9 +384,9 @@ unsigned origin_check_connection(struct selector_key *key) {
         selector_set_interest(key->s, c->origin_sock, OP_READ | OP_WRITE);
         selector_set_interest(key->s, c->client_sock, OP_READ | OP_WRITE);
 
-        struct sockaddr saddr;
-        socklen_t slen;
-        getsockname(c->origin_sock, &saddr, &slen);
+        struct sockaddr_storage saddr;
+        socklen_t slen = sizeof(saddr);
+        getsockname(c->origin_sock, (struct sockaddr*)&saddr, &slen);
         if(c->curr_addr->ai_family == AF_INET)
         {
             struct sockaddr_in *sin = (void*)&saddr;
