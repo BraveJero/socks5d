@@ -164,14 +164,35 @@ bool stats(int sock) {
         return false;
     }
 
-    ssize_t bytes_read;
-    if((bytes_read = read(sock, response_buf, BUFFSIZE)) <= 0) {
+    if(!get_response(sock, response_buf, BUFFSIZE, true)) {
+        return false;
+    }
+    
+    if (response_buf[0] == '-') {
+        fprintf(stderr, "Error running STATS: %s\n", response_buf);
         return false;
     }
 
-    response_buf[bytes_read] = '\0';
-    printf("{{%s}}\n", response_buf);
-    return response_buf[0] == '+';
+    printf("List of statistics:\n");
+    char * cap = strtok(response_buf, EOL);
+    cap = strtok(NULL, EOL);
+    while (cap != NULL && cap[0] != '.') {
+        unsigned long long int stat = strtoull(cap + 1, NULL, 10);
+        switch(cap[0]) {
+            case 'B':
+                printf("Bytes transferred: %llu\n", stat);
+                break;
+            case 'H':
+                printf("Historical connections: %llu\n", stat);
+                break;
+            case 'C':
+                printf("Concurrent connections: %llu\n", stat);
+                break;
+        }
+        cap = strtok(NULL, EOL);
+    }
+
+    return true;
 }
 
 bool users(int sock) {
