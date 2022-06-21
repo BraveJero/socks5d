@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <netdb.h>
+
 #include "mgmt_client_util.h"
 
 #define BUFFSIZE 512
