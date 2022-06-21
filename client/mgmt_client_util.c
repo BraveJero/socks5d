@@ -143,8 +143,13 @@ bool capa(int sock) {
         return false;
     }
 
+    puts("----------------------------");
+
     printf("List of capabilities:\n");
     simple_iteration(response_buf, "CAPA");
+
+    puts("----------------------------");
+    putchar('\n');
 
     return true;
 }
@@ -178,6 +183,8 @@ bool stats(int sock) {
         return false;
     }
 
+    puts("----------------------------");
+
     printf("List of statistics:\n");
     char * tok = strtok(response_buf, EOL);
     tok = strtok(NULL, EOL);
@@ -197,6 +204,9 @@ bool stats(int sock) {
         tok = strtok(NULL, EOL);
     }
 
+    puts("----------------------------");
+    putchar('\n');
+
     return true;
 }
 
@@ -214,8 +224,13 @@ bool users(int sock) {
         return false;
     }
 
+    puts("----------------------------");
+
     printf("List of users:\n");
     simple_iteration(response_buf, "USER");
+
+    puts("----------------------------");
+    putchar('\n');
 
     return true;
 }
@@ -234,10 +249,16 @@ bool buffsize(int sock) {
         return false;
     }
 
+    puts("----------------------------");
+
     char * tok = strtok(response_buf, EOL);
     tok = strtok(NULL, EOL);
     unsigned long long int buff_size = strtoull(tok, NULL, 10);
     printf("Current size of the buffer: %llu\n", buff_size);
+
+    puts("----------------------------");
+    putchar('\n');
+
     return true;
 }
 
@@ -255,12 +276,18 @@ bool dissector_status(int sock) {
         return false;
     }
 
+    puts("----------------------------");
+
     char * tok = strtok(response_buf, EOL);
     tok = strtok(NULL, EOL);
     printf("We are ");
     if (strcmp(tok, "off") == 0)
         printf("not ");
     printf("sniffing\n");
+
+    puts("----------------------------");
+    putchar('\n');
+
     return true;
 }
 
@@ -279,7 +306,13 @@ bool set_buffsize(int sock, const char * size) {
         return false;
     }
 
+    puts("----------------------------");
+
     printf("Buffer size updated to %s\n", size);
+
+    puts("----------------------------");
+    putchar('\n');
+
     return true;
 }
 
@@ -297,8 +330,14 @@ bool set_dissector_status(int sock, const char *status) {
         fprintf(stderr, "Error running SET-DISSECTOR-STATUS: %s\n", response_buf);
         return false;
     }
+    
+    puts("----------------------------");
 
     printf("Dissector is now %s\n", status);
+    
+    puts("----------------------------");
+    putchar('\n');
+
     return true;
 }
 

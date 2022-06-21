@@ -26,17 +26,28 @@ int main(int argc, char *argv[]) {
         goto finally;
     }
 
+    puts("----------------------------");
+    puts("CONNECTING TO SERVER");
+
     if(!read_hello(conf.sock)) {
         err_msg = "Error in server greeting";
         exit_status = 1;
         goto finally;
     }
 
+    puts("----------------------------");
+    puts("");
+
+    puts("----------------------------");
+    puts("AUTHENTICATING WITH TOKEN");
     if(!authenticate(conf.sock, conf.token)) {
         err_msg = "Could not authenticate in server";
         exit_status = 1;
         goto finally;
     }
+
+    puts("----------------------------");
+    puts("");
 
     int c;
     opterr = 0, optind = 0;
