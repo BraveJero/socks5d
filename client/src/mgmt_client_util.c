@@ -13,12 +13,6 @@
 static char response_buf[BUFFSIZE];
 static char request_buf[BUFFSIZE];
 
-// typedef struct command_type {
-//     uint8_t id;
-//     const char * format;
-//     bool multiline;
-// } command_type;
-
 static const char *commands_format[] = {
     "CAPA\r\n",
     "TOKEN %s\r\n",
@@ -30,17 +24,6 @@ static const char *commands_format[] = {
     "SET-DISSECTOR-STATUS %s\r\n",
     "ADD-USER %s\r\n",
 };
-
-//static const bool commands_multilne[] = {
-//        true,
-//        false,
-//        true,
-//        true,
-//        true,
-//        true,
-//        false,
-//        false,
-//};
 
 /*
  * buff is expected to hold a null terminated string

@@ -18,10 +18,19 @@ usage(const char *progname) {
     fprintf(stderr,
         "Usage: %s [OPTION]... [TOKEN]\n"
         "\n"
-        "   -L <conf addr>   Dirección de management.\n"
-        "   -P <conf port>   Puerto de management.\n"
-        "   -h               Imprime la ayuda y termina.\n"
-        "   -v               Imprime información sobre la versión versión y termina.\n"
+        "   -L <conf addr>     Dirección de management.\n"
+        "   -P <conf port>     Puerto de management.\n"
+        "   -h                 Imprime la ayuda y termina.\n"
+        "   -v                 Imprime información sobre la versión versión y termina.\n"
+        "\n"
+        "   -0                 Imprime las capacidades del protocolo (CAPA).\n"
+        "   -1                 Imprime las estadisticas del protocolo.\n"
+        "   -2                 Imprime la lista de usuarios registrados en el servidor.\n"
+        "   -3                 Imprime el tamaño del buffer.\n"
+        "   -4                 Imprime el estado del dissector.\n"
+        "   -5 <buff size>     Actualiza el tamaño del buffer.\n"
+        "   -6 <diss state>    Actualiza el estado del dissector.\n"
+        "   -7 <user>:<pass>   Registra en el servidor al usuario <user> con la contraseña <pass>.\n"
         "\n",
         progname);
 }
