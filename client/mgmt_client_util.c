@@ -118,6 +118,17 @@ get_response(int sock, char * buff, size_t len, bool multiline) {
     return true;
 }
 
+static void
+simple_iteration(const char * buffer, const char * line_header) {
+    char * tok = strtok(response_buf, EOL);
+    tok = strtok(NULL, EOL); // All multiline responses begin with the line '+OK [...]'
+    int i = 0;
+    while (tok != NULL && tok[0] != '.') { // All multiline responses end with the line '.'
+        printf("%s #%d: %s\n",line_header, i++, tok);
+        tok = strtok(NULL, EOL);
+    }
+}
+
 bool capa(int sock) {
     if(!send_text(sock, commands_format[CMD_CAPA])) {
         return false;
@@ -133,13 +144,7 @@ bool capa(int sock) {
     }
 
     printf("List of capabilities:\n");
-    char * cap = strtok(response_buf, EOL);
-    cap = strtok(NULL, EOL);
-    int i = 0;
-    while (cap != NULL && cap[0] != '.') {
-        printf("CAPA #%d: %s\n", i++, cap);
-        cap = strtok(NULL, EOL);
-    }
+    simple_iteration(response_buf, "CAPA");
 
     return true;
 }
@@ -200,14 +205,19 @@ bool users(int sock) {
         return false;
     }
 
-    ssize_t bytes_read;
-    if((bytes_read = read(sock, response_buf, BUFFSIZE)) <= 0) {
+    if(!get_response(sock, response_buf, BUFFSIZE, true)) {
+        return false;
+    }
+    
+    if (response_buf[0] == '-') {
+        fprintf(stderr, "Error running USERS: %s\n", response_buf);
         return false;
     }
 
-    response_buf[bytes_read] = '\0';
-    printf("{{%s}}\n", response_buf);
-    return response_buf[0] == '+';
+    printf("List of users:\n");
+    simple_iteration(response_buf, "USER");
+
+    return true;
 }
 
 bool buffsize(int sock) {
