@@ -11,6 +11,7 @@ OBJS := $(C_SOURCES:%.c=$(BUILD_DIR)/%.o)
 RE2C := re2c
 
 DEP_FLAGS := -MMD -MP
+# TODO: Remove debug option
 CFLAGS += -Wall -g -lpthread -std=c11 -pedantic -pedantic-errors -Wextra -Werror -Wno-unused-parameter -Wno-implicit-fallthrough -D_POSIX_C_SOURCE=200112L -fsanitize=address
 CFLAGS += -I$(SOURCE_DIR) -I$(INCLUDE_DIR) $(DEP_FLAGS)
 RE2CFLAGS += -W -f --no-generation-date
