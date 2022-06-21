@@ -2,7 +2,7 @@ SOURCE_DIR := src
 BUILD_DIR := build
 INCLUDE_DIR := include
 
-TARGET := proxy
+TARGET := socks5d
 
 C_SOURCES := $(shell find $(SOURCE_DIR)/ -type f -name "*.c")
 OBJS := $(C_SOURCES:%.c=$(BUILD_DIR)/%.o)
