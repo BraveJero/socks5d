@@ -70,7 +70,6 @@ int main(int argc, char *argv[]) {
     }
 
     printf("%s\n", success_msg);
-    return 0;
 
 finally:
     if(exit_status) fprintf(stderr, "%s\n", err_msg);
