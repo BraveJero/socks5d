@@ -436,22 +436,33 @@ unsigned handle_proxy_read(struct selector_key *key) {
 	client *c = ATTACHMENT(key);
 	
     if(c->client_sock == key->fd) { // Leer del socket cliente y almacenar en el buffer del origen
+        if(!buffer_can_write(&c->origin_buf))
+        {
+            selector_mask_interest(key->s, c->client_sock, OP_READ);
+            goto next;
+        }
+
         bytes_read = read_from_sock(c->client_sock, &(c->origin_buf));
 		if (checkEOF(bytes_read))
 			return closeClient(c,  CLIENT_READ, key);
+        selector_unmask_interest(key->s, c->origin_sock, OP_WRITE);
 
         if(get_dissector_state() && c->pop3_parser != NULL) {
             if(pop3_parse(c->pop3_parser, &(c->origin_buf))) {
                 logger(INFO, "<%s> logged in using credentials %s:%s", c->socks_user, c->pop3_parser->user, c->pop3_parser->pass);
             }
         }
-
-        selector_add_interest(key->s, c->origin_sock, OP_WRITE);
     } else if(c->origin_sock == key->fd) { // Leer en el socket del origen y guardar en el buffer del usuario
         bytes_read = read_from_sock(c->origin_sock, &(c->client_buf));
+        if(!buffer_can_write(&c->client_buf))
+        {
+            selector_mask_interest(key->s, c->origin_sock, OP_READ);
+            goto next;
+        }
 		if (checkEOF(bytes_read))
 			return closeClient(c,  ORIGIN_READ, key);
-        selector_add_interest(key->s, c->client_sock, OP_WRITE);
+        selector_unmask_interest(key->s, c->client_sock, OP_WRITE);
+
         uint8_t first = c->client_buf.read[0];
         if(c->pop3_parser == NULL && (first == '+' || first == '-')) {
             logger(INFO, "POP3-like response. Sniffing...");
@@ -461,7 +472,8 @@ unsigned handle_proxy_read(struct selector_key *key) {
 	}
     else
         abort();
-	
+
+    next:
     return stm_state(c->stm);
 }
 
@@ -478,7 +490,7 @@ unsigned handle_proxy_write(struct selector_key *key) {
                 return closeClient(c,  CLIENT_WRITE, key);
             else
             {
-                selector_remove_interest(key->s, key->fd, OP_WRITE);
+                selector_mask_interest(key->s, key->fd, OP_WRITE);
                 return stm_state(c->stm);
             }
         }
@@ -486,6 +498,7 @@ unsigned handle_proxy_write(struct selector_key *key) {
         bytes_left = write_to_sock(c->client_sock, &(c->client_buf));
         if (bytes_left != 0 && checkEOF(bytes_left))
             return closeClient(c,  CLIENT_WRITE, key);
+        selector_unmask_interest(key->s, c->origin_sock, OP_READ);
     }
     else if (c->origin_sock == key->fd)
     { // Leer en el socket del origen y guardar en el buffer del usuario
@@ -495,7 +508,7 @@ unsigned handle_proxy_write(struct selector_key *key) {
                 return closeClient(c,  ORIGIN_WRITE, key);
             else
             {
-                selector_remove_interest(key->s, key->fd, OP_WRITE);
+                selector_mask_interest(key->s, key->fd, OP_WRITE);
                 return stm_state(c->stm);
             }
         }
@@ -503,6 +516,7 @@ unsigned handle_proxy_write(struct selector_key *key) {
         bytes_left = write_to_sock(c->origin_sock, &(c->origin_buf));
         if (bytes_left != 0 && checkEOF(bytes_left))
             return closeClient(c,  ORIGIN_WRITE, key);
+        selector_unmask_interest(key->s, c->client_sock, OP_READ);
     }
     else
         abort();
@@ -518,9 +532,15 @@ void enable_write(unsigned state, struct selector_key *key)
 {
 	client *c = ATTACHMENT(key);
     if(hasFlag(c->active_ends, CLIENT_WRITE))
+    {
         selector_add_interest(key->s, c->client_sock, OP_WRITE);
+        selector_unmask_interest(key->s, c->client_sock, OP_WRITE);
+    }
     if(hasFlag(c->active_ends, ORIGIN_WRITE))
+    {
         selector_add_interest(key->s, c->origin_sock, OP_WRITE);
+        selector_unmask_interest(key->s, c->client_sock, OP_WRITE);
+    }
 }
 
 static void client_destroy(unsigned state, struct selector_key *key) {

@@ -104,6 +104,7 @@ selector_close(void) {
 struct item {
    int                 fd;
    fd_interest         interest;
+   fd_interest         interestMask;
    const fd_handler   *handler;
    void *              data;
 };
@@ -226,11 +227,11 @@ items_update_fdset_for_fd(fd_selector s, const struct item * item) {
     FD_CLR(item->fd, &s->master_w);
 
     if(ITEM_USED(item)) {
-        if(item->interest & OP_READ) {
+        if(item->interest & item->interestMask & OP_READ) {
             FD_SET(item->fd, &(s->master_r));
         }
 
-        if(item->interest & OP_WRITE) {
+        if(item->interest & item->interestMask & OP_WRITE) {
             FD_SET(item->fd, &(s->master_w));
         }
     }
@@ -360,6 +361,7 @@ selector_register(fd_selector        s,
         item->fd       = fd;
         item->handler  = handler;
         item->interest = interest;
+        item->interestMask = ~0;
         item->data     = data;
 
         // actualizo colaterales
@@ -442,6 +444,26 @@ selector_add_interest(fd_selector s, int fd, fd_interest i) {
         goto finally;
     }
     item->interest |= i;
+    item->interestMask |= i;
+    items_update_fdset_for_fd(s, item);
+finally:
+    return ret;
+}
+
+selector_status
+selector_unmask_interest(fd_selector s, int fd, fd_interest i) {
+    selector_status ret = SELECTOR_SUCCESS;
+
+    if(NULL == s || INVALID_FD(fd)) {
+        ret = SELECTOR_IARGS;
+        goto finally;
+    }
+    struct item *item = s->fds + fd;
+    if(!ITEM_USED(item)) {
+        ret = SELECTOR_IARGS;
+        goto finally;
+    }
+    item->interestMask |= i;
     items_update_fdset_for_fd(s, item);
 finally:
     return ret;
@@ -461,6 +483,25 @@ selector_remove_interest(fd_selector s, int fd, fd_interest i) {
         goto finally;
     }
     item->interest &= ~i;
+    items_update_fdset_for_fd(s, item);
+finally:
+    return ret;
+}
+
+selector_status
+selector_mask_interest(fd_selector s, int fd, fd_interest i) {
+    selector_status ret = SELECTOR_SUCCESS;
+
+    if(NULL == s || INVALID_FD(fd)) {
+        ret = SELECTOR_IARGS;
+        goto finally;
+    }
+    struct item *item = s->fds + fd;
+    if(!ITEM_USED(item)) {
+        ret = SELECTOR_IARGS;
+        goto finally;
+    }
+    item->interestMask &= ~i;
     items_update_fdset_for_fd(s, item);
 finally:
     return ret;
