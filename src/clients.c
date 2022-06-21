@@ -453,12 +453,13 @@ unsigned handle_proxy_read(struct selector_key *key) {
             }
         }
     } else if(c->origin_sock == key->fd) { // Leer en el socket del origen y guardar en el buffer del usuario
-        bytes_read = read_from_sock(c->origin_sock, &(c->client_buf));
         if(!buffer_can_write(&c->client_buf))
         {
             selector_mask_interest(key->s, c->origin_sock, OP_READ);
             goto next;
         }
+        
+        bytes_read = read_from_sock(c->origin_sock, &(c->client_buf));
 		if (checkEOF(bytes_read))
 			return closeClient(c,  ORIGIN_READ, key);
         selector_unmask_interest(key->s, c->client_sock, OP_WRITE);
