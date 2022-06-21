@@ -179,7 +179,10 @@ unsigned read_proxy_request(struct selector_key *key)
 	// Leer del socket cliente y almacenar en el buffer del origen
 	ssize_t bytes_read = read_from_sock(c->client_sock, &(c->origin_buf));
 	if (checkEOF(bytes_read))
+	{
+		server_reply(&c->client_buf, REPLY_COMMAND_NOT_SUPPORTED, ATYP_IPV4, EMPTY_IP, 0);
 		return closeClient(c,  CLIENT_READ, key);
+	}
 
 	size_t availableBytes;
 	uint8_t *readBuffer = buffer_read_ptr(&c->origin_buf, &availableBytes);
@@ -217,9 +220,12 @@ unsigned read_proxy_request(struct selector_key *key)
 		return closeClient(c,  CLIENT_READ, key);
 	}
 
+	selector_remove_interest(key->s, c->client_sock, OP_READ);
 	if(atyp == ATYP_DOMAIN_NAME)
 	{
 		c->dest_fqdn = malloc(addrLen);
+		if(c->dest_fqdn == NULL)
+			goto error;
 
 		memcpy(c->dest_fqdn, &readBuffer[5], addrLen-1);
 		c->dest_fqdn[addrLen-1] = '\0';
@@ -229,7 +235,15 @@ unsigned read_proxy_request(struct selector_key *key)
 	else if(atyp == ATYP_IPV4)
 	{
 		c->curr_addr = malloc(sizeof(struct addrinfo));
+		if(c->curr_addr == NULL)
+			goto error;
 		struct sockaddr_in *sock = malloc(sizeof(*sock));
+		if(sock == NULL)
+		{
+			free(c->curr_addr);
+			goto error;
+		}
+		
 		*sock = (struct sockaddr_in)
 		{
 			.sin_family = AF_INET,
@@ -248,7 +262,15 @@ unsigned read_proxy_request(struct selector_key *key)
 	else // if(atyp == ATYP_IPV6)
 	{
 		c->curr_addr = malloc(sizeof(struct addrinfo));
+		if(c->curr_addr == NULL)
+			goto error;
 		struct sockaddr_in6 *sock = malloc(sizeof(*sock));
+		if(sock == NULL)
+		{
+			free(c->curr_addr);
+			goto error;
+		}
+
 		*sock = (struct sockaddr_in6)
 		{
 			.sin6_family = AF_INET6,
@@ -264,4 +286,8 @@ unsigned read_proxy_request(struct selector_key *key)
 		};
 		return CONNECTING;
 	}
+
+	error:
+	server_reply(&c->client_buf, REPLY_SERVER_FAILURE, ATYP_IPV4, EMPTY_IP, 0);
+	return closeClient(c,  CLIENT_READ, key);
 }

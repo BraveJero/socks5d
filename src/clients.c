@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -114,19 +115,6 @@ static const struct fd_handler socks5_handler = {
     .handle_block  = socksv5_block,
 };
 
-static void start_name_resolution(unsigned state, struct selector_key *key)
-{
-    client *client = ATTACHMENT(key);
-    struct selector_key *dup_key = malloc(sizeof(*key));
-    
-    dup_key->data = client;
-    dup_key->fd = client->client_sock;
-    dup_key->s = key->s;
-
-    pthread_t tid;
-    pthread_create(&tid, NULL, thread_name_resolution, dup_key);
-}
-
 unsigned closeClient(client *client, enum socket_ends level, struct selector_key *key)
 {
 	level &= client->active_ends;
@@ -197,7 +185,7 @@ void master_read_handler(struct selector_key *key) {
     client *new_client = create_client(new_socket);
 
     if(new_client == NULL) {
-        // catch error
+        close(new_socket);
     }
 
     selector_register(key->s, new_client->client_sock, &socks5_handler, OP_READ, new_client);
@@ -207,10 +195,8 @@ void master_read_handler(struct selector_key *key) {
 
 client *create_client(int sock) {
     client *new_client = malloc(sizeof(client));
-    if(new_client == NULL) {
-        logger(DEBUG, "malloc() failed. New connection refused");
-        close(sock);
-    }
+    if(new_client == NULL)
+        goto fail;
 
     *new_client = (struct client)
     {
@@ -219,6 +205,8 @@ client *create_client(int sock) {
         .origin_sock = -1,
         .active_ends = CLIENT,
     };
+    if(new_client->stm == NULL)
+        goto fail;
     *new_client->stm = (struct state_machine)
     {
         .initial = AUTH_METHOD,
@@ -232,11 +220,10 @@ client *create_client(int sock) {
     new_client->origin_buf_raw = malloc(sizeof(uint8_t) * buffsize);
 
     if(new_client->client_buf_raw == NULL || new_client->origin_buf_raw == NULL) {
+        free(new_client->stm);
         free(new_client->origin_buf_raw);
         free(new_client->client_buf_raw);
-        free(new_client);
-        logger(DEBUG, "malloc() failed: %s", strerror(errno));
-        return NULL;
+        goto fail;
     }
 
     new_client->socks_user[0] = '\0';
@@ -246,19 +233,12 @@ client *create_client(int sock) {
     buffer_init(&(new_client->client_buf), buffsize, new_client->client_buf_raw);
     buffer_init(&(new_client->origin_buf), buffsize, new_client->origin_buf_raw);
     return new_client;
-}
 
-unsigned handle_finished_resolution(struct selector_key *key) {
-    client *c = ATTACHMENT(key);
-    assert(c->resolution != NULL);
-    c->curr_addr = c->resolution;
-    return CONNECTING;
+    fail:
+    free(new_client);
+    logger(DEBUG, "malloc() failed. New connection refused");
+    return NULL;
 }
-
-// static void socksv5_done(struct selector_key *key)
-// {
-// 	closeClient(ATTACHMENT(key),  CLIENT | ORIGIN, key);
-// }
 
 static void
 socksv5_read(struct selector_key *key) {
@@ -278,9 +258,16 @@ socksv5_block(struct selector_key *key) {
     stm_handler_block(stm, key);
 }
 
+static void start_name_resolution(unsigned state, struct selector_key *key)
+{
+    client *client = ATTACHMENT(key);
+
+    pthread_t tid;
+    pthread_create(&tid, NULL, thread_name_resolution, client);
+}
+
 static void *thread_name_resolution(void *data) {
-    struct selector_key *key = (struct selector_key*) data;
-    client *c = ATTACHMENT(key);
+    client *c = (client*)data;
 
     pthread_detach(pthread_self());
     struct addrinfo hints = {
@@ -301,9 +288,15 @@ static void *thread_name_resolution(void *data) {
         logger(ERROR, gai_strerror(err));
     }
 
-    selector_notify_block(key->s, key->fd);
-    free(data);
+    selector_notify_block(selector, c->client_sock);
     return NULL;
+}
+
+unsigned handle_finished_resolution(struct selector_key *key) {
+    client *c = ATTACHMENT(key);
+    assert(c->resolution != NULL);
+    c->curr_addr = c->resolution;
+    return CONNECTING;
 }
 
 void create_connection(const unsigned state, struct selector_key *key) {

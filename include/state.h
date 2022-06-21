@@ -13,6 +13,10 @@ bool get_dissector_state(void);
 
 void add_bytes(size_t bytes);
 void add_connection(void);
+bool add_proxy_client(void);
+bool add_mgmt_client(void);
+void rm_proxy_client(void);
+void rm_mgmt_client(void);
 void rm_connection(void);
 void set_buffsize(size_t size);
 void set_dissector_state(bool state);

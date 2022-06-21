@@ -13,6 +13,8 @@
 #define BUFFSIZE 2048
 #define checkEOF(count) (count == 0 || (count < 0 && errno != EAGAIN))
 
+extern fd_selector selector;
+
 enum socket_ends
 {
 	CLIENT_WRITE = 1,
