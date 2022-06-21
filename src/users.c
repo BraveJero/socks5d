@@ -5,14 +5,14 @@
 static user users[MAX_USERS];
 static size_t user_count;
 
-static bool check_valid(const char *s) {
+static bool check_valid(const char *s, int len) {
     int i;
-    for(i = 0; s[i] && i < MAX_LEN; i++) {
+    for(i = 0; s[i] && i < len; i++) {
         if(s[i] == ':' || !isprint(s[i])) {
             return false;
         }
     }
-    return i < MAX_LEN;
+    return i < len;
 }
 
 bool add_user(const char *userpass) {
@@ -23,7 +23,7 @@ bool add_user(const char *userpass) {
     *password = 0; 
     password++;
 
-    if (user_count == MAX_USERS || !check_valid(username) || !check_valid(password)) {
+    if (user_count == MAX_USERS || !check_valid(username, MAX_USER_LEN) || !check_valid(password, MAX_PASS_LEN)) {
         return false;
     }
 
