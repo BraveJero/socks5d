@@ -295,10 +295,10 @@ static void *thread_name_resolution(void *data) {
     
     char port_buf[7];
     snprintf(port_buf, sizeof(port_buf), "%d", ntohs(c->dest_port));
-
+    logger(DEBUG, "Calling getaddrinfo for %s:%s", c->dest_fqdn, port_buf);
     int err = getaddrinfo(c->dest_fqdn, port_buf, &hints, &(c->resolution));
     if(err != 0) {
-        logger(ERROR, gai_strerror(err));
+        logger(DEBUG, "Error in getaddrinfo: %s", gai_strerror(err));
     }
 
     selector_notify_block(selector, c->client_sock);

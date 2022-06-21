@@ -34,6 +34,9 @@ struct client {
 	// Direcciones de cliente y origen
 	struct sockaddr client_addr;
 
+    // Tipo de dirección del request
+    unsigned atyp;
+
     // buffers to store and send
     uint8_t *client_buf_raw, *origin_buf_raw;
 	buffer client_buf, origin_buf;
