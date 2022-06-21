@@ -63,7 +63,7 @@ dkms.conf
 
 ## Executables
 proxy
-client
+client/build/*
 
 ### JetBrains ###
 .idea/*
