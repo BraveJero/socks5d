@@ -19,15 +19,15 @@ static char request_buf[BUFFSIZE];
 // } command_type;
 
 static const char *commands_format[] = {
-        "CAPA\r\n",
-        "TOKEN %s\r\n",
-        "STATS\r\n",
-        "USERS\r\n",
-        "BUFFSIZE\r\n",
-        "DISSECTOR_STATUS\r\n",
-        "SET-BUFFSIZE %d\r\n",
-        "SET-DISSECTOR-STATUS %s\r\n",
-        "ADD-USER  %s\r\n",
+    "CAPA\r\n",
+    "TOKEN %s\r\n",
+    "STATS\r\n",
+    "USERS\r\n",
+    "BUFFSIZE\r\n",
+    "DISSECTOR_STATUS\r\n",
+    "SET-BUFFSIZE %s\r\n", // We let the server parse the number
+    "SET-DISSECTOR-STATUS %s\r\n",
+    "ADD-USER %s\r\n",
 };
 
 //static const bool commands_multilne[] = {
