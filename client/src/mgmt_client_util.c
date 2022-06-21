@@ -363,7 +363,12 @@ bool add_user(int sock, const char *username_password) {
         return false;
     }
 
-    // TODO: Show success message with username
+    puts("----------------------------");
+
+    printf("Successfully added user to the list of users.\n");
+    
+    puts("----------------------------");
+    putchar('\n');
 
     return true;
 }
