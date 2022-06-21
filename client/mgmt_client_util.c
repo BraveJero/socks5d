@@ -9,7 +9,7 @@
 
 #include "mgmt_client_util.h"
 
-#define BUFFSIZE 512
+#define BUFFSIZE MAX_RESPONSE_LEN
 static char response_buf[BUFFSIZE];
 static char request_buf[BUFFSIZE];
 
