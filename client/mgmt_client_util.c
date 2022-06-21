@@ -179,11 +179,11 @@ bool stats(int sock) {
     }
 
     printf("List of statistics:\n");
-    char * cap = strtok(response_buf, EOL);
-    cap = strtok(NULL, EOL);
-    while (cap != NULL && cap[0] != '.') {
-        unsigned long long int stat = strtoull(cap + 1, NULL, 10);
-        switch(cap[0]) {
+    char * tok = strtok(response_buf, EOL);
+    tok = strtok(NULL, EOL);
+    while (tok != NULL && tok[0] != '.') {
+        unsigned long long int stat = strtoull(tok + 1, NULL, 10);
+        switch(tok[0]) {
             case 'B':
                 printf("Bytes transferred: %llu\n", stat);
                 break;
@@ -194,7 +194,7 @@ bool stats(int sock) {
                 printf("Concurrent connections: %llu\n", stat);
                 break;
         }
-        cap = strtok(NULL, EOL);
+        tok = strtok(NULL, EOL);
     }
 
     return true;
