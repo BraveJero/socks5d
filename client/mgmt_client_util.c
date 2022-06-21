@@ -42,6 +42,35 @@ static const char *commands_format[] = {
 //        false,
 //};
 
+/*
+ * buff is expected to hold a null terminated string
+ */
+static bool
+finished(char * buff, bool multiline) {
+    if (buff[0] == '-') // We know errors are one line
+        multiline = false;
+    return strstr(buff, (multiline) ? EOM : EOL) != NULL;
+}
+
+/*
+ * Returns true if answer (whether +OK or -ERR is received) could be read.
+ * Returns false if an error occured.
+ */
+static bool
+get_response(int sock, char * buff, size_t len, bool multiline) {
+    char * write_ptr = buff;
+    do {
+        uint8_t bytes_read = read(sock, write_ptr, len - (write_ptr - buff) );
+        if (bytes_read <= 0) {
+            fprintf(stderr, "Error while reading answer.");
+            return false;
+        }
+        write_ptr += bytes_read;
+        *write_ptr = '\0';
+    } while(!finished(buff, multiline));
+    return true;
+}
+
 int tcpClientSocket(const char *host, const char *service) {
     struct addrinfo addrCriteria;                   // Criteria for address match
     memset(&addrCriteria, 0, sizeof(addrCriteria)); // Zero out structure
@@ -75,47 +104,22 @@ int tcpClientSocket(const char *host, const char *service) {
 }
 
 bool read_hello(int sock) {
-    ssize_t bytes_read;
-    if((bytes_read = read(sock, response_buf, BUFFSIZE)) <= 0) {
+    if(!get_response(sock, response_buf, BUFFSIZE, false)) {
         return false;
     }
-    response_buf[bytes_read] = '\0';
 
-    return response_buf[0] == '+';
+    if (response_buf[0] == '-') {
+        return false;
+    }
+
+    puts("Connection successful! Server is ready.");
+
+    return true;
 }
 
 static bool
 send_text(int sock, const char * text) {
     return send(sock, text, strlen(text), MSG_DONTWAIT) >= 0;
-}
-
-/*
- * buff is expected to hold a null terminated string
- */
-static bool
-finished(char * buff, bool multiline) {
-    if (buff[0] == '-') // We know errors are one line
-        multiline = false;
-    return strstr(buff, (multiline) ? EOM : EOL) != NULL;
-}
-
-/*
- * Returns true if answer (whether +OK or -ERR is received) could be read.
- * Returns false if an error occured.
- */
-static bool
-get_response(int sock, char * buff, size_t len, bool multiline) {
-    char * write_ptr = buff;
-    do {
-        uint8_t bytes_read = read(sock, write_ptr, len - (write_ptr - buff) );
-        if (bytes_read <= 0) {
-            fprintf(stderr, "Error while reading answer.");
-            return false;
-        }
-        write_ptr += bytes_read;
-        *write_ptr = '\0';
-    } while(!finished(buff, multiline));
-    return true;
 }
 
 static void
