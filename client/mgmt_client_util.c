@@ -289,15 +289,18 @@ bool set_dissector_status(int sock, const char *status) {
         return false;
     }
 
-    ssize_t bytes_read;
-    if((bytes_read = read(sock, response_buf, BUFFSIZE)) <= 0) {
+    if(!get_response(sock, response_buf, BUFFSIZE, false)) {
         return false;
     }
 
-    response_buf[bytes_read] = '\0';
-    return response_buf[0] == '+';
-}
+    if (response_buf[0] == '-') {
+        fprintf(stderr, "Error running SET-DISSECTOR-STATUS: %s\n", response_buf);
+        return false;
+    }
 
+    printf("Dissector is now %s\n", status);
+    return true;
+}
 
 bool add_user(int sock, const char *username_password) {
     snprintf(request_buf, BUFFSIZE, commands_format[CMD_ADD_USER], username_password);
@@ -305,11 +308,14 @@ bool add_user(int sock, const char *username_password) {
         return false;
     }
 
-    ssize_t bytes_read;
-    if((bytes_read = read(sock, response_buf, BUFFSIZE)) <= 0) {
+    if(!get_response(sock, response_buf, BUFFSIZE, false)) {
         return false;
     }
 
-    response_buf[bytes_read] = '\0';
-    return response_buf[0] == '+';
+    if (response_buf[0] == '-') {
+        fprintf(stderr, "Error running ADD-USER: %s\n", response_buf);
+        return false;
+    }
+
+    return true;
 }
