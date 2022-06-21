@@ -61,11 +61,15 @@ static const struct fd_handler mgmt_handler = {
 
 void mgmt_master_read_handler (struct selector_key *key) {
     if(!add_mgmt_client())
+    {
+        logger(ERROR, "No more space for clients! Waiting...");
         return;
+    }
 
     int new_socket = acceptTCPConnection(key->fd);
     if(new_socket < 0){
         logger(DEBUG, "accept() failed. New connection refused");
+        rm_mgmt_client();
         return;
     }
             
@@ -75,6 +79,7 @@ void mgmt_master_read_handler (struct selector_key *key) {
 
     if(new_client == NULL) {
         handle_mgmt_close(&client_key);
+        rm_mgmt_client();
         return;
     }
 
@@ -86,8 +91,11 @@ void mgmt_master_read_handler (struct selector_key *key) {
     memcpy(write_ptr, response_buf, len);
     buffer_write_adv(&(new_client->write_buf), len);
     if(selector_register(key->s, new_socket, &mgmt_handler, OP_WRITE | OP_READ, new_client) != SELECTOR_SUCCESS)
+    {
         handle_mgmt_close(&client_key);
-
+        rm_mgmt_client();
+        return;
+    }
 }
 
 mgmt_client *create_mgmt_client(int sock) {
@@ -191,7 +199,7 @@ bool processMgmtClient(mgmt_client *c)
                 response_len = snprintf(response_buf, MGMT_BUFFSIZE, stats_format, success_status, line_delimiter,
                 get_transferred_bytes(), line_delimiter,
                 get_all_connections(), line_delimiter,
-                get_current_connections(), line_delimiter,
+                get_current_clients(), line_delimiter,
                 multiline_delimiter, line_delimiter);
                 break;
             }

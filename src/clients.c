@@ -175,9 +175,16 @@ unsigned closeClient(client *client, enum socket_ends level, struct selector_key
 
 // If master has activity, it must be due to incoming connections
 void master_read_handler(struct selector_key *key) {
+    if(!add_proxy_client())
+    {
+        logger(ERROR, "No more space for clients! Waiting...");
+        return;
+    }
+
     int new_socket = acceptTCPConnection(key->fd);
     if(new_socket < 0){
         logger(DEBUG, "accept() failed. New connection refused");
+        rm_proxy_client();
         return;
     }
             
@@ -186,6 +193,8 @@ void master_read_handler(struct selector_key *key) {
 
     if(new_client == NULL) {
         close(new_socket);
+        rm_proxy_client();
+        return;
     }
 
     selector_register(key->s, new_client->client_sock, &socks5_handler, OP_READ, new_client);
@@ -389,10 +398,7 @@ unsigned origin_check_connection(struct selector_key *key) {
             server_reply(&c->client_buf, REPLY_SUCCEEDED, ATYP_IPV6, (uint8_t*)&sin6->sin6_addr, sin6->sin6_port);
         }
 
-        add_connection();
-
         uint16_t port = 0;
-
         if(c->curr_addr->ai_family == AF_INET) {
             struct sockaddr_in *sinp;
             sinp = (struct sockaddr_in *) c->curr_addr->ai_addr;
@@ -519,7 +525,7 @@ void enable_write(unsigned state, struct selector_key *key)
 
 static void client_destroy(unsigned state, struct selector_key *key) {
     client *c = ATTACHMENT(key);
-	rm_connection();
+	rm_proxy_client();
     if(c->resolution != NULL)
     {
         logger(DEBUG, "Cleaning client");

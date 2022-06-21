@@ -1,7 +1,6 @@
 #include "state.h"
 #include "clients.h"
 
-static size_t current_connections;
 static size_t all_connections;
 static size_t transferred_bytes;
 static size_t buffsize = 2048;
@@ -17,8 +16,8 @@ size_t get_all_connections(void) {
     return all_connections;
 }
 
-size_t get_current_connections(void) {
-    return current_connections;
+size_t get_current_clients(void) {
+    return proxy_client_count;
 }
 
 size_t get_buffsize(void) {
@@ -31,11 +30,6 @@ bool get_dissector_state(void) {
 
 void add_bytes(size_t bytes) {
     transferred_bytes += bytes;
-}
-
-void add_connection(void) {
-    current_connections++;
-    all_connections++;
 }
 
 bool add_proxy_client(void) {
@@ -62,10 +56,6 @@ void rm_proxy_client(void) {
 
 void rm_mgmt_client(void) {
     mgmt_client_count--;
-}
-
-void rm_connection(void) {
-    current_connections--;
 }
 
 void set_buffsize(size_t size) {
