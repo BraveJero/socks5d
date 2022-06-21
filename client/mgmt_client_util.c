@@ -317,5 +317,7 @@ bool add_user(int sock, const char *username_password) {
         return false;
     }
 
+    // TODO: Show success message with username
+
     return true;
 }
