@@ -148,6 +148,36 @@ bool users(int sock) {
     return response_buf[0] == '+';
 }
 
+bool buffsize(int sock) {
+    if(!send_text(sock, commands_format[CMD_BUFFSIZE])) {
+        return false;
+    }
+
+    ssize_t bytes_read;
+    if((bytes_read = read(sock, response_buf, BUFFSIZE)) <= 0) {
+        return false;
+    }
+
+    response_buf[bytes_read] = '\0';
+    printf("{{%s}}\n", response_buf);
+    return response_buf[0] == '+';
+}
+
+bool dissector_status(int sock) {
+    if(!send_text(sock, commands_format[CMD_DISSECTOR_STATUS])) {
+        return false;
+    }
+
+    ssize_t bytes_read;
+    if((bytes_read = read(sock, response_buf, BUFFSIZE)) <= 0) {
+        return false;
+    }
+
+    response_buf[bytes_read] = '\0';
+    printf("{{%s}}\n", response_buf);
+    return response_buf[0] == '+';
+}
+
 bool set_buffsize(int sock, size_t size) {
     snprintf(request_buf, BUFFSIZE, commands_format[CMD_SET_BUFFSIZE], size);
     if(!send_text(sock, request_buf)) {
@@ -165,6 +195,22 @@ bool set_buffsize(int sock, size_t size) {
 
 bool set_dissector_status(int sock, const char *status) {
     snprintf(request_buf, BUFFSIZE, commands_format[CMD_SET_DISSECTOR_STATUS], status);
+    if(!send_text(sock, request_buf)) {
+        return false;
+    }
+
+    ssize_t bytes_read;
+    if((bytes_read = read(sock, response_buf, BUFFSIZE)) <= 0) {
+        return false;
+    }
+
+    response_buf[bytes_read] = '\0';
+    return response_buf[0] == '+';
+}
+
+
+bool add_user(int sock, const char *username_password) {
+    snprintf(request_buf, BUFFSIZE, commands_format[CMD_ADD_USER], username_password);
     if(!send_text(sock, request_buf)) {
         return false;
     }

@@ -52,7 +52,19 @@ int main(int argc, char *argv[]) {
                 users(conf.sock);
                 break;
             case '3':
-                // buffsize(conf.sock);
+                buffsize(conf.sock);
+                break;
+            case '4':
+                dissector_status(conf.sock);
+                break;
+            case '5':
+                set_buffsize(conf.sock, 1024);
+                break;
+            case '6':
+                set_dissector_status(conf.sock, optarg);
+                break;
+            case '7':
+                add_user(conf.sock, optarg);
                 break;
         }
     }

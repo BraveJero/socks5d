@@ -24,12 +24,15 @@ typedef enum {
 
 int tcpClientSocket(const char *host, const char *service);
 bool read_hello(int sock);
+
 bool authenticate(int sock, const char *token);
 bool capa(int sock);
 bool stats(int sock);
 bool users(int sock);
 bool buffsize(int sock);
+bool dissector_status(int sock);
 bool set_buffsize(int sock, size_t size);
 bool set_dissector_status(int sock, const char *status);
+bool add_user(int sock, const char *username_password);
 
 #endif
