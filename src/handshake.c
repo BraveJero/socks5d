@@ -6,6 +6,7 @@
 #include "socketsIO.h"
 #include "stm.h"
 #include "users.h"
+#include "util.h"
 #include <netdb.h>
 #include <netinet/in.h>
 #include <stddef.h>
@@ -135,8 +136,12 @@ unsigned read_plain_auth(struct selector_key *key)
 	}
 }
 
-void server_reply(buffer *b, enum server_reply_type reply, enum atyp atyp, const uint8_t *addr, uint16_t port)
+void server_reply(client *c, enum server_reply_type reply, enum atyp atyp, const uint8_t *addr, uint16_t port)
 {
+    buffer *b = &(c->client_buf);
+
+    log_access_info(c, reply);
+
 	buffer_write(b, server_version);
 	buffer_write(b, reply);
 	buffer_write(b, 0);
@@ -180,7 +185,7 @@ unsigned read_proxy_request(struct selector_key *key)
 	ssize_t bytes_read = read_from_sock(c->client_sock, &(c->origin_buf));
 	if (checkEOF(bytes_read))
 	{
-		server_reply(&c->client_buf, REPLY_COMMAND_NOT_SUPPORTED, ATYP_IPV4, EMPTY_IP, 0);
+		server_reply(c, REPLY_COMMAND_NOT_SUPPORTED, ATYP_IPV4, EMPTY_IP, 0);
 		return closeClient(c,  CLIENT_READ, key);
 	}
 
@@ -205,7 +210,7 @@ unsigned read_proxy_request(struct selector_key *key)
 			addrLen = 1 + readBuffer[4];
 			break;
 		default:
-			server_reply(&c->client_buf, REPLY_ADDRESS_NOT_SUPPORTED, ATYP_IPV4, EMPTY_IP, 0);
+			server_reply(c, REPLY_ADDRESS_NOT_SUPPORTED, ATYP_IPV4, EMPTY_IP, 0);
 			return closeClient(c,  CLIENT_READ, key);
 	}
 	if(availableBytes < 6u + addrLen)
@@ -216,7 +221,7 @@ unsigned read_proxy_request(struct selector_key *key)
 	enum cmd cmd = readBuffer[1];
 	if(cmd != CONNECT)
 	{
-		server_reply(&c->client_buf, REPLY_COMMAND_NOT_SUPPORTED, ATYP_IPV4, EMPTY_IP, 0);
+		server_reply(c, REPLY_COMMAND_NOT_SUPPORTED, ATYP_IPV4, EMPTY_IP, 0);
 		return closeClient(c,  CLIENT_READ, key);
 	}
 
@@ -288,6 +293,6 @@ unsigned read_proxy_request(struct selector_key *key)
 	}
 
 	error:
-	server_reply(&c->client_buf, REPLY_SERVER_FAILURE, ATYP_IPV4, EMPTY_IP, 0);
+	server_reply(c, REPLY_SERVER_FAILURE, ATYP_IPV4, EMPTY_IP, 0);
 	return closeClient(c,  CLIENT_READ, key);
 }

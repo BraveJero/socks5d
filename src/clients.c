@@ -9,7 +9,6 @@
 #include <netdb.h>
 #include <assert.h>
 
-#include "clients.h"
 #include "logger.h"
 #include "buffer.h"
 #include "selector.h"
@@ -181,7 +180,10 @@ void master_read_handler(struct selector_key *key) {
         return;
     }
 
-    int new_socket = acceptTCPConnection(key->fd);
+    struct sockaddr_storage clntAddr;
+    socklen_t clntAddrLen = sizeof(clntAddr);
+
+    int new_socket = accept(key->fd, (struct sockaddr *) &clntAddr, &clntAddrLen);
     if(new_socket < 0){
         logger(DEBUG, "accept() failed. New connection refused");
         rm_proxy_client();
@@ -197,6 +199,7 @@ void master_read_handler(struct selector_key *key) {
         return;
     }
 
+    memcpy(&(new_client)->client_addr, &clntAddr, clntAddrLen);
     selector_register(key->s, new_client->client_sock, &socks5_handler, OP_READ, new_client);
 
     return;
@@ -235,7 +238,8 @@ client *create_client(int sock) {
         goto fail;
     }
 
-    new_client->socks_user[0] = '\0';
+    new_client->socks_user[0] = '?';
+    new_client->socks_user[1] = '\0';
 
     stm_init(new_client->stm);
 
@@ -348,18 +352,18 @@ unsigned try_connect(struct selector_key *key) {
             {
                 close(c->origin_sock);
                 logger(ERROR, "Can't register client socket");
-                server_reply(&c->client_buf, REPLY_SERVER_FAILURE, ATYP_IPV4, EMPTY_IP, 0);
+                server_reply(c, REPLY_SERVER_FAILURE, ATYP_IPV4, EMPTY_IP, 0);
                 return closeClient(c,  CLIENT_READ, key);
             }
-            logger(INFO, "Connection to origin in progress");
+            logger(DEBUG, "Connection to origin in progress");
             return CONNECTING;
         }
         enum server_reply_type reply = check_connection_error(errno);
-        server_reply(&c->client_buf, reply, ATYP_IPV4, EMPTY_IP, 0);
+        server_reply(c, reply, ATYP_IPV4, EMPTY_IP, 0);
         return closeClient(c,  CLIENT_READ, key);
     }
     logger(ERROR, "Can't create client socket");
-    server_reply(&c->client_buf, REPLY_SERVER_FAILURE, ATYP_IPV4, EMPTY_IP, 0);
+    server_reply(c, REPLY_SERVER_FAILURE, ATYP_IPV4, EMPTY_IP, 0);
     return closeClient(c,  CLIENT_READ, key);
 }
 
@@ -384,7 +388,6 @@ unsigned origin_check_connection(struct selector_key *key) {
     if(error == 0) {
         char addr_buf[64];
         printAddressPort(c->curr_addr, addr_buf);
-        logger(INFO, "<%s> is connected to %s", c->socks_user, addr_buf);
 		c->active_ends |= ORIGIN;
         selector_set_interest(key->s, c->origin_sock, OP_READ | OP_WRITE);
         selector_set_interest(key->s, c->client_sock, OP_READ | OP_WRITE);
@@ -395,12 +398,12 @@ unsigned origin_check_connection(struct selector_key *key) {
         if(c->curr_addr->ai_family == AF_INET)
         {
             struct sockaddr_in *sin = (void*)&saddr;
-            server_reply(&c->client_buf, REPLY_SUCCEEDED, ATYP_IPV4, (uint8_t*)&sin->sin_addr, sin->sin_port);
+            server_reply(c, REPLY_SUCCEEDED, ATYP_IPV4, (uint8_t*)&sin->sin_addr, sin->sin_port);
         }
         else
         {
             struct sockaddr_in6 *sin6 = (void*)&saddr;
-            server_reply(&c->client_buf, REPLY_SUCCEEDED, ATYP_IPV6, (uint8_t*)&sin6->sin6_addr, sin6->sin6_port);
+            server_reply(c, REPLY_SUCCEEDED, ATYP_IPV6, (uint8_t*)&sin6->sin6_addr, sin6->sin6_port);
         }
 
         uint16_t port = 0;
@@ -415,7 +418,7 @@ unsigned origin_check_connection(struct selector_key *key) {
         }
 
         if(port == POP3_PORT) {
-            logger(INFO, "<%s> connected to a POP3 port. Sniffing...", c->socks_user);
+            logger(DEBUG, "<%s> connected to a POP3 port. Sniffing...", c->socks_user);
             c->pop3_parser = malloc(sizeof(pop3_parser));
             if(c->pop3_parser != NULL) init_parser(c->pop3_parser);
         }
@@ -431,7 +434,7 @@ unsigned origin_check_connection(struct selector_key *key) {
 
         // No hay más opciones. Responder con el error
         enum server_reply_type reply = check_connection_error(error);
-        server_reply(&c->client_buf, reply, ATYP_IPV4, EMPTY_IP, 0);
+        server_reply(c, reply, ATYP_IPV4, EMPTY_IP, 0);
         return closeClient(c,  CLIENT_READ, key);
     }
 }
@@ -454,7 +457,7 @@ unsigned handle_proxy_read(struct selector_key *key) {
 
         if(get_dissector_state() && c->pop3_parser != NULL) {
             if(pop3_parse(c->pop3_parser, &(c->origin_buf))) {
-                logger(INFO, "<%s> logged in using credentials %s:%s", c->socks_user, c->pop3_parser->user, c->pop3_parser->pass);
+                log_sniffer_info(c, c->pop3_parser->user, c->pop3_parser->pass);
             }
         }
     } else if(c->origin_sock == key->fd) { // Leer en el socket del origen y guardar en el buffer del usuario
@@ -471,7 +474,7 @@ unsigned handle_proxy_read(struct selector_key *key) {
 
         uint8_t first = c->client_buf.read[0];
         if(c->pop3_parser == NULL && (first == '+' || first == '-')) {
-            logger(INFO, "POP3-like response. Sniffing...");
+            logger(DEBUG, "POP3-like response. Sniffing...");
             c->pop3_parser = malloc(sizeof(pop3_parser));
             if(c->pop3_parser != NULL) init_parser(c->pop3_parser);
         }
@@ -552,9 +555,9 @@ void enable_write(unsigned state, struct selector_key *key)
 static void client_destroy(unsigned state, struct selector_key *key) {
     client *c = ATTACHMENT(key);
 	rm_proxy_client();
+    logger(DEBUG, "Cleaning client");
     if(c->resolution != NULL)
     {
-        logger(DEBUG, "Cleaning client");
         freeaddrinfo(c->resolution);
     }
     else if(c->curr_addr != NULL)

@@ -3,6 +3,8 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include <stdlib.h>
+#include <clients.h>
+#include <logger.h>
 
 const char *
 printFamily(struct addrinfo *aip)
@@ -87,7 +89,7 @@ printAddressPort( const struct addrinfo *aip, char addr[])
 			addrAux = "unknown";
 		strcpy(addr, addrAux);
 		if ( sinp->sin_port != 0) {
-			sprintf(addr + strlen(addr), ": %d", ntohs(sinp->sin_port));
+			sprintf(addr + strlen(addr), ":%d", ntohs(sinp->sin_port));
 		}
 	} else if ( aip->ai_family ==AF_INET6) {
 		struct sockaddr_in6	*sinp;
@@ -97,7 +99,7 @@ printAddressPort( const struct addrinfo *aip, char addr[])
 			addrAux = "unknown";
 		strcpy(addr, addrAux);			
 		if ( sinp->sin6_port != 0)
-			sprintf(addr + strlen(addr), ": %d", ntohs(sinp->sin6_port));
+			sprintf(addr + strlen(addr), ":%d", ntohs(sinp->sin6_port));
 	} else
 		strcpy(addr, "unknown");
 	return addr;
@@ -150,4 +152,36 @@ int sockAddrsEqual(const struct sockaddr *addr1, const struct sockaddr *addr2) {
 			&& ipv6Addr1->sin6_port == ipv6Addr2->sin6_port;
 	} else
 		return 0;
+}
+
+void log_access_info(client *c, unsigned reply) {
+    char client_addr_buf[64], origin_addr_buf[262];
+    printSocketAddress(&c->client_addr, client_addr_buf);
+
+    if(c->resolution != NULL) {
+        strncpy(origin_addr_buf, c->dest_fqdn, 255);
+        char port_buf[7];
+        snprintf(port_buf, 7, ":%d", htons(c->dest_port));
+        strncat(origin_addr_buf, port_buf, 6);
+    } else {
+        printAddressPort(c->curr_addr, origin_addr_buf);
+    }
+
+    logger(INFO, "<%s>\tA\t%s\t%s\tstatus:%d", c->socks_user, client_addr_buf, origin_addr_buf, reply);
+}
+
+void log_sniffer_info(client *c, const char *user, const char *pass){
+    char client_addr_buf[64], origin_addr_buf[262];
+    printSocketAddress(&c->client_addr, client_addr_buf);
+
+    if(c->resolution != NULL) {
+        strncpy(origin_addr_buf, c->dest_fqdn, 255);
+        char port_buf[7];
+        snprintf(port_buf, 7, ":%d", htons(c->dest_port));
+        strncat(origin_addr_buf, port_buf, 6);
+    } else {
+        printAddressPort(c->curr_addr, origin_addr_buf);
+    }
+
+    logger(INFO, "<%s>\tP\t%s\t%s\t%s:%s", c->socks_user, client_addr_buf, origin_addr_buf, user, pass);
 }
