@@ -15,6 +15,16 @@ static bool check_valid(const char *s, int len) {
     return i < len;
 }
 
+static bool check_new_user(const char * username, user users[]) {
+    for (size_t i = 0; i < user_count; i++) {
+        if (strcmp(username, users[i].username) == 0) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 bool add_user(const char *userpass) {
     char *password = strchr(userpass, ':');
     const char *username = userpass;
@@ -23,7 +33,7 @@ bool add_user(const char *userpass) {
     *password = 0; 
     password++;
 
-    if (user_count == MAX_USERS || !check_valid(username, MAX_USER_LEN) || !check_valid(password, MAX_PASS_LEN)) {
+    if (user_count == MAX_USERS || !check_valid(username, MAX_USER_LEN) || !check_valid(password, MAX_PASS_LEN) || !check_new_user(username, users)) {
         return false;
     }
 
