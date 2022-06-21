@@ -303,7 +303,6 @@ static void *thread_name_resolution(void *data) {
 
 unsigned handle_finished_resolution(struct selector_key *key) {
     client *c = ATTACHMENT(key);
-    assert(c->resolution != NULL);
     c->curr_addr = c->resolution;
     return CONNECTING;
 }
@@ -370,6 +369,12 @@ unsigned origin_check_connection(struct selector_key *key) {
     if(key->fd == c->client_sock)
     {
         selector_remove_interest(key->s, c->client_sock, OP_WRITE);
+        // Invalid FQDN
+        if(c->curr_addr == NULL)
+        {
+            server_reply(&c->client_buf, REPLY_HOST_UNREACHABLE, ATYP_IPV4, EMPTY_IP, 0);
+            return closeClient(c,  CLIENT_READ, key);
+        }
         return try_connect(key);
     }
 
