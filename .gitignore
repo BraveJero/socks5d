@@ -62,7 +62,7 @@ dkms.conf
 .vscode/*
 
 ## Executables
-proxy
+build/*
 client/build/*
 
 ### JetBrains ###
