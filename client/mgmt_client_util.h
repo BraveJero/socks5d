@@ -9,6 +9,10 @@
 #include <stdbool.h>
 #include <netdb.h>
 
+#define MAX_RESPONSE_LEN 512
+#define ONELINE_END   "\r\n"
+#define MULTILINE_END "\r\n.\r\n"
+
 typedef enum {
     CMD_CAPA = 0,
     CMD_TOKEN,
