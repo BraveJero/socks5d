@@ -6,7 +6,7 @@
 
 int main(int argc, char *argv[]) {
     int exit_status = 0;
-    char *err_msg, *success_msg = "";
+    char *err_msg, *success_msg = "OK!\n";
     mnmt_conf conf = {
         .addr = "127.0.0.1", // default address
         .port = "8080", // default port
