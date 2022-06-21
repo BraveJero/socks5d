@@ -38,6 +38,7 @@ static void sigterm(int sig) {
 int main(int argc, char *argv[])
 {
 	close(STDIN_FILENO);
+    setLogLevel(INFO);
 
 	if(signal(SIGTERM, sigterm) == SIG_ERR) {
 		logger(ERROR, "Cannot handle SIGTERM (%s). Aborting", strerror(errno));

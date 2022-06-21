@@ -30,7 +30,6 @@ int acceptTCPConnection(int servSock) {
 
 	// clntSock is connected to a client!
 	printSocketAddress((struct sockaddr *) &clntAddr, addrBuffer);
-	logger(INFO, "Handling client %s", addrBuffer);
 
 	return clntSock;
 }

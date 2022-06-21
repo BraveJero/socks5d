@@ -17,16 +17,17 @@ char * levelDescription(LOG_LEVEL level) {
 }
 
 void logger(LOG_LEVEL level, const char *fmt, ...){
+    FILE *out = level >= ERROR? stderr : stdout;
     if(level >= current_level){
         time_t t = time(NULL);
         struct tm *tm = localtime(&t);
-        fprintf (stderr, "%s: (%d/%02d/%02d %02d:%02d:%02d) ", levelDescription(level),
+        fprintf (out, "%d-%02d/-%02dT%02d:%02d:%02dZ\t",
                  tm->tm_year + 1900, tm->tm_mon, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec);
         va_list arg; 
         va_start(arg, fmt); 
-        vfprintf(stderr, fmt, arg);
+        vfprintf(out, fmt, arg);
         va_end(arg);
-        fprintf(stderr,"\n"); 
+        fprintf(out,"\n");
     }
 	if ( level==FATAL) exit(1);
 }
