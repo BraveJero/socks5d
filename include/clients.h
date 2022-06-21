@@ -26,9 +26,13 @@ enum socket_ends
 };
 
 typedef struct client client;
+
 struct client {
     // Sockets to handle communication between client and socket
     int client_sock, origin_sock;
+
+	// Direcciones de cliente y origen
+	struct sockaddr client_addr;
 
     // buffers to store and send
     uint8_t *client_buf_raw, *origin_buf_raw;
