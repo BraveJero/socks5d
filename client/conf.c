@@ -38,10 +38,17 @@ bool parse_conf(const int argc, char **argv, struct mnmt_conf* mnmt_conf) {
                 version();
                 exit(0);
             case 'L':
-                // TODO: Check if optargs begin with '-'. e.g.: -P -L breaks
+                if (*optarg == '-') {
+                    fprintf (stderr, "Option -L requires an argument.\n");
+                    return false;
+                }
                 mnmt_conf->addr = optarg;
                 break;
             case 'P':
+                if (*optarg == '-') {
+                    fprintf (stderr, "Option -P requires an argument.\n");
+                    return false;
+                }
                 mnmt_conf->port = optarg;
                 break;
             case '0': case '1': case '2': case '3':
