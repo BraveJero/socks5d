@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
                 dissector_status(conf.sock);
                 break;
             case '5':
-                set_buffsize(conf.sock, 1024);
+                set_buffsize(conf.sock, optarg);
                 break;
             case '6':
                 set_dissector_status(conf.sock, optarg);

@@ -25,7 +25,7 @@ static const char *commands_format[] = {
     "STATS\r\n",
     "USERS\r\n",
     "BUFFSIZE\r\n",
-    "DISSECTOR_STATUS\r\n",
+    "DISSECTOR-STATUS\r\n",
     "SET-BUFFSIZE %s\r\n", // We let the server parse the number
     "SET-DISSECTOR-STATUS %s\r\n",
     "ADD-USER %s\r\n",
@@ -246,29 +246,41 @@ bool dissector_status(int sock) {
         return false;
     }
 
-    ssize_t bytes_read;
-    if((bytes_read = read(sock, response_buf, BUFFSIZE)) <= 0) {
+    if(!get_response(sock, response_buf, BUFFSIZE, true)) {
         return false;
     }
 
-    response_buf[bytes_read] = '\0';
-    printf("{{%s}}\n", response_buf);
-    return response_buf[0] == '+';
+    if (response_buf[0] == '-') {
+        fprintf(stderr, "Error running DISSECTOR-STATUS: %s\n", response_buf);
+        return false;
+    }
+
+    char * tok = strtok(response_buf, EOL);
+    tok = strtok(NULL, EOL);
+    printf("We are ");
+    if (strcmp(tok, "off") == 0)
+        printf("not ");
+    printf("sniffing\n");
+    return true;
 }
 
-bool set_buffsize(int sock, size_t size) {
+bool set_buffsize(int sock, const char * size) {
     snprintf(request_buf, BUFFSIZE, commands_format[CMD_SET_BUFFSIZE], size);
     if(!send_text(sock, request_buf)) {
         return false;
     }
 
-    ssize_t bytes_read;
-    if((bytes_read = read(sock, response_buf, BUFFSIZE)) <= 0) {
+    if(!get_response(sock, response_buf, BUFFSIZE, false)) {
         return false;
     }
 
-    response_buf[bytes_read] = '\0';
-    return response_buf[0] == '+';
+    if (response_buf[0] == '-') {
+        fprintf(stderr, "Error running SET-BUFFSIZE: %s\n", response_buf);
+        return false;
+    }
+
+    printf("Buffer size updated to %s\n", size);
+    return true;
 }
 
 bool set_dissector_status(int sock, const char *status) {
