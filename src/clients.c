@@ -376,7 +376,7 @@ unsigned origin_check_connection(struct selector_key *key) {
         // Invalid FQDN
         if(c->curr_addr == NULL)
         {
-            server_reply(&c->client_buf, REPLY_HOST_UNREACHABLE, ATYP_IPV4, EMPTY_IP, 0);
+            server_reply(c, REPLY_HOST_UNREACHABLE, ATYP_IPV4, EMPTY_IP, 0);
             return closeClient(c,  CLIENT_READ, key);
         }
         return try_connect(key);
