@@ -3,8 +3,8 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <netdb.h>
 
 #include "mgmt_client_util.h"
@@ -96,7 +96,7 @@ static bool
 finished(char * buff, bool multiline) {
     if (buff[0] == '-') // We know errors are one line
         multiline = false;
-    return strstr(buff, (multiline) ? MULTILINE_END : ONELINE_END) != NULL;
+    return strstr(buff, (multiline) ? EOM : EOL) != NULL;
 }
 
 /*
@@ -114,7 +114,6 @@ get_response(int sock, char * buff, size_t len, bool multiline) {
         }
         write_ptr += bytes_read;
         *write_ptr = '\0';
-        printf("A");
     } while(!finished(buff, multiline));
     return true;
 }
@@ -124,13 +123,25 @@ bool capa(int sock) {
         return false;
     }
 
-    ssize_t bytes_read;
-    if((bytes_read = read(sock, response_buf, BUFFSIZE)) <= 0) {
+    if(!get_response(sock, response_buf, BUFFSIZE, true)) {
+        return false;
+    }
+    
+    if (response_buf[0] == '-') {
+        fprintf(stderr, "Error running CAPA: %s\n", response_buf);
         return false;
     }
 
-    printf("{{%s}}\n", response_buf);
-    return response_buf[0] == '+';
+    printf("List of capabilities:\n");
+    char * cap = strtok(response_buf, EOL);
+    cap = strtok(NULL, EOL);
+    int i = 0;
+    while (cap != NULL && cap[0] != '.') {
+        printf("CAPA #%d: %s\n", i++, cap);
+        cap = strtok(NULL, EOL);
+    }
+
+    return true;
 }
 
 bool authenticate(int sock, const char *token) {

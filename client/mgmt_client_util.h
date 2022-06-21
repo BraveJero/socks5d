@@ -10,8 +10,8 @@
 #include <netdb.h>
 
 #define MAX_RESPONSE_LEN 512
-#define ONELINE_END   "\r\n"
-#define MULTILINE_END "\r\n.\r\n"
+#define EOL "\r\n"
+#define EOM EOL "." EOL
 
 typedef enum {
     CMD_CAPA = 0,
